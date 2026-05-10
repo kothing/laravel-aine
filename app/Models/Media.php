@@ -23,14 +23,16 @@ class Media extends Model
 
     public function getFullUrlAttribute($value) {
         if($this->disk === 'local'){
-            return env('APP_URL').'/uploads/'.$this->project->uuid.'/'.$this->name;
+            // return env('APP_URL').'/uploads/'.$this->project->uuid.'/'.$this->name;
+            return env('APP_URL').'/storage/'.$this->project->uuid.'/'.$this->name;
         } elseif($this->disk === 's3') {
             return Storage::disk('s3')->url('public/'.$this->project->uuid.'/'.$this->name);
         }
     }
     public function getFullUrlThumbAttribute($value) {
         if($this->disk === 'local'){
-            return env('APP_URL').'/uploads/thumb/'.$this->project->uuid.'/'.$this->name;
+            // return env('APP_URL').'/uploads/thumb/'.$this->project->uuid.'/'.$this->name;
+            return env('APP_URL').'/storage/'.$this->project->uuid.'/thumbnails/'.$this->name;
         } elseif($this->disk === 's3') {
             return Storage::disk('s3')->url('public/'.$this->project->uuid.'/thumbnails/'.$this->name);
         }
