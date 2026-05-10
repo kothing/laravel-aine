@@ -19,9 +19,9 @@
                             />
                             <p
                                 class="text-sm text-red-600 mt-1"
-                                v-if="settings.errors.name"
+                                v-if="settings.errors && settings.errors.name"
                             >
-                                {{ settings.errors.name[0] }}
+                                {{ settings.errors.name }}
                             </p>
                         </div>
                     </div>
@@ -37,9 +37,9 @@
                             />
                             <p
                                 class="text-sm text-red-600 mt-1"
-                                v-if="settings.errors.description"
+                                v-if="settings.errors && settings.errors.description"
                             >
-                                {{ settings.errors.description[0] }}
+                                {{ settings.errors.description }}
                             </p>
                         </div>
                     </div>

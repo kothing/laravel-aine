@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Setting extends Authenticatable
+class Setting extends Model
 {
-    use HasApiTokens, HasFactory;
+    use HasFactory;
 
     protected $table = "settings";
 

@@ -11,6 +11,7 @@ use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\CollectionsController;
 use App\Http\Controllers\MediaLibraryController;
 use App\Http\Controllers\CollectionFieldsController;
+use App\Http\Controllers\SettingsController;
 
 Route::get('/', function () {
     return view('app');

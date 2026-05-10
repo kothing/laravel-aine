@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use App\Models\Setting;
+use App\Http\Resources\SettingResource;
 
 class SettingsController extends Controller
 {
@@ -12,12 +12,19 @@ class SettingsController extends Controller
      * Get settings
      *
      * @param \Illuminate\Http\Request $request
-     * @return \App\Model\Setting
+     * @return \App\Http\Resources\SettingResource
      */
     public function index(Request $request){
-        $settings = Setting::findOrFail();
+        $setting = Setting::first();
+        
+        if (!$setting) {
+            $setting = Setting::create([
+                'name' => config('app.name', 'My Website'),
+                'description' => ''
+            ]);
+        }
 
-        return response($settings, 200);
+        return new SettingResource($setting);
     }
 
     /**
@@ -32,10 +39,19 @@ class SettingsController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        $settings = Setting::findOrFail();
-        $settings->name = $request->name;
-        $settings->description = $request->description;
-        $settings->save();
+        $setting = Setting::first();
+        
+        if (!$setting) {
+            $setting = Setting::create([
+                'name' => $request->name,
+                'description' => $request->description ?? ''
+            ]);
+        } else {
+            $setting->name = $request->name;
+            $setting->description = $request->description ?? '';
+            $setting->save();
+        }
+        
         return response()->json(['success' => true]);
     }
 }
