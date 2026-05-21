@@ -1,6 +1,6 @@
 <template>
     <div class="admin__projects-list h-full flex flex-col m-3 p-3">
-        <div clsss="admin__projects-search">
+        <div classs="admin__projects-search">
             <div class="search-input relative flex w-full flex-wrap items-stretch mb-4">
                 <span class="h-full leading-snug font-normal absolute text-center text-gray-400 absolute bg-transparent rounded-md text-base items-center justify-center w-8 pl-3 py-3">
                     <i class="fas fa-search"></i>
