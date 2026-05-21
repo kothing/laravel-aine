@@ -1,7 +1,7 @@
 <template>
     <div class="admin__projects-list h-full flex flex-col m-3 p-3">
         <div clsss="admin__projects-search">
-            <div class="relative flex w-full flex-wrap items-stretch mb-4">
+            <div class="search-input relative flex w-full flex-wrap items-stretch mb-4">
                 <span class="h-full leading-snug font-normal absolute text-center text-gray-400 absolute bg-transparent rounded-md text-base items-center justify-center w-8 pl-3 py-3">
                     <i class="fas fa-search"></i>
                 </span>
@@ -18,7 +18,7 @@
             <div
                 v-if="checkRole(['super_admin'])"
                 @click="openNewProjectModal = true"
-                class="search-input flex flex-col justify-center bg-green-500 hover:bg-green-600 text-white m-2 p-5 rounded-md cursor-pointer items-center shadow-sm"
+                class="flex flex-col justify-center bg-green-500 hover:bg-green-600 text-white m-2 p-5 rounded-md cursor-pointer items-center shadow-sm"
             >
                 <i class="fas fa-plus-circle text-sm md:text-2xl"></i>
                 <p>Create New Project</p>

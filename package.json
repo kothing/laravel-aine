@@ -42,6 +42,7 @@
         "vue-toastification": "^1.7.11",
         "vue-upload-component": "^2.8.22",
         "vue2-editor": "^2.10.2",
-        "vuedraggable": "^2.24.3"
+        "vuedraggable": "^2.24.3",
+        "webpack": "~5.94.0"
     }
 }
