@@ -161,7 +161,6 @@
                                             :options="{
                                                 modules: {
                                                     toolbar: '#toolbar_' + field.name,
-                                                    imageResize: {},
                                                 },
                                                 placeholder: field.placeholder,
                                             }"
@@ -784,7 +783,6 @@ import "codemirror/theme/solarized.css";
 import "codemirror/addon/display/autorefresh.js";
 
 import { quillEditor } from "vue-quill-editor";
-import imageResize from "quill-image-resize-module";
 import "quill/dist/quill.core.css";
 import "quill/dist/quill.snow.css";
 import "quill/dist/quill.bubble.css";

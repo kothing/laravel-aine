@@ -77,6 +77,14 @@
     background-color: transparent;
 }
 
+.admin__projects-search {
+    display: flex;
+}
+
+.admin__projects-search .search-input {
+    width: calc(100% - 50px);
+}
+
 .admin__content .content-richtext-editor .ql-container {
     height: calc(100% - 6rem);
 }

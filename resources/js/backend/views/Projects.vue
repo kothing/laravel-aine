@@ -18,7 +18,7 @@
             <div
                 v-if="checkRole(['super_admin'])"
                 @click="openNewProjectModal = true"
-                class="flex flex-col justify-center bg-green-500 hover:bg-green-600 text-white m-2 p-5 rounded-md cursor-pointer items-center shadow-sm"
+                class="search-input flex flex-col justify-center bg-green-500 hover:bg-green-600 text-white m-2 p-5 rounded-md cursor-pointer items-center shadow-sm"
             >
                 <i class="fas fa-plus-circle text-sm md:text-2xl"></i>
                 <p>Create New Project</p>
