@@ -1,7 +1,7 @@
 <template>
     <div class="admin__projects-list h-full flex flex-col m-3 p-3">
-        <div classs="admin__projects-search">
-            <div class="search-input relative flex w-full flex-wrap items-stretch mb-4">
+        <div class="admin__projects-search flex justify-between pb-4">
+            <div class="search-input relative flex flex-wrap items-stretch">
                 <span class="h-full leading-snug font-normal absolute text-center text-gray-400 absolute bg-transparent rounded-md text-base items-center justify-center w-8 pl-3 py-3">
                     <i class="fas fa-search"></i>
                 </span>
@@ -13,21 +13,19 @@
                     class="px-3 py-3 placeholder-gray-400 text-gray-700 bg-white rounded-md text-sm w-full pl-10 border-gray-200 focus:border-gray-300"
                 />
             </div>
-        </div>
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 overflow-y-auto overflow-y-auto">
             <div
                 v-if="checkRole(['super_admin'])"
                 @click="openNewProjectModal = true"
-                class="flex flex-col justify-center bg-green-500 hover:bg-green-600 text-white m-2 p-5 rounded-md cursor-pointer items-center shadow-sm"
+                class="flex justify-center items-center bg-green-500 hover:bg-green-600 text-white mx-2 my-1 px-2 py-1 rounded-md cursor-pointer shadow-sm"
             >
                 <i class="fas fa-plus-circle text-sm md:text-2xl"></i>
-                <p>Create New Project</p>
             </div>
-
+        </div>
+        <div class="admin__projects-list grid grid-cols-1 gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 overflow-y-auto overflow-y-auto">
             <div
                 v-for="project in projects"
                 :key="project.id"
-                class="bg-white m-2 text-gray-900 cursor-pointer items-center rounded-md shadow-sm hover:shadow-dm"
+                class="bg-white text-gray-900 cursor-pointer items-center rounded-md shadow-sm hover:shadow-dm"
             >
                 <router-link
                     :to="{

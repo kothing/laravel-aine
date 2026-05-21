@@ -78,11 +78,16 @@
 }
 
 .admin__projects-search {
-    display: flex;
+    position: relative;
 }
 
 .admin__projects-search .search-input {
     width: calc(100% - 50px);
+}
+
+.admin__projects-list {
+    /* show shadow */
+    overflow: visible !important;
 }
 
 .admin__content .content-richtext-editor .ql-container {
