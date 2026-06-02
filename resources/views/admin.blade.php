@@ -6,17 +6,18 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <meta name="APP_URL" content="{{ env('APP_URL') }}">
         
+        <!-- <title>{{ env("APP_NAME") }}</title> -->
         <title>{{ config('app.name', 'AineCMS') }}</title>
 
         <link rel="icon" type="image/svg+xml" href="{{ config('app.url') . '/images/favicon.svg'}}">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap">
-        <link rel="stylesheet" href="{{ mix('css/app.css') }}">
+        <link rel="stylesheet" href="{{ mix('css/admin.css') }}">
 
-        <script src="{{ mix('js/app.js') }}" defer></script>
+        <script src="{{ mix('js/admin.js') }}" defer></script>
     </head>
     <body class="font-sans antialiased">
-        <div id="admin-app" v-cloak>
-            <app></app>
+        <div id="admin" v-cloak>
+            <admin></admin>
         </div>
     </body>
 </html>

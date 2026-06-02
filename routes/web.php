@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Resources\UserResource;
+use App\Http\Resources\SettingResource;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\FormController;
@@ -10,6 +11,7 @@ use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\CollectionsController;
 use App\Http\Controllers\MediaLibraryController;
 use App\Http\Controllers\CollectionFieldsController;
+use App\Http\Controllers\SettingsController;
 
 Route::get('/', function () {
     return view('app');
@@ -27,6 +29,11 @@ Route::middleware('auth:web')->prefix('admin')->group(function(){
     Route::post('/user/update_name', [UsersController::class, 'updateName']);
     Route::post('/user/update_email', [UsersController::class, 'updateEmail']);
     Route::post('/user/update_password', [UsersController::class, 'updatePassword']);
+
+    Route::prefix('settings')->group(function(){
+        Route::get('/', [SettingsController::class, 'index']);
+        Route::post('/update', [SettingsController::class, 'update']);
+    });
 
     Route::prefix('projects')->group(function(){
         Route::get('/', [ProjectsController::class, 'index']);

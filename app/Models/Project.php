@@ -21,7 +21,7 @@ class Project extends Model
         'public_api' => 'boolean'
     ];
 
-    protected  static  function  boot(){
+    protected static function boot(){
         parent::boot();
 
         static::creating(function  ($model)  {

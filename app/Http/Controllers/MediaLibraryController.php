@@ -59,7 +59,9 @@ class MediaLibraryController extends Controller
      * @return int $val
     */
     private function return_bytes ($val) {
-        if(empty($val))return 0;
+        if(empty($val)) {
+            return 0;
+        }
 
         $val = trim($val);
 

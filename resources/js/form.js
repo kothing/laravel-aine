@@ -1,30 +1,30 @@
+import Vue from "vue";
+import VCalendar from "v-calendar";
+import VSelect from "vue-select";
+import "vue-select/dist/vue-select.css";
+import "./vendor/fontawesome-pro/css/all.min.css";
 
-import Vue from 'vue'
-import "@fortawesome/fontawesome-free/css/all.min.css";
-import VCalendar from 'v-calendar';
-import vSelect from 'vue-select'
-import 'vue-select/dist/vue-select.css';
-import './directives'
-import './filters'
-import './plugins/colorpicker'
+import "./utils/directives";
+import "./utils/filters";
+import "./plugins/colorpicker";
 
-window.axios = require('axios');
+window.axios = require("axios");
 window.axios.defaults.headers.common = {
-    'X-Requested-With': 'XMLHttpRequest',
-    'X-CSRF-TOKEN' : document.querySelector('meta[name="csrf-token"]').content
+  "X-Requested-With": "XMLHttpRequest",
+  "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
 };
 
 // aineForm
-Vue.component('aineForm', require('./layouts/Form.vue').default);
+Vue.component("aineForm", require("./form/Form.vue").default);
 
 // VCalendar
 Vue.use(VCalendar, {
-	componentPrefix: 'v',
+  componentPrefix: "v",
 });
 
 // vSelect
-Vue.component('v-select', vSelect)
+Vue.component("v-select", VSelect);
 
-const form = new Vue({
-    el: '#aineForm',
+new Vue({
+  el: "#aineForm",
 });

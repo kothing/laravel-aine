@@ -1,5 +1,5 @@
 {
-    "name": "laravel/Aine",
+    "name": "laravel/aine",
     "type": "project",
     "description": "Aine is a self-hosted headless CMS built with Laravel and VueJs.",
     "keywords": [
@@ -16,7 +16,7 @@
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.2",
         "intervention/image": "^2.6",
-        "laravel/framework": "^9.0",
+        "laravel/framework": "^9.19.0",
         "laravel/sanctum": "^2.9",
         "laravel/tinker": "^2.5",
         "league/flysystem-aws-s3-v3": "^3.0",

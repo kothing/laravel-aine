@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk=self.webpackChunk||[]).push([[554],{711:(n,t,s)=>{s.r(t),s.d(t,{default:()=>o});const e={components:{},data:function(){return{locales:[]}},methods:{},mounted:function(){}};const o=(0,s(1900).Z)(e,(function(){return(0,this._self._c)("div",{staticClass:"admin__projects-dashboard m-3 p-3"},[this._v("Aine Home")])}),[],!1,null,null,null).exports}}]);

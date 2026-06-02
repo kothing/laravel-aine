@@ -38,13 +38,15 @@ class ProjectsController extends Controller
             foreach ($roles as $role) {
                 $ex = explode('admin', $role->name);
 
-                if(isset($ex[1]) && !in_array($ex[1], $arr))
+                if(isset($ex[1]) && !in_array($ex[1], $arr)) {
                     $arr[] = $ex[1];
-
+                }
+                    
                 $ex = explode('editor', $role->name);
 
-                if(isset($ex[1]) && !in_array($ex[1], $arr))
+                if(isset($ex[1]) && !in_array($ex[1], $arr)) {
                     $arr[] = $ex[1];
+                }
             }
 
             $projects = $projects->whereIn('id', $arr);

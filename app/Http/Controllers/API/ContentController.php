@@ -35,10 +35,14 @@ class ContentController extends Controller {
             return response()->json(['message' => 'Unauthenticated.']);
         }
 
-        if(!$project->public_api && !auth('sanctum')->user()->tokenCan('read')) return response(['error' => 'API token does\'nt have the right permissions!'], 404);
+        if(!$project->public_api && !auth('sanctum')->user()->tokenCan('read')) {
+            return response(['error' => 'API token does\'nt have the right permissions!'], 404);
+        }
 
         $collection = Collection::where('project_id', $project->id)->where('slug', $slug)->first();
-        if(!$collection) return response(['error' => 'Collection not found!'], 404);
+        if(!$collection) {
+            return response(['error' => 'Collection not found!'], 404);
+        }
 
         $content =  Content::with(['meta', 'collection'])
                         ->where('project_id', $project->id)
@@ -46,7 +50,9 @@ class ContentController extends Controller {
 
         if($request->has('where')){
             $where = $request->get('where');
-            if(!is_array($where)) return response(['error' => 'Incorrect where statement. See documentation: #where-clauses'], 422);
+            if(!is_array($where)) {
+                return response(['error' => 'Incorrect where statement. See documentation: #where-clauses'], 422);
+            }
 
             if (!is_numeric(array_key_first($where)) || array_key_first($where) != 'or') {
                 $multiDim = false;
@@ -302,11 +308,15 @@ class ContentController extends Controller {
                             } elseif(isset($value['gte'])){
                                 $meta = $meta->where('field_name', $key)->where('value', '>=', $value['gte']);
                             } elseif(isset($value['between'])){
-                                if(count(explode(',', $value['between'])) <= 1 || count(explode(',', $value['between'])) > 2) return response(['error' => 'Incorrect where statement'], 422);
+                                if(count(explode(',', $value['between'])) <= 1 || count(explode(',', $value['between'])) > 2) {
+                                    return response(['error' => 'Incorrect where statement'], 422);
+                                }
 
                                 $meta = $meta->where('field_name', $key)->whereBetween('value', explode(',', $value['between']));
                             } elseif(isset($value['not_between'])){
-                                if(count(explode(',', $value['not_between'])) <= 1 || count(explode(',', $value['not_between'])) > 2) return response(['error' => 'Incorrect where statement'], 422);
+                                if(count(explode(',', $value['not_between'])) <= 1 || count(explode(',', $value['not_between'])) > 2) {
+                                    return response(['error' => 'Incorrect where statement'], 422);
+                                }
 
                                 $meta = $meta->where('field_name', $key)->whereNotBetween('value', explode(',', $value['not_between']));
                             }
@@ -385,7 +395,9 @@ class ContentController extends Controller {
 
             foreach ($sortM as $s) {
                 $sort = explode(':', $s);
-                if(count($sort) <= 1 || count($sort) > 2) return response(['error' => 'Incorrect sort statement'], 422);
+                if(count($sort) <= 1 || count($sort) > 2) {
+                    return response(['error' => 'Incorrect sort statement'], 422);
+                }
 
                 if($sort[0] == 'id' || $sort[0] == 'locale' || $sort[0] == 'created_at' || $sort[0] == 'updated_at' || $sort[0] == 'published_at'){
                     $content = $content->orderBy($sort[0], $sort[1]);
@@ -462,11 +474,15 @@ class ContentController extends Controller {
             return response()->json(['message' => 'Unauthenticated.']);
         }
 
-        if(!$project->public_api && !auth('sanctum')->user()->tokenCan('read')) return response(['error' => 'API token does\'nt have the right permissions!'], 404);
+        if(!$project->public_api && !auth('sanctum')->user()->tokenCan('read')) {
+            return response(['error' => 'API token does\'nt have the right permissions!'], 404);
+        }
 
         $collection = Collection::where('project_id', $project->id)->where('slug', $slug)->first();
 
-        if(!$collection) return response(['error' => 'Collection not found!'], 404);
+        if(!$collection) {
+            return response(['error' => 'Collection not found!'], 404);
+        }
 
         $content =  Content::with('meta')
                         ->where('project_id', $project->id)
@@ -482,7 +498,9 @@ class ContentController extends Controller {
         }
         $content = $content->select($selectFields)->find($id);
 
-        if(!$content) return response(['error' => 'Not found!'], 404);
+        if(!$content) {
+            return response(['error' => 'Not found!'], 404);
+        }
 
         return new ContentResource($content);
     }
@@ -498,17 +516,23 @@ class ContentController extends Controller {
     public function create($uuid, $slug, Request $request){
         $auth = auth()->user();
 
-        if(!$auth->tokenCan('create')) return response(['error' => 'API token does\'nt have the right permissions!'], 404);
+        if(!$auth->tokenCan('create')) {
+            return response(['error' => 'API token does\'nt have the right permissions!'], 404);
+        }
 
         if($auth->uuid !== $uuid){
             return response(['error' => 'Project not found!'], 404);
         }
 
         $project = Project::find($auth->id);
-        if(!$project) return response(['error' => 'Project not found!'], 404);
+        if(!$project) {
+            return response(['error' => 'Project not found!'], 404);
+        }
 
         $collection = Collection::with(['fields'])->where('project_id', $project->id)->where('slug', $slug)->first();
-        if(!$collection) return response(['error' => 'Collection not found!'], 404);
+        if(!$collection) {
+            return response(['error' => 'Collection not found!'], 404);
+        }
 
         $rules = [];
         $messages = [];
@@ -794,20 +818,28 @@ class ContentController extends Controller {
     public function update($uuid, $slug, $id, Request $request){
         $auth = auth()->user();
 
-        if(!$auth->tokenCan('update')) return response(['error' => 'API token does\'nt have the right permissions!'], 404);
+        if(!$auth->tokenCan('update')) {
+            return response(['error' => 'API token does\'nt have the right permissions!'], 404);
+        }
 
         if($auth->uuid !== $uuid){
             return response(['error' => 'Project not found!'], 404);
         }
 
         $project = Project::find($auth->id);
-        if(!$project) return response(['error' => 'Project not found!'], 404);
+        if(!$project) {
+            return response(['error' => 'Project not found!'], 404);
+        }
 
         $collection = Collection::with(['fields'])->where('project_id', $project->id)->where('slug', $slug)->first();
-        if(!$collection) return response(['error' => 'Collection not found!'], 404);
+        if(!$collection) {
+            return response(['error' => 'Collection not found!'], 404);
+        }
 
         $content = Content::where('project_id', $project->id)->where('collection_id', $collection->id)->where('id', $id)->first();
-        if(!$content) return response(['error' => 'Record not found!'], 404);
+        if(!$content) {
+            return response(['error' => 'Record not found!'], 404);
+        }
 
         $rules = [];
         $messages = [];
@@ -1109,20 +1141,28 @@ class ContentController extends Controller {
     public function delete($uuid, $slug, $id){
         $auth = auth()->user();
 
-        if(!$auth->tokenCan('delete')) return response(['error' => 'API token does\'nt have the right permissions!'], 404);
+        if(!$auth->tokenCan('delete')) {
+            return response(['error' => 'API token does\'nt have the right permissions!'], 404);
+        }
 
         if($auth->uuid !== $uuid){
             return response(['error' => 'Project not found!'], 404);
         }
 
         $project = Project::find($auth->id);
-        if(!$project) return response(['error' => 'Project not found!'], 404);
+        if(!$project) {
+            return response(['error' => 'Project not found!'], 404);
+        }
 
         $collection = Collection::with(['fields'])->where('project_id', $project->id)->where('slug', $slug)->first();
-        if(!$collection) return response(['error' => 'Collection not found!'], 404);
+        if(!$collection) {
+            return response(['error' => 'Collection not found!'], 404);
+        }
 
         $content = Content::find($id);
-        if(!$content) return response(['error' => 'Record not found!'], 404);
+        if(!$content) {
+            return response(['error' => 'Record not found!'], 404);
+        }
 
         $content->meta()->delete();
 

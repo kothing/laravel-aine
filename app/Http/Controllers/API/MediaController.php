@@ -26,7 +26,9 @@ class MediaController extends Controller {
         if(!$project->public_api && !auth('sanctum')->check()){
             return response()->json(['message' => 'Unauthenticated.']);
         }
-        if(!$project->public_api && !auth('sanctum')->user()->tokenCan('read')) return response(['error' => 'API token does\'nt have the right permissions!'], 404);
+        if(!$project->public_api && !auth('sanctum')->user()->tokenCan('read')) {
+            return response(['error' => 'API token does\'nt have the right permissions!'], 404);
+        }
 
         $files = Media::where('project_id', $project->id)->get();
 
@@ -48,11 +50,15 @@ class MediaController extends Controller {
         if(!$project->public_api && !auth('sanctum')->check()){
             return response()->json(['message' => 'Unauthenticated.']);
         }
-        if(!$project->public_api && !auth('sanctum')->user()->tokenCan('read')) return response(['error' => 'API token does\'nt have the right permissions!'], 404);
+        if(!$project->public_api && !auth('sanctum')->user()->tokenCan('read')) {
+            return response(['error' => 'API token does\'nt have the right permissions!'], 404);
+        }
 
         $file = Media::where('project_id', $project->id)->find($id);
 
-        if(!$file) return response(['error' => 'File not found!'], 404);
+        if(!$file) {
+            return response(['error' => 'File not found!'], 404);
+        }
 
         return new MediaResource($file);
     }
@@ -72,11 +78,15 @@ class MediaController extends Controller {
         if(!$project->public_api && !auth('sanctum')->check()){
             return response()->json(['message' => 'Unauthenticated.']);
         }
-        if(!$project->public_api && !auth('sanctum')->user()->tokenCan('read')) return response(['error' => 'API token does\'nt have the right permissions!'], 404);
+        if(!$project->public_api && !auth('sanctum')->user()->tokenCan('read')) {
+            return response(['error' => 'API token does\'nt have the right permissions!'], 404);
+        }
 
         $file = Media::where('project_id', $project->id)->where('name', $name)->first();
 
-        if(!$file) return response(['error' => 'File not found!'], 404);
+        if(!$file) {
+            return response(['error' => 'File not found!'], 404);
+        }
 
         return new MediaResource($file);
     }
@@ -91,18 +101,24 @@ class MediaController extends Controller {
     public function deleteFile($uuid, $id){
         $auth = auth()->user();
 
-        if(!$auth->tokenCan('delete')) return response(['error' => 'API token does\'nt have the right permissions!'], 404);
+        if(!$auth->tokenCan('delete')) {
+            return response(['error' => 'API token does\'nt have the right permissions!'], 404);
+        }
 
         if($auth->uuid !== $uuid){
             return response(['error' => 'Project not found!'], 404);
         }
 
         $project = Project::find($auth->id);
-        if(!$project) return response(['error' => 'Project not found!'], 404);
+        if(!$project) {
+            return response(['error' => 'Project not found!'], 404);
+        }
 
         $file = Media::where('project_id', $project->id)->find($id);
 
-        if(!$file) return response(['error' => 'File not found!'], 404);
+        if(!$file) {
+            return response(['error' => 'File not found!'], 404);
+        }
 
         $original = 'public/'.$project->uuid.'/'.$file->name;
         if(Storage::disk($file->disk)->exists($original)){
@@ -131,14 +147,18 @@ class MediaController extends Controller {
     public function uploadFile($uuid, Request $request){
         $auth = auth()->user();
 
-        if(!$auth->tokenCan('create')) return response(['error' => 'API token does\'nt have the right permissions!'], 404);
+        if(!$auth->tokenCan('create')) {
+            return response(['error' => 'API token does\'nt have the right permissions!'], 404);
+        }
 
         if($auth->uuid !== $uuid){
             return response(['error' => 'Project not found!'], 404);
         }
 
         $project = Project::find($auth->id);
-        if(!$project) return response(['error' => 'Project not found!'], 404);
+        if(!$project) {
+            return response(['error' => 'Project not found!'], 404);
+        }
 
         if($request->has('file')){
 
@@ -226,7 +246,9 @@ class MediaController extends Controller {
      * @return int $val
     */
     private function return_bytes ($val) {
-        if(empty($val))return 0;
+        if(empty($val)) {
+            return 0;
+        }
 
         $val = trim($val);
 
