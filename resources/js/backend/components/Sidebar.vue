@@ -22,6 +22,15 @@
             </router-link>
             <div
                 v-if="isProjectPage"
+                class="admin__project-name px-8 py-3 bg-gray-800 border-t border-b border-gray-700"
+            >
+                <!-- <div class="text-xs text-gray-400 mb-1">Current Project</div> -->
+                <div class="text-sm font-bold text-white truncate" :title="currentProjectName">
+                    {{ currentProjectName }}
+                </div>
+            </div>
+            <div
+                v-if="isProjectPage"
                 class="admin__sub-menu pl-10 bg-gray-800"
             >
                 <router-link
@@ -95,6 +104,7 @@ import UiDropdown from "../../UI/Dropdown.vue";
 
 import checkRole from "../../utils/checkrole";
 import store from "../store";
+import { mapGetters } from 'vuex';
 
 export default {
     components: {
@@ -125,6 +135,8 @@ export default {
     },
 
     computed: {
+        ...mapGetters(['currentProject']),
+        
         isProjectPage() {
             const fullPath = this.$route.fullPath;
             const projectPath = "/project/";
@@ -135,6 +147,13 @@ export default {
                 return true;
             }
             return false;
+        },
+
+        currentProjectName() {
+            if (this.currentProject) {
+                return this.currentProject.name;
+            }
+            return 'Loading...';
         },
     },
 };

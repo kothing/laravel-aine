@@ -8,7 +8,7 @@ const Dashboard = () => import(/* webpackChunkName: "backend.dashboard" */ "./vi
 const Settings = () => import(/* webpackChunkName: "backend.settings" */ "./views/Settings");
 const Profile = () => import(/* webpackChunkName: "backend.profile" */ "./views/Profile");
 const Projects = () => import(/* webpackChunkName: "backend.projects" */ "./views/Projects");
-const ProjectIndex = () => import(/* webpackChunkName: "project.index" */ "./views/Project/Index");
+const ProjectIndex = () => import(/* webpackChunkName: "project.index" */ "./views/Project.Index/Index");
 const ProjectCollectionIndex = () => import(/* webpackChunkName: "project.collection" */ "./views/Project.Collection/CollectionIndex");
 const ProjectCollectionList = () => import(/* webpackChunkName: "project.collection.list" */ "./views/Project.Collection/CollectionList");
 const ProjectContentIndex = () => import(/* webpackChunkName: "project.content" */ "./views/Project.Content/ContentIndex");
@@ -31,14 +31,19 @@ const ProjectSettingsWebhookLogs = () => import(/* webpackChunkName: "project.se
  */
 const routes = [
     { path: "/", name: "dashboard", component: Dashboard },
-    // { path: "/settings", name: "settings", component: Settings },
+    { path: "/settings", name: "settings", component: Settings },
     { path: "/profile", name: "profile", component: Profile },
     { path: "/projects/", name: "projects", component: Projects },
     {
         path: "/project/:project_id",
         name: "projects.index",
         component: ProjectIndex,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to, from, next) => {
+            // 确保用户信息已加载
+            if (!store.getters.user.roles || store.getters.user.roles.length === 0) {
+                await store.dispatch("getUser");
+            }
+            
             const roles = store.getters && store.getters.user.roles;
 
             if (roles.includes("super_admin")) {
@@ -59,7 +64,12 @@ const routes = [
         path: "/project/:project_id/collections",
         name: "projects.collections",
         component: ProjectCollectionIndex,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to, from, next) => {
+            // 确保用户信息已加载
+            if (!store.getters.user.roles || store.getters.user.roles.length === 0) {
+                await store.dispatch("getUser");
+            }
+            
             const roles = store.getters && store.getters.user.roles;
 
             if (roles.includes("super_admin")) {
@@ -77,7 +87,12 @@ const routes = [
         path: "/project/:project_id/collections/:col_id",
         name: "projects.collections.list",
         component: ProjectCollectionList,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to, from, next) => {
+            // 确保用户信息已加载
+            if (!store.getters.user.roles || store.getters.user.roles.length === 0) {
+                await store.dispatch("getUser");
+            }
+            
             const roles = store.getters && store.getters.user.roles;
 
             if (roles.includes("super_admin")) {
@@ -95,7 +110,12 @@ const routes = [
         path: "/project/:project_id/content",
         name: "projects.content",
         component: ProjectContentIndex,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to, from, next) => {
+            // 确保用户信息已加载
+            if (!store.getters.user.roles || store.getters.user.roles.length === 0) {
+                await store.dispatch("getUser");
+            }
+            
             const roles = store.getters && store.getters.user.roles;
 
             if (roles.includes("super_admin")) {
@@ -116,7 +136,12 @@ const routes = [
         path: "/project/:project_id/content/:col_id",
         name: "projects.content.list",
         component: ProjectContentList,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to, from, next) => {
+            // 确保用户信息已加载
+            if (!store.getters.user.roles || store.getters.user.roles.length === 0) {
+                await store.dispatch("getUser");
+            }
+            
             const roles = store.getters && store.getters.user.roles;
 
             if (roles.includes("super_admin")) {
@@ -137,7 +162,12 @@ const routes = [
         path: "/project/:project_id/content/:col_id/new",
         name: "projects.content.new",
         component: ProjectContentNew,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to, from, next) => {
+            // 确保用户信息已加载
+            if (!store.getters.user.roles || store.getters.user.roles.length === 0) {
+                await store.dispatch("getUser");
+            }
+            
             const roles = store.getters && store.getters.user.roles;
 
             if (roles.includes("super_admin")) {
@@ -158,7 +188,12 @@ const routes = [
         path: "/project/:project_id/content/:col_id/edit/:content_id",
         name: "projects.content.edit",
         component: ProjectContentEdit,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to, from, next) => {
+            // 确保用户信息已加载
+            if (!store.getters.user.roles || store.getters.user.roles.length === 0) {
+                await store.dispatch("getUser");
+            }
+            
             const roles = store.getters && store.getters.user.roles;
 
             if (roles.includes("super_admin")) {
@@ -179,7 +214,12 @@ const routes = [
         path: "/project/:project_id/content/:col_id/forms",
         name: "projects.content.forms",
         component: ProjectContentForms,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to, from, next) => {
+            // 确保用户信息已加载
+            if (!store.getters.user.roles || store.getters.user.roles.length === 0) {
+                await store.dispatch("getUser");
+            }
+            
             const roles = store.getters && store.getters.user.roles;
 
             if (roles.includes("super_admin")) {
@@ -200,7 +240,12 @@ const routes = [
         path: "/project/:project_id/content/:col_id/forms/:form_id",
         name: "projects.content.forms.detail",
         component: ProjectContentFormsDetail,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to, from, next) => {
+            // 确保用户信息已加载
+            if (!store.getters.user.roles || store.getters.user.roles.length === 0) {
+                await store.dispatch("getUser");
+            }
+            
             const roles = store.getters && store.getters.user.roles;
 
             if (roles.includes("super_admin")) {
@@ -221,7 +266,12 @@ const routes = [
         path: "/project/:project_id/settings",
         name: "projects.settings",
         component: ProjectSettingsIndex,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to, from, next) => {
+            // 确保用户信息已加载
+            if (!store.getters.user.roles || store.getters.user.roles.length === 0) {
+                await store.dispatch("getUser");
+            }
+            
             const roles = store.getters && store.getters.user.roles;
 
             if (roles.includes("super_admin")) {
@@ -239,7 +289,12 @@ const routes = [
         path: "/project/:project_id/settings/locales",
         name: "projects.settings.locales",
         component: ProjectSettingsLocales,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to, from, next) => {
+            // 确保用户信息已加载
+            if (!store.getters.user.roles || store.getters.user.roles.length === 0) {
+                await store.dispatch("getUser");
+            }
+            
             const roles = store.getters && store.getters.user.roles;
 
             if (roles.includes("super_admin")) {
@@ -257,7 +312,12 @@ const routes = [
         path: "/project/:project_id/settings/users",
         name: "projects.settings.users",
         component: ProjectSettingsUsers,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to, from, next) => {
+            // 确保用户信息已加载
+            if (!store.getters.user.roles || store.getters.user.roles.length === 0) {
+                await store.dispatch("getUser");
+            }
+            
             const roles = store.getters && store.getters.user.roles;
 
             if (!roles.includes("super_admin")) {
@@ -271,7 +331,12 @@ const routes = [
         path: "/project/:project_id/settings/api",
         name: "projects.settings.api",
         component: ProjectSettingsAPI,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to, from, next) => {
+            // 确保用户信息已加载
+            if (!store.getters.user.roles || store.getters.user.roles.length === 0) {
+                await store.dispatch("getUser");
+            }
+            
             const roles = store.getters && store.getters.user.roles;
 
             if (!roles.includes("super_admin")) {
@@ -285,7 +350,12 @@ const routes = [
         path: "/project/:project_id/settings/webhooks",
         name: "projects.settings.webhooks",
         component: ProjectSettingsWebhooks,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to, from, next) => {
+            // 确保用户信息已加载
+            if (!store.getters.user.roles || store.getters.user.roles.length === 0) {
+                await store.dispatch("getUser");
+            }
+            
             const roles = store.getters && store.getters.user.roles;
 
             if (!roles.includes("super_admin")) {
@@ -299,7 +369,12 @@ const routes = [
         path: "/project/:project_id/settings/webhooks/:webhook_id/logs",
         name: "projects.settings.webhooks.logs",
         component: ProjectSettingsWebhookLogs,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to, from, next) => {
+            // 确保用户信息已加载
+            if (!store.getters.user.roles || store.getters.user.roles.length === 0) {
+                await store.dispatch("getUser");
+            }
+            
             const roles = store.getters && store.getters.user.roles;
 
             if (!roles.includes("super_admin")) {
@@ -313,7 +388,12 @@ const routes = [
         path: "/project/:project_id/media_library",
         name: "projects.media_library",
         component: ProjectContentMedia,
-        beforeEnter: (to, from, next) => {
+        beforeEnter: async (to, from, next) => {
+            // 确保用户信息已加载
+            if (!store.getters.user.roles || store.getters.user.roles.length === 0) {
+                await store.dispatch("getUser");
+            }
+            
             const roles = store.getters && store.getters.user.roles;
 
             if (roles.includes("super_admin")) {
@@ -340,11 +420,26 @@ const router = new VueRouter({
 router.beforeEach(async (to, from, next) => {
     const hasRoles = store.getters.user.roles && store.getters.user.roles.length > 0;
 
-    if (hasRoles) {
-        next();
-    } else {
+    if (!hasRoles) {
         await store.dispatch("getUser");
-        next();
     }
+
+    // 检查是否进入了项目页面
+    const isProjectPage = to.path.includes('/project/') && to.params.project_id;
+    const wasProjectPage = from && from.path && from.path.includes('/project/') && from.params && from.params.project_id;
+    
+    // 如果是项目页面，确保加载项目数据
+    if (isProjectPage) {
+        const currentProjectId = store.getters.currentProject?.id;
+        // 首次加载或切换项目时，加载项目数据
+        if (!currentProjectId || currentProjectId != to.params.project_id) {
+            await store.dispatch('setCurrentProject', to.params.project_id);
+        }
+    } else if (wasProjectPage && !isProjectPage) {
+        // 如果从项目页面离开，清除当前项目
+        store.dispatch('setCurrentProject', null);
+    }
+    
+    next();
 });
 export default router;
