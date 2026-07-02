@@ -13,13 +13,13 @@ class Project extends Model
 
     protected $table = "projects";
 
-    protected $fillable = ['name', 'description', 'default_locale', 'locales', 'disk', 'public_api', 'api_allowed_domains'];
+    protected $fillable = ['name', 'slug', 'description', 'default_locale', 'locales', 'disk', 'public_api', 'domain_whitelist'];
 
     protected $hidden = ['deleted_at'];
 
     protected $casts = [
         'public_api' => 'boolean',
-        'api_allowed_domains' => 'array'
+        'domain_whitelist' => 'array'
     ];
 
     protected static function boot(){
@@ -27,6 +27,10 @@ class Project extends Model
 
         static::creating(function  ($model)  {
             $model->uuid = (string) Str::uuid()->getHex();
+            
+            if (empty($model->slug)) {
+                $model->slug = Str::slug($model->name);
+            }
         });
     }
 

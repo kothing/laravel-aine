@@ -64,8 +64,8 @@ class Kernel extends HttpKernel
         'role' => \Spatie\Permission\Middlewares\RoleMiddleware::class,
         'permission' => \Spatie\Permission\Middlewares\PermissionMiddleware::class,
         'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
-        'verify.api.allowed.domain' => \App\Http\Middleware\VerifyApiAllowedDomain::class,
-        'resolve.project.by.api.allowed.domain' => \App\Http\Middleware\ResolveProjectByApiAllowedDomain::class,
+        'verify.domain.whitelist' => \App\Http\Middleware\VerifyDomainWhitelist::class,
+        'validate.project.access' => \App\Http\Middleware\ValidateProjectAccess::class,
         'dynamic.cors' => \App\Http\Middleware\DynamicCors::class,
     ];
 }

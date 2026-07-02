@@ -13,14 +13,14 @@ class ApiProxyController extends Controller
         $project = Project::where('uuid', $uuid)->firstOrFail();
         
         $referer = $request->header('referer');
-        if ($referer && !empty($project->api_allowed_domains)) {
+        if ($referer && !empty($project->domain_whitelist)) {
             $refererHost = parse_url($referer, PHP_URL_HOST);
-            $allowedDomains = collect($project->api_allowed_domains)
+            $whitelistedDomains = collect($project->domain_whitelist)
                 ->map(fn($domain) => parse_url($domain, PHP_URL_HOST))
                 ->toArray();
             
-            if (!in_array($refererHost, $allowedDomains)) {
-                return response()->json(['error' => 'Unauthorized domain'], 403);
+            if (!in_array($refererHost, $whitelistedDomains)) {
+                return response()->json(['error' => 'Domain not in whitelist'], 403);
             }
         }
         

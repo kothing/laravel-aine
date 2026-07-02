@@ -1176,43 +1176,41 @@ class ContentController extends Controller {
     }
 
     /**
-     * Get all content by domain (no UUID required)
-     * Automatically resolve project by domain, frontend does not need to pass UUID
+     * Get all content by explicit project identifier (UUID or slug)
+     * Project is resolved by ValidateProjectAccess middleware and set on request attributes
      *
-     * @param string $slug
+     * @param string $projectIdentifier Project UUID or slug
+     * @param string $slug Collection slug
      * @param \Illuminate\Http\Request $request
      * @return \App\Http\Resources\ContentResource
      */
-    public function getContentByDomain($slug, Request $request){
-        // ⭐ Get the resolved project from request attributes set by middleware
+    public function getContentByDomain($projectIdentifier, $slug, Request $request){
         $project = $request->attributes->get('resolved_project');
         
         if (!$project) {
             return $this->notFound('Project not resolved');
         }
         
-        // Reuse the original getContent method
         return $this->getContent($project->uuid, $slug, $request);
     }
 
     /**
-     * Get content by ID by domain (no UUID required)
-     * Automatically resolve project by domain, frontend does not need to pass UUID
+     * Get content by ID by explicit project identifier (UUID or slug)
+     * Project is resolved by ValidateProjectAccess middleware and set on request attributes
      *
-     * @param string $slug
-     * @param int $id
+     * @param string $projectIdentifier Project UUID or slug
+     * @param string $slug Collection slug
+     * @param int $id Content ID
      * @param \Illuminate\Http\Request $request
      * @return \App\Http\Resources\ContentResource
      */
-    public function getContentByIDByDomain($slug, $id, Request $request){
-        // ⭐ Get the resolved project from request attributes set by middleware
+    public function getContentByIDByDomain($projectIdentifier, $slug, $id, Request $request){
         $project = $request->attributes->get('resolved_project');
         
         if (!$project) {
             return $this->notFound('Project not resolved');
         }
         
-        // Reuse the original getContentByID method
         return $this->getContentByID($project->uuid, $slug, $id, $request);
     }
 }

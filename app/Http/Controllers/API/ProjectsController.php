@@ -32,21 +32,20 @@ class ProjectsController extends Controller {
     }
 
     /**
-     * Get project by domain (no UUID required)
-     * Automatically resolve project by domain, frontend does not need to pass UUID
+     * Get project by explicit project identifier (UUID or slug)
+     * Project is resolved by ValidateProjectAccess middleware and set on request attributes
      *
+     * @param string $projectIdentifier Project UUID or slug
      * @param \Illuminate\Http\Request $request
      * @return \App\Http\Resources\ProjectResource
      */
-    public function showByDomain(Request $request){
-        // ⭐ Get the resolved project from request attributes set by middleware
+    public function showByDomain($projectIdentifier, Request $request){
         $project = $request->attributes->get('resolved_project');
         
         if (!$project) {
             return $this->notFound('Project not resolved');
         }
         
-        // Reuse the original show method
         return $this->show($project->uuid);
     }
 }

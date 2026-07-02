@@ -21,9 +21,34 @@
                                         autofocus
                                         v-forminput
                                         placeholder="Project Name"
+                                        @input="generateSlugFromName"
                                     />
                                     <p class="text-sm text-red-600 mt-2">
                                         {{ editProjectData.errors.name[0] }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label v-formlabel>Project Slug</label>
+                                <div class="mt-1 relative">
+                                    <input
+                                        type="text"
+                                        v-model="editProjectData.slug"
+                                        v-forminput
+                                        placeholder="project-slug"
+                                        pattern="[a-z0-9-]+"
+                                        @blur="checkSlug"
+                                        @input="clearSlugError"
+                                    />
+                                    <p class="text-sm text-gray-500 mt-1">
+                                        Only lowercase letters, numbers, and hyphens allowed
+                                    </p>
+                                    <p v-if="editProjectData.slugExists" class="text-sm text-red-600 mt-2">
+                                        This slug is already in use by another project.
+                                    </p>
+                                    <p v-else class="text-sm text-red-600 mt-2">
+                                        {{ editProjectData.errors.slug[0] }}
                                     </p>
                                 </div>
                             </div>
@@ -128,8 +153,11 @@ export default {
             project: {},
             editProjectData: {
                 errors: {
-                    name: "",
+                    name: [],
+                    slug: [],
+                    description: [],
                 },
+                slugExists: false,
             },
         };
     },
@@ -144,9 +172,42 @@ export default {
                     this.project = response.data;
                     this.editProjectData.id = response.data.id;
                     this.editProjectData.name = response.data.name;
+                    this.editProjectData.slug = response.data.slug;
                     this.editProjectData.description = response.data.description;
                     this.editProjectData.disk = response.data.disk;
                 });
+        },
+
+        generateSlugFromName() {
+            if (!this.editProjectData.slug || this.editProjectData.slug === '') {
+                let name = this.editProjectData.name || '';
+                this.editProjectData.slug = name.toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '');
+            }
+        },
+
+        checkSlug() {
+            let slug = this.editProjectData.slug;
+            if (!slug || slug === '') return;
+
+            let url = "/admin/projects/check-slug/" + slug;
+            if (this.project.id) {
+                url += "?exclude_id=" + this.project.id;
+            }
+
+            axios.get(url)
+                .then((response) => {
+                    if (!response.data.available) {
+                        this.editProjectData.slugExists = true;
+                    } else {
+                        this.editProjectData.slugExists = false;
+                    }
+                });
+        },
+
+        clearSlugError() {
+            this.editProjectData.slugExists = false;
         },
 
         saveEdit() {
@@ -158,11 +219,12 @@ export default {
                 .then(
                     (response) => {
                         this.$toast.success("Project updated!");
-                        this.editProjectData = {
-                            errors: {
-                                name: "",
-                            },
+                        this.editProjectData.errors = {
+                            name: [],
+                            slug: [],
+                            description: [],
                         };
+                        this.editProjectData.slugExists = false;
                         this.getProject();
                     },
                     (error) => {

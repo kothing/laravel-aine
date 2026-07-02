@@ -54,9 +54,31 @@
                                 autofocus
                                 v-forminput
                                 placeholder="Project name"
+                                @input="generateSlugFromName"
                             />
                             <p class="text-sm text-red-600 mt-2">
                                 {{ new_project.errors.name[0] }}
+                            </p>
+                        </div>
+                        <div class="mt-6">
+                            <label v-formlabel>Project Slug</label>
+                            <input
+                                type="text"
+                                v-model="new_project.slug"
+                                v-forminput
+                                placeholder="project-slug"
+                                pattern="[a-z0-9-]+"
+                                @blur="checkSlug"
+                                @input="clearSlugError"
+                            />
+                            <p class="text-sm text-gray-500 mt-1">
+                                Only lowercase letters, numbers, and hyphens allowed
+                            </p>
+                            <p v-if="new_project.slugExists" class="text-sm text-red-600 mt-2">
+                                This slug is already in use by another project.
+                            </p>
+                            <p v-else class="text-sm text-red-600 mt-2">
+                                {{ new_project.errors.slug[0] }}
                             </p>
                         </div>
                         <div class="mt-6">
@@ -165,8 +187,10 @@ export default {
                 default_locale: "en",
                 type: 1,
                 errors: {
-                    name: "",
+                    name: [],
+                    slug: [],
                 },
+                slugExists: false,
             },
             projects: {},
             processing: false,
@@ -177,6 +201,33 @@ export default {
 
     methods: {
         checkRole,
+
+        generateSlugFromName() {
+            if (!this.new_project.slug || this.new_project.slug === '') {
+                let name = this.new_project.name || '';
+                this.new_project.slug = name.toLowerCase()
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-+|-+$/g, '');
+            }
+        },
+
+        checkSlug() {
+            let slug = this.new_project.slug;
+            if (!slug || slug === '') return;
+
+            axios.get("/admin/projects/check-slug/" + slug)
+                .then((response) => {
+                    if (!response.data.available) {
+                        this.new_project.slugExists = true;
+                    } else {
+                        this.new_project.slugExists = false;
+                    }
+                });
+        },
+
+        clearSlugError() {
+            this.new_project.slugExists = false;
+        },
 
         addNewProjectSubmit() {
             this.processing = true;
@@ -201,8 +252,10 @@ export default {
                 default_locale: "en",
                 type: 1,
                 errors: {
-                    name: "",
+                    name: [],
+                    slug: [],
                 },
+                slugExists: false,
             };
             this.processing = false;
         },

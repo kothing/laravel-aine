@@ -64,6 +64,11 @@ class ContentResource extends JsonResource
                                     $content[$m->field_name] = MediaResource::collection($media);
                                 }
                             } elseif($field->type == 'relation'){
+                                if (!isset($options->relation) || !is_object($options->relation)) {
+                                    $content[$m->field_name] = $m->value;
+                                    continue;
+                                }
+
                                 $relation_collection = $options->relation->collection;
 
                                 if($options->relation->type == 1){

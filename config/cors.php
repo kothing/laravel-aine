@@ -14,7 +14,7 @@ return [
     | To learn more: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
     |
     | Note: Dynamic CORS is handled by App\Http\Middleware\DynamicCors
-    | which automatically allows origins from projects' api_allowed_domains.
+    | which automatically allows origins from projects' domain_whitelist.
     |
     */
 

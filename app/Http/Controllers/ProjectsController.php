@@ -12,6 +12,7 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\PersonalAccessToken;
 use Spatie\Permission\Exceptions\UnauthorizedException;
+use Illuminate\Support\Str;
 
 class ProjectsController extends Controller
 {
@@ -58,6 +59,28 @@ class ProjectsController extends Controller
     }
 
     /**
+     * Check if slug exists
+     *
+     * @param string $slug
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function checkSlug($slug, Request $request){
+        $query = Project::where('slug', $slug);
+        
+        $excludeId = $request->get('exclude_id');
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+        
+        $exists = $query->exists();
+        
+        return response([
+            'available' => !$exists
+        ], 200);
+    }
+
+    /**
      * Create a new project
      *
      * @param \Illuminate\Http\Request $request
@@ -67,11 +90,21 @@ class ProjectsController extends Controller
 
         $request->validate([
             'name' => ['required', 'string', 'max:255', 'not_regex:/[#$%^&*()+=\-\[\]\';,\/{}|":<>?~\\\\]/'],
+            'slug' => 'nullable|regex:/^[a-z0-9-]+$/|max:60|unique:projects,slug',
             'default_locale' => 'required|max:255',
+        ],[
+            'slug.regex' => __('Slug can only contain lowercase letters, numbers, and hyphens'),
+            'slug.unique' => __('Slug already exists')
         ]);
+
+        $slug = $request->get('slug');
+        if (empty($slug)) {
+            $slug = Str::slug($request->get('name'));
+        }
 
         $project = Project::create([
         	'name' => $request->get('name'),
+        	'slug' => $slug,
         	'description' => $request->get('description'),
         	'default_locale' => $request->get('default_locale'),
         	'locales' => $request->get('default_locale'),
@@ -200,12 +233,22 @@ class ProjectsController extends Controller
 
         $request->validate([
             'name' => 'required|max:255',
+            'slug' => 'required|regex:/^[a-z0-9-]+$/|max:60|unique:projects,slug,' . $id,
         ],[
-            'name.required' => __('Project name is required')
+            'name.required' => __('Project name is required'),
+            'slug.required' => __('Project slug is required'),
+            'slug.regex' => __('Slug can only contain lowercase letters, numbers, and hyphens'),
+            'slug.unique' => __('Slug already exists')
         ]);
+
+        $slug = $request->get('slug');
+        if (empty($slug)) {
+            $slug = Str::slug($request->get('name'));
+        }
 
         $project->update([
         	'name' => $request->get('name'),
+        	'slug' => $slug,
         	'description' => $request->get('description'),
         	'disk' => $request->get('disk')
         ]);
@@ -527,24 +570,24 @@ class ProjectsController extends Controller
     }
 
     /**
-     * Update API allowed domains for client applications that may call this project's API.
+     * Update domain whitelist for client applications that may call this project's API.
      *
      * @param int $id
      * @param \Illuminate\Http\Request $request
      * @return void
      */
-    public function updateApiAllowedDomains($id, Request $request){
+    public function updateDomainWhitelist($id, Request $request){
         $project = Project::findOrFail($id);
 
         $request->validate([
-            'api_allowed_domains' => 'array',
-            'api_allowed_domains.*' => 'url'
+            'domain_whitelist' => 'array',
+            'domain_whitelist.*' => 'url'
         ]);
 
-        $project->api_allowed_domains = $request->get('api_allowed_domains', []);
+        $project->domain_whitelist = $request->get('domain_whitelist', []);
         $project->save();
 
-        return response()->json(['message' => 'API allowed domains updated successfully']);
+        return response()->json(['message' => 'Domain whitelist updated successfully']);
     }
 
     /**

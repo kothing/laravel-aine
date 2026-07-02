@@ -12,7 +12,7 @@
 
                     <div class="w-full bg-white mt-2 rounded-md p-4">
                         <div>
-                            <div class="text-lg font-bold">Project ID</div>
+                            <div class="text-lg font-bold">Project UUID</div>
                             <div
                                 class="mt-1 flex rounded-md cursor-pointer"
                                 @click="copyToClipboard(project.uuid)"
@@ -25,6 +25,26 @@
                                     readonly
                                     disabled
                                     :value="project.uuid"
+                                    v-forminput
+                                    class="rounded-l-none cursor-pointer"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="mt-5">
+                            <div class="text-lg font-bold">Project Slug</div>
+                            <div
+                                class="mt-1 flex rounded-md cursor-pointer"
+                                @click="copyToClipboard(project.slug)"
+                            >
+                                <span class="inline-flex items-center px-3 rounded-l-sm border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm cursor-pointer">
+                                    <i class="far fa-copy"></i>
+                                </span>
+                                <input
+                                    type="text"
+                                    readonly
+                                    disabled
+                                    :value="project.slug"
                                     v-forminput
                                     class="rounded-l-none cursor-pointer"
                                 />
@@ -192,7 +212,7 @@
                         
                         <div class="mt-10">
                             <div class="text-lg font-bold mb-3">
-                                API Allowed Domains
+                                Domain Whitelist
                             </div>
                             <div class="text-sm text-gray-600 mb-4">
                                 Add the domains of client applications that call this project's API. Requests from these origins are permitted when used together with a valid Access Token (or Public API for read-only access).
@@ -201,13 +221,13 @@
                             <!-- Domain List -->
                             <div class="space-y-2 mb-4">
                                 <div 
-                                    v-for="(domain, index) in api_allowed_domains" 
+                                    v-for="(domain, index) in domain_whitelist" 
                                     :key="index"
                                     class="flex items-center space-x-2"
                                 >
                                     <input
                                         type="url"
-                                        v-model="api_allowed_domains[index]"
+                                        v-model="domain_whitelist[index]"
                                         placeholder="https://example.com"
                                         v-forminput
                                         class="flex-1"
@@ -236,7 +256,7 @@
                             <div class="mt-4 flex justify-end">
                                 <button
                                     type="button"
-                                    @click="saveApiAllowedDomains"
+                                    @click="saveDomainWhitelist"
                                     class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md text-sm"
                                     :disabled="savingDomains"
                                 >
@@ -462,7 +482,7 @@ export default {
             createdToken: null,
             editStatus: false,
             enable_public_access: false,
-            api_allowed_domains: [],
+            domain_whitelist: [],
             savingDomains: false,
         };
     },
@@ -475,7 +495,7 @@ export default {
                     this.project = response.data.project;
                     this.tokens = response.data.tokens;
                     this.enable_public_access = response.data.project.public_api;
-                    this.api_allowed_domains = response.data.project.api_allowed_domains || [];
+                    this.domain_whitelist = response.data.project.domain_whitelist || [];
                 });
         },
 
@@ -613,19 +633,19 @@ export default {
         },
 
         addDomain() {
-            this.api_allowed_domains.push('');
+            this.domain_whitelist.push('');
         },
 
         removeDomain(index) {
-            this.api_allowed_domains.splice(index, 1);
+            this.domain_whitelist.splice(index, 1);
         },
 
-        saveApiAllowedDomains() {
+        saveDomainWhitelist() {
             // Filter out empty domains
-            const domains = this.api_allowed_domains.filter(domain => domain.trim() !== '');
+            const domains = this.domain_whitelist.filter(domain => domain.trim() !== '');
             
             if (domains.length === 0) {
-                this.$toast.warning('Please add at least one API allowed domain');
+                this.$toast.warning('Please add at least one domain to the whitelist');
                 return;
             }
 
@@ -633,11 +653,11 @@ export default {
             
             axios
                 .post(
-                    "/admin/projects/settings/api/update-api-allowed-domains/" + this.project.id,
-                    { api_allowed_domains: domains }
+                    "/admin/projects/settings/api/update-domain-whitelist/" + this.project.id,
+                    { domain_whitelist: domains }
                 )
                 .then((response) => {
-                    this.$toast.success('API allowed domains saved successfully');
+                    this.$toast.success('Domain whitelist saved successfully');
                     this.getProject();
                 })
                 .catch((error) => {

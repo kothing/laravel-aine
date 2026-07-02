@@ -264,42 +264,39 @@ class MediaController extends Controller {
     }
 
     /**
-     * Get project media by domain (no UUID required)
-     * Automatically resolve project by domain, frontend does not need to pass UUID
+     * Get project media by explicit project identifier (UUID or slug)
+     * Project is resolved by ValidateProjectAccess middleware and set on request attributes
      *
+     * @param string $projectIdentifier Project UUID or slug
      * @param \Illuminate\Http\Request $request
      * @return \App\Http\Resources\MediaResource
      */
-    public function getProjectMediaByDomain(Request $request){
-        // ⭐ Get the resolved project from request attributes set by middleware
+    public function getProjectMediaByDomain($projectIdentifier, Request $request){
         $project = $request->attributes->get('resolved_project');
         
         if (!$project) {
             return $this->notFound('Project not resolved');
         }
         
-        // Reuse the original getProjectMedia method
         return $this->getProjectMedia($project->uuid);
     }
 
     /**
-     * Get file by ID by domain (no UUID required)
-     * Automatically resolve project by domain, frontend does not need to pass UUID
+     * Get file by ID by explicit project identifier (UUID or slug)
+     * Project is resolved by ValidateProjectAccess middleware and set on request attributes
      *
-     * @param int $id
+     * @param string $projectIdentifier Project UUID or slug
+     * @param int $id File ID
      * @param \Illuminate\Http\Request $request
      * @return \App\Http\Resources\MediaResource
      */
-    public function getFileByIDByDomain($id, Request $request){
-        // ⭐ Get the resolved project from request attributes set by middleware
+    public function getFileByIDByDomain($projectIdentifier, $id, Request $request){
         $project = $request->attributes->get('resolved_project');
         
         if (!$project) {
             return $this->notFound('Project not resolved');
         }
         
-        // Reuse the original getFileByID method
         return $this->getFileByID($project->uuid, $id);
     }
-
 }

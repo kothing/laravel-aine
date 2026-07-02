@@ -18,29 +18,24 @@ use App\Http\Controllers\API\ProjectsController;
 */
 
 // ============================================
-// Method 1: New API (domain-based auto-resolution, no UUID required)
-// Use case: Pure frontend projects (React/Vue/Angular, etc.)
+// Method 1: Explicit project identifier API
+// Use case: Multi-project frontend applications (single domain accessing multiple backend projects)
+// Requires explicit project identifier (UUID or slug) in URL
+// Validates project access via domain whitelist
 // ============================================
-Route::middleware(['resolve.project.by.api.allowed.domain'])->prefix('project')->group(function () {
-    // Get project information (must be before /{slug})
-    Route::get('/', [ProjectsController::class, 'showByDomain']);
-    
-    // Media library (read-only) - must be before /{slug}
-    Route::get('/media', [MediaController::class, 'getProjectMediaByDomain']);
-    Route::get('/media/{id}', [MediaController::class, 'getFileByIDByDomain']);
-    
-    // Get content list
-    Route::get('/{slug}', [ContentController::class, 'getContentByDomain']);
-    
-    // Get single content by ID
-    Route::get('/{slug}/{id}', [ContentController::class, 'getContentByIDByDomain']);
+Route::middleware(['validate.project.access'])->prefix('project')->group(function () {
+    Route::get('/{projectIdentifier}', [ProjectsController::class, 'showByDomain']);
+    Route::get('/{projectIdentifier}/media', [MediaController::class, 'getProjectMediaByDomain']);
+    Route::get('/{projectIdentifier}/media/{id}', [MediaController::class, 'getFileByIDByDomain']);
+    Route::get('/{projectIdentifier}/{slug}', [ContentController::class, 'getContentByDomain']);
+    Route::get('/{projectIdentifier}/{slug}/{id}', [ContentController::class, 'getContentByIDByDomain']);
 });
 
 // ============================================
 // Method 2: Original API (requires UUID + Token)
 // Use case: Laravel frontend projects, backend server calls
 // ============================================
-Route::middleware(['verify.api.allowed.domain'])->group(function () {
+Route::middleware(['verify.domain.whitelist'])->group(function () {
     Route::get('/{uuid}/project-media', [MediaController::class, 'getProjectMedia']);
     Route::get('/{uuid}/project-media/{id}', [MediaController::class, 'getFileByID']);
     Route::get('/{uuid}/project-media/name/{name}', [MediaController::class, 'getFileByName']);

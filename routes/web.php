@@ -43,6 +43,7 @@ Route::middleware('auth:web')->prefix('admin')->group(function(){
         Route::get('/{id}', [ProjectsController::class, 'show']);
         Route::post('/update/{id}', [ProjectsController::class, 'update']);
         Route::delete('/delete/{id}', [ProjectsController::class, 'delete'])->middleware(['role:super_admin']);
+        Route::get('/check-slug/{slug}', [ProjectsController::class, 'checkSlug']);
 
         Route::prefix('settings')->middleware(['role:super_admin'])->group(function(){
             Route::get('/locales/{id}', [ProjectsController::class, 'locales']);
@@ -61,7 +62,7 @@ Route::middleware('auth:web')->prefix('admin')->group(function(){
             Route::post('/api/delete-token/{id}', [ProjectsController::class, 'deleteToken']);
             Route::post('/api/enable_public_access/{id}', [ProjectsController::class, 'enablePublicAPIAccess']);
             Route::post('/api/disable_public_access/{id}', [ProjectsController::class, 'disablePublicAPIAccess']);
-            Route::post('/api/update-api-allowed-domains/{id}', [ProjectsController::class, 'updateApiAllowedDomains']);
+            Route::post('/api/update-domain-whitelist/{id}', [ProjectsController::class, 'updateDomainWhitelist']);
 
             Route::get('/webhooks/{project_id}', [ProjectsController::class, 'webhooks']);
             Route::get('/webhooks/{project_id}/logs/{webhook_id}', [ProjectsController::class, 'webhookLogs']);

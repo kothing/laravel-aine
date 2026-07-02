@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 class DynamicCors
 {
     /**
-     * Handle an incoming request with dynamic CORS headers based on api_allowed_domains.
+     * Handle an incoming request with dynamic CORS headers based on domain_whitelist.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
@@ -59,7 +59,7 @@ class DynamicCors
     }
 
     /**
-     * Check if the origin is allowed in any project's api_allowed_domains
+     * Check if the origin is in any project's domain_whitelist
      */
     protected function isOriginAllowed(?string $host): bool
     {
@@ -68,14 +68,14 @@ class DynamicCors
         }
 
         return Project::where(function ($query) use ($host) {
-            $query->whereJsonContains('api_allowed_domains', "https://{$host}")
-                ->orWhereJsonContains('api_allowed_domains', "http://{$host}")
-                ->orWhereJsonContains('api_allowed_domains', "{$host}");
+            $query->whereJsonContains('domain_whitelist', "https://{$host}")
+                ->orWhereJsonContains('domain_whitelist', "http://{$host}")
+                ->orWhereJsonContains('domain_whitelist', "{$host}");
         })->exists();
     }
 
     /**
-     * Build CORS response headers for an allowed origin.
+     * Build CORS response headers for a whitelisted origin.
      */
     protected function corsHeaders(string $origin): array
     {
