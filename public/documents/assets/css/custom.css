@@ -1,0 +1,16 @@
+.docs-content {
+    padding-bottom: 10px !important;
+}
+.aine {
+    color: #fff;
+    padding: 2px 8px;
+    width: auto;
+    background-color: #40babd !important;
+    border: none !important;
+}
+.docs-sidebar {
+    width: 350px !important;
+}
+/* pre {
+    padding: .3em !important;
+} */

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en"> 
+<head>
+    <title>AineCMS Documentation</title>
+    
+    <!-- Meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AineCMS Documentation">
+    <meta name="author" content="AineCMS">    
+    <link rel="shortcut icon" href="favicon.ico"> 
+    
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome JS-->
+    <script defer src="assets/fontawesome/js/all.min.js"></script>
+
+    <!-- Theme CSS -->  
+    <link id="theme-style" rel="stylesheet" href="assets/css/theme.css">
+    <link id="theme-style" rel="stylesheet" href="assets/css/custom.css">
+    <link id="theme-style" rel="stylesheet" href="assets/css/default.min.css">
+</head> 
+
+<body>    
+    <header class="header fixed-top">	 
+        <div class="branding docs-branding">
+            <div class="container-fluid position-relative py-2">
+                <div class="docs-logo-wrapper">
+					<button id="docs-sidebar-toggler" class="docs-sidebar-toggler docs-sidebar-visible me-2 d-xl-none" type="button">
+	                    <span></span>
+	                    <span></span>
+	                    <span></span>
+	                </button>
+	                <div class="site-logo">
+						<a class="navbar-brand" href="index.html"><span class="logo-text">AineCMS<span class="text-alt">Docs</span> <small class="text-normal">v1.0.0</small></span></a>
+					</div>    
+                </div><!--//docs-logo-wrapper-->
+            </div><!--//container-->
+        </div><!--//branding-->
+    </header><!--//header-->
+    
+    
+    <div class="docs-wrapper">
+	    <div id="docs-sidebar" class="docs-sidebar">
+		    <nav id="docs-nav" class="docs-nav navbar">
+			    <ul class="section-items list-unstyled nav flex-column pb-3">
+				    <li class="nav-item section-title"><a class="nav-link" href="index.html">Introduction</a></li>
+					<li class="nav-item section-title mt-1"><a class="nav-link" href="installation.html"></span>Installation</a></li>
+                    <li class="nav-item"><a class="nav-link" href="installation.html#requirements">Server Requirements</a></li>
+                    <li class="nav-item"><a class="nav-link" href="installation.html#unzipping_files">Unzipping Files</a></li>
+                    <li class="nav-item"><a class="nav-link" href="installation.html#permissions">Directory Permissions</a></li>
+                    <li class="nav-item"><a class="nav-link" href="installation.html#configuration">Configure .env file</a></li>
+                    <li class="nav-item"><a class="nav-link" href="installation.html#database">Database</a></li>
+                    <li class="nav-item"><a class="nav-link" href="installation.html#login">Login to the Application</a></li>
+                    <li class="nav-item"><a class="nav-link" href="installation.html#create_super_admin">Creating A Super Admin</a></li>
+					<li class="nav-item section-title mt-1"><a class="nav-link" href="projects.html"></span>Managing Projects</a></li>
+                    <li class="nav-item"><a class="nav-link" href="projects.html#creating_a_new_project">Creating A New Project</a></li>
+                    <li class="nav-item"><a class="nav-link" href="projects.html#project_settings">Project Settings</a>
+                        <ul class="section-items list-unstyled nav flex-column">
+                            <li class="nav-item"><a class="nav-link" href="projects.html#settings_project">Project</a></li>
+                            <li class="nav-item"><a class="nav-link" href="projects.html#settings_localization">Localization</a></li>
+                            <li class="nav-item"><a class="nav-link" href="projects.html#settings_users_roles">Users & Roles</a></li>
+                            <li class="nav-item"><a class="nav-link" href="projects.html#settings_api_access">API Access</a></li>
+                            <li class="nav-item"><a class="nav-link" href="projects.html#settings_webhooks">Webhooks</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item"><a class="nav-link" href="projects.html#collections">Collections</a></li>
+                    <li class="nav-item"><a class="nav-link" href="projects.html#fields">Fields</a></li>
+                    <li class="nav-item"><a class="nav-link" href="projects.html#field_types">Field Types</a></li>
+                    <li class="nav-item"><a class="nav-link" href="projects.html#content">Content</a></li>
+                    <li class="nav-item"><a class="nav-link" href="projects.html#embeddable_forms">Embeddable Forms</a></li>
+                    <li class="nav-item"><a class="nav-link" href="projects.html#media_library">Media Library</a></li>
+                    <li class="nav-item"><a class="nav-link" href="projects.html#media_library_s3">Amazon AWS S3 Upload</a></li>
+                
+					<li class="nav-item section-title mt-1"><a class="nav-link" href="content_api.html"></span>Content API</a></li>
+                    <li class="nav-item"><a class="nav-link" href="content_api.html#get-project">Endpoints</a>
+                        <ul class="section-items list-unstyled nav flex-column">
+                            <li class="nav-item"><a class="nav-link" href="content_api.html#get-project"><span class="badge bg-success">GET</span> Get project</a></li>
+                            <li class="nav-item"><a class="nav-link" href="content_api.html#get-entries"><span class="badge bg-success">GET</span> Get entries</a></li>
+                            <li class="nav-item"><a class="nav-link" href="content_api.html#get-one-entry"><span class="badge bg-success">GET</span> Get one entry</a></li>
+                            <li class="nav-item"><a class="nav-link" href="content_api.html#create-an-entry"><span class="badge bg-warning">POST</span> Create an entry</a></li>
+                            <li class="nav-item"><a class="nav-link" href="content_api.html#update-an-entry"><span class="badge bg-warning">POST</span> Update an entry</a></li>
+                            <li class="nav-item"><a class="nav-link" href="content_api.html#delete-an-entry"><span class="badge bg-danger">DEL</span> Delete an entry</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item"><a class="nav-link" href="content_api.html#get-project-files">Managing Media Library</a>
+                        <ul class="section-items list-unstyled nav flex-column">
+                            <li class="nav-item"><a class="nav-link" href="content_api.html#get-project-files"><span class="badge bg-success">GET</span> Get Project Files</a></li>
+                            <li class="nav-item"><a class="nav-link" href="content_api.html#get-file-by-id"><span class="badge bg-success">GET</span> Get File By ID</a></li>
+                            <li class="nav-item"><a class="nav-link" href="content_api.html#get-file-by-name"><span class="badge bg-success">GET</span> Get File By Name</a></li>
+                            <li class="nav-item"><a class="nav-link" href="content_api.html#upload-file"><span class="badge bg-warning">POST</span> Upload a File</a></li>
+                            <li class="nav-item"><a class="nav-link" href="content_api.html#delete-a-file"><span class="badge bg-danger">DEL</span> Delete a File</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item"><a class="nav-link" href="content_api.html#where-clauses">Parameters</a>
+                        <ul class="section-items list-unstyled nav flex-column">
+                            <li class="nav-item"><a class="nav-link" href="content_api.html#where-clauses">Where clauses</a></li>
+                            <li class="nav-item"><a class="nav-link" href="content_api.html#where-through-relation">Where through relation</a></li>
+                            <li class="nav-item"><a class="nav-link" href="content_api.html#counting-entries">Counting entries</a></li>
+                            <li class="nav-item"><a class="nav-link" href="content_api.html#sorting">Sorting</a></li>
+                            <li class="nav-item"><a class="nav-link" href="content_api.html#limit">Limit and Offset</a></li>
+                            <li class="nav-item"><a class="nav-link" href="content_api.html#draft">With or Only Draft</a></li>
+                            <li class="nav-item"><a class="nav-link" href="content_api.html#include-timestamp-fields">Include Timestamp Fields</a></li>
+                        </ul>
+                    </li>
+			    </ul>
+		    </nav><!--//docs-nav-->
+	    </div><!--//docs-sidebar-->
+		
+	    <div class="docs-content">
+		    <div class="container">
+				<article class="docs-article" id="section-1">
+				    <header class="docs-header">
+					    <h1 class="docs-heading">Installation</h1>
+				    </header>
+                    <section class="docs-section" id="requirements">
+                        <h2 class="section-heading">Server Requirements</h2>
+                        <div>
+                            <ul>
+                                <li>PHP >= 8.1</li>
+                                <li>Mysql >= 5.7.8</li>
+                                <li>BCMath PHP Extension</li>
+                                <li>Ctype PHP Extension</li>
+                                <li>DOM PHP Extension</li>
+                                <li>Fileinfo PHP Extension</li>
+                                <li>JSON PHP Extension</li>
+                                <li>Mbstring PHP Extension</li>
+                                <li>OpenSSL PHP Extension</li>
+                                <li>PCRE PHP Extension</li>
+                                <li>PDO PHP Extension</li>
+                                <li>Tokenizer PHP Extension</li>
+                                <li>XML PHP Extension</li>
+                            </ul>
+                        </div>
+                    </section>
+                    <section class="docs-section" id="unzipping_files">
+                        <h2 class="section-heading">Unzipping Files</h2>
+                        <div>
+                            <p>After downloading the application unzip all files to your root folder and move all files inside <span class="aine">public</span>  folder to your <span class="aine">public_html</span> folder.</p>
+
+                            It should look like this :
+                        </p>
+						<div class="docs-code-block">
+							<pre class="rounded"><code class="language-html hljs">
+    .
+    ..
+    /app
+    /bootstrap
+    /config
+    /database
+    /public_html
+    .....
+</code></pre>
+                           
+                        </div>
+                    </section>
+                    <section class="docs-section" id="permissions">
+                        <h2 class="section-heading">Directory Permissions</h2>
+                        <div>
+                            <p>Make sure your <span class="aine">storage</span> and the <span class="aine">bootstrap/cache</span> directories are writable.</p>
+
+                            <p>You can change directory permissions via terminal</p>
+
+                            <pre><code class="language-bash">$ chmod -R 777 storage/ bootstrap/cache/</code></pre>
+                        </div>
+                    </section>
+                    <section class="docs-section" id="configuration">
+                        <h2 class="section-heading">Configure .env file</h2>
+                        <div>
+                            <p><span class="aine">.env</span> file contains basic configuration for your application.</p>
+
+                            <p><strong>Change the Application URL</strong></p>
+                            <pre><code class="language-plaintext">APP_URL=https://your-domain.com</code></pre>
+
+                            <p><strong>Configure Database</strong></p>
+                            <pre><code class="language-plaintext">DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=ainecms
+DB_USERNAME=user
+DB_PASSWORD=pass</code></pre>
+
+                            <p><strong>Set max file size for the media library</strong></p>
+                            <pre><code class="language-plaintext">MAX_FILE_SIZE=8M</code></pre>
+                        </div>
+                    </section>
+                    <section class="docs-section" id="database">
+                        <h2 class="section-heading">Database</h2>
+                        <div>
+                            <p><strong>Import sql file</strong></p>
+                            <p>Import the <span class="aine">demo.sql</span> file into your database.</p>
+
+                            <p><strong>OR</strong></p>
+
+                            <p>If you have access to ssh, run this command on terminal from the application directory.</p>
+                            <pre><code>$ php artisan migrate --seed</code></pre>
+                        </div>
+                    </section>
+                    <section class="docs-section" id="login">
+                        <h2 class="section-heading">Login to Application</h2>
+                        <div>
+                            <p>After the installation you can login to application with your newly created super admin account.</p>
+
+                            <pre><code class="language-plaintext">E-mail : admin@admin.com
+Password: admin</code></pre>
+                         
+                            <p>You should change this account e-mail and password after logged in.</p>
+                        </div>
+                    </section>
+                    <section class="docs-section" id="create_super_admin">
+                        <h2 class="section-heading">Creating A Super Admin</h2>
+                        <div>
+                            <p>If you need another super admin account you can create a new one using terminal</p>
+
+                            <pre><code class="language-bash">php artisan aine:create_super name email password</code></pre>
+                        </div>
+                    </section>
+			    </article>
+		    </div> 
+	    </div>
+    </div>
+       
+    <!-- Javascript -->          
+    <script src="assets/plugins/popper.min.js"></script>
+    <script src="assets/plugins/bootstrap/js/bootstrap.min.js"></script>  
+    
+    <!-- Page Specific JS -->
+    <script src="assets/plugins/smoothscroll.min.js"></script>
+    <script src="assets/js/highlight.min.js"></script> 
+    <script src="assets/plugins/simplelightbox/simple-lightbox.min.js"></script>      
+    <script src="assets/plugins/gumshoe/gumshoe.polyfills.min.js"></script> 
+    <script src="assets/js/docs.js"></script> 
+
+    <script>hljs.highlightAll();</script>
+
+</body>
+</html> 
+

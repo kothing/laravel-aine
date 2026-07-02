@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="en"> 
+<head>
+    <title>AineCMS Documentation</title>
+    
+    <!-- Meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AineCMS Documentation">
+    <meta name="author" content="AineCMS">    
+    <link rel="shortcut icon" href="favicon.ico"> 
+    
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome JS-->
+    <script defer src="assets/fontawesome/js/all.min.js"></script>
+
+    <!-- Theme CSS -->  
+    <link id="theme-style" rel="stylesheet" href="assets/css/theme.css">
+    <link id="theme-style" rel="stylesheet" href="assets/css/custom.css">
+    <link id="theme-style" rel="stylesheet" href="assets/css/default.min.css">
+    <link id="theme-style" rel="stylesheet" href="assets/css/prism.css">
+
+</head> 
+
+<body>    
+    <header class="header fixed-top">	 
+        <div class="branding docs-branding">
+            <div class="container-fluid position-relative py-2">
+                <div class="docs-logo-wrapper">
+					<button id="docs-sidebar-toggler" class="docs-sidebar-toggler docs-sidebar-visible me-2 d-xl-none" type="button">
+	                    <span></span>
+	                    <span></span>
+	                    <span></span>
+	                </button>
+	                <div class="site-logo">
+						<a class="navbar-brand" href="index.html"><span class="logo-text">AineCMS<span class="text-alt">Docs</span> <small class="text-normal">v1.0.0</small></span></a>
+					</div>    
+                </div><!--//docs-logo-wrapper-->
+            </div><!--//container-->
+        </div><!--//branding-->
+    </header><!--//header-->
+    
+    
+    <div class="docs-wrapper">
+	    <div id="docs-sidebar" class="docs-sidebar">
+		    <nav id="docs-nav" class="docs-nav navbar">
+			    <ul class="section-items list-unstyled nav flex-column pb-3">
+				    <li class="nav-item section-title"><a class="nav-link" href="index.html">Introduction</a></li>
+				    
+					<li class="nav-item section-title mt-1"><a class="nav-link" href="installation.html"></span>Installation</a></li>
+						<li class="nav-item"><a class="nav-link" href="installation.html#requirements">Server Requirements</a></li>
+						<li class="nav-item"><a class="nav-link" href="installation.html#unzipping_files">Unzipping Files</a></li>
+						<li class="nav-item"><a class="nav-link" href="installation.html#permissions">Directory Permissions</a></li>
+						<li class="nav-item"><a class="nav-link" href="installation.html#configuration">Configure .env file</a></li>
+						<li class="nav-item"><a class="nav-link" href="installation.html#database">Database</a></li>
+						<li class="nav-item"><a class="nav-link" href="installation.html#login">Login to the Application</a></li>
+						<li class="nav-item"><a class="nav-link" href="installation.html#create_super_admin">Creating A Super Admin</a></li>
+
+					<li class="nav-item section-title mt-1"><a class="nav-link" href="projects.html"></span>Managing Projects</a></li>
+						<li class="nav-item"><a class="nav-link" href="projects.html#creating_a_new_project">Creating A New Project</a></li>
+						<li class="nav-item"><a class="nav-link" href="projects.html#project_settings">Project Settings</a>
+							<ul class="section-items list-unstyled nav flex-column">
+								<li class="nav-item"><a class="nav-link" href="projects.html#settings_project">Project</a></li>
+								<li class="nav-item"><a class="nav-link" href="projects.html#settings_localization">Localization</a></li>
+								<li class="nav-item"><a class="nav-link" href="projects.html#settings_users_roles">Users & Roles</a></li>
+								<li class="nav-item"><a class="nav-link" href="projects.html#settings_api_access">API Access</a></li>
+                                <li class="nav-item"><a class="nav-link" href="projects.html#settings_webhooks">Webhooks</a></li>
+							</ul>
+						</li>
+						<li class="nav-item"><a class="nav-link" href="projects.html#collections">Collections</a></li>
+						<li class="nav-item"><a class="nav-link" href="projects.html#fields">Fields</a></li>
+						<li class="nav-item"><a class="nav-link" href="projects.html#field_types">Field Types</a></li>
+						<li class="nav-item"><a class="nav-link" href="projects.html#content">Content</a></li>
+                        <li class="nav-item"><a class="nav-link" href="projects.html#embeddable_forms">Embeddable Forms</a></li>
+						<li class="nav-item"><a class="nav-link" href="projects.html#media_library">Media Library</a></li>
+                        <li class="nav-item"><a class="nav-link" href="projects.html#media_library_s3">Amazon AWS S3 Upload</a></li>
+					
+					<li class="nav-item section-title mt-1"><a class="nav-link" href="content_api.html"></span>Content API</a></li>
+						<li class="nav-item"><a class="nav-link" href="content_api.html#get-project">Endpoints</a>
+							<ul class="section-items list-unstyled nav flex-column">
+								<li class="nav-item"><a class="nav-link" href="content_api.html#get-project"><span class="badge bg-success">GET</span> Get project</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#get-entries"><span class="badge bg-success">GET</span> Get entries</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#get-one-entry"><span class="badge bg-success">GET</span> Get one entry</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#create-an-entry"><span class="badge bg-warning">POST</span> Create an entry</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#update-an-entry"><span class="badge bg-warning">POST</span> Update an entry</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#delete-an-entry"><span class="badge bg-danger">DEL</span> Delete an entry</a></li>
+							</ul>
+						</li>
+
+                        <li class="nav-item"><a class="nav-link" href="content_api.html#get-project-files">Managing Media Library</a>
+                            <ul class="section-items list-unstyled nav flex-column">
+                                <li class="nav-item"><a class="nav-link" href="content_api.html#get-project-files"><span class="badge bg-success">GET</span> Get Project Files</a></li>
+                                <li class="nav-item"><a class="nav-link" href="content_api.html#get-file-by-id"><span class="badge bg-success">GET</span> Get File By ID</a></li>
+                                <li class="nav-item"><a class="nav-link" href="content_api.html#get-file-by-name"><span class="badge bg-success">GET</span> Get File By Name</a></li>
+                                <li class="nav-item"><a class="nav-link" href="content_api.html#upload-file"><span class="badge bg-warning">POST</span> Upload a File</a></li>
+                                <li class="nav-item"><a class="nav-link" href="content_api.html#delete-a-file"><span class="badge bg-danger">DEL</span> Delete a File</a></li>
+                            </ul>
+                        </li>
+
+						<li class="nav-item"><a class="nav-link" href="content_api.html#where-clauses">Parameters</a>
+							<ul class="section-items list-unstyled nav flex-column">
+								<li class="nav-item"><a class="nav-link" href="content_api.html#where-clauses">Where clauses</a></li>
+                                <li class="nav-item"><a class="nav-link" href="content_api.html#where-through-relation">Where through relation</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#counting-entries">Counting entries</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#sorting">Sorting</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#limit">Limit and Offset</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#draft">With or Only Draft</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#include-timestamp-fields">Include Timestamp Fields</a></li>
+							</ul>
+						</li>
+			    </ul>
+		    </nav><!--//docs-nav-->
+	    </div><!--//docs-sidebar-->
+		
+	    <div class="docs-content">
+		    <div class="container">
+			    <article class="docs-article" id="section-1">
+				    <header class="docs-header">
+					    <h1 class="docs-heading">Content API</h1>
+				    </header>
+					<section class="docs-section">
+                        <p>You can find the project's base endpoint in your Project Settings / API Access section. In order to connect to the API you will need an access token.</p>
+                        <p><img src="assets/images/project_settings_5.png" class="w-100 border" alt=""></p>
+
+                        <h4 class="mt-5"><strong>Endpoints</strong></h4>
+                        
+                        <section class="docs-section mt-5" id="get-project">
+                            <h4><span class="badge bg-success">GET</span> Get Project</h4>
+                            <p>
+                            <pre><code class="language-plaintext">https://your-domain.com/api/your_project_id</code></pre></p>
+                            
+                            <h4 class="mt-5 border-bottom pb-2">Request Headers</h4>
+                            <table class="table">
+                                <tr>
+                                    <th class="w-25">Accept</th>
+                                    <td>application/json</td>
+                                </tr>
+                                <tr>
+                                    <th>Authorization</th>
+                                    <td>Bearer <em>your_access_token</em></td>
+                                </tr>
+                            </table>
+
+                            <h4 class="mt-5 border-bottom pb-2">Example Requests</h4>
+
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab1_1" type="button">PHP</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab1_2" type="button">CURL</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab1_3" type="button">HTTP</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab1_4" type="button">Javascript</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab1_5" type="button">Ruby</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="tab1_1">
+                                    <pre><code class="language-php">&lt;?php
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+    CURLOPT_URL => 'https://your-domain.com/api/your_project_id',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 0,
+    CURLOPT_FOLLOWLOCATION => true,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'GET',
+    CURLOPT_HTTPHEADER => array(
+    'Accept: application/json',
+    'Authorization: Bearer your_access_token'
+    ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab1_2">
+                                    <pre><code class="language-curl">curl --location --request GET 'https://your-domain.com/api/your_project_id' \
+    --header 'Accept: application/json' \
+    --header 'Authorization: Bearer your_access_token'</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab1_3">
+                                    <pre><code class="language-http">GET /api/your_project_id HTTP/1.1
+    Host: your-domain.com
+    Accept: application/json
+    Authorization: Bearer your_access_token</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab1_4">
+                                    <pre><code class="language-javascript">var myHeaders = new Headers();
+myHeaders.append("Accept", "application/json");
+myHeaders.append("Authorization", "Bearer your_access_token");
+
+var requestOptions = {
+    method: 'GET',
+    headers: myHeaders,
+    redirect: 'follow'
+};
+
+fetch("https://your-domain.com/api/your_project_id", requestOptions)
+    .then(response => response.text())
+    .then(result => console.log(result))
+    .catch(error => console.log('error', error));</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab1_5">
+                                    <pre><code class="language-ruby">require "uri"
+require "net/http"
+
+url = URI("https://your-domain.com/api/your_project_id")
+
+https = Net::HTTP.new(url.host, url.port)
+https.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+request["Accept"] = "application/json"
+request["Authorization"] = "Bearer your_access_token"
+
+response = https.request(request)
+puts response.read_body</code></pre>
+                                </div>
+                            </div>
+                        </section>
+                        
+                        <section class="docs-section mt-5" id="get-entries">
+                            <h4><span class="badge bg-success">GET</span> Get Entries</h4>
+                            <p>
+                            <pre><code class="language-plaintext">https://your-domain.com/api/your_project_id/collection</code></pre></p>
+                            
+                            <h4 class="mt-5 border-bottom pb-2">Request Headers</h4>
+                            <table class="table">
+                                <tr>
+                                    <th class="w-25">Accept</th>
+                                    <td>application/json</td>
+                                </tr>
+                                <tr>
+                                    <th>Authorization</th>
+                                    <td>Bearer <em>your_access_token</em></td>
+                                </tr>
+                            </table>
+
+                            <h4 class="mt-5 border-bottom pb-2">Example Requests</h4>
+
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab2_1" type="button">PHP</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab2_2" type="button">CURL</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab2_3" type="button">HTTP</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab2_4" type="button">Javascript</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab2_5" type="button">Ruby</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="tab2_1">
+                                    <pre><code class="language-php">&lt;?php
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+    CURLOPT_URL => 'https://your-domain.com/api/your_project_id/your_collection',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 0,
+    CURLOPT_FOLLOWLOCATION => true,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'GET',
+    CURLOPT_HTTPHEADER => array(
+    'Accept: application/json',
+    'Authorization: Bearer your_access_token'
+    ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab2_2">
+                                    <pre><code class="language-curl">curl --location --request GET 'https://your-domain.com/api/your_project_id/your_collection' \
+    --header 'Accept: application/json' \
+    --header 'Authorization: Bearer your_access_token'</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab2_3">
+                                    <pre><code class="language-http">GET /api/your_project_id/your_collection HTTP/1.1
+    Host: your-domain.com
+    Accept: application/json
+    Authorization: Bearer your_access_token</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab2_4">
+                                    <pre><code class="language-javascript">var myHeaders = new Headers();
+myHeaders.append("Accept", "application/json");
+myHeaders.append("Authorization", "Bearer your_access_token");
+
+var requestOptions = {
+    method: 'GET',
+    headers: myHeaders,
+    redirect: 'follow'
+};
+
+fetch("https://your-domain.com/api/your_project_id/your_collection", requestOptions)
+    .then(response => response.text())
+    .then(result => console.log(result))
+    .catch(error => console.log('error', error));</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab2_5">
+                                    <pre><code class="language-ruby">require "uri"
+require "net/http"
+
+url = URI("https://your-domain.com/api/your_project_id/your_collection")
+
+https = Net::HTTP.new(url.host, url.port)
+https.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+request["Accept"] = "application/json"
+request["Authorization"] = "Bearer your_access_token"
+
+response = https.request(request)
+puts response.read_body</code></pre>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="docs-section mt-5" id="get-one-entry">
+                            <h4><span class="badge bg-success">GET</span> Get One Entry</h4>
+                            <p>
+                            <pre><code class="language-plaintext">https://your-domain.com/api/your_project_id/collection/{content_id}</code></pre></p>
+                            
+                            <h4 class="mt-5 border-bottom pb-2">Request Headers</h4>
+                            <table class="table">
+                                <tr>
+                                    <th class="w-25">Accept</th>
+                                    <td>application/json</td>
+                                </tr>
+                                <tr>
+                                    <th>Authorization</th>
+                                    <td>Bearer <em>your_access_token</em></td>
+                                </tr>
+                            </table>
+
+                            <h4 class="mt-5 border-bottom pb-2">Example Requests</h4>
+
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab3_1" type="button">PHP</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab3_2" type="button">CURL</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab3_3" type="button">HTTP</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab3_4" type="button">Javascript</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab3_5" type="button">Ruby</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="tab3_1">
+                                    <pre><code class="language-php">&lt;?php
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+    CURLOPT_URL => 'https://your-domain.com/api/your_project_id/your_collection/{content_id}',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 0,
+    CURLOPT_FOLLOWLOCATION => true,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'GET',
+    CURLOPT_HTTPHEADER => array(
+    'Accept: application/json',
+    'Authorization: Bearer your_access_token'
+    ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab3_2">
+                                    <pre><code class="language-curl">curl --location --request GET 'https://your-domain.com/api/your_project_id/your_collection/{content_id}' \
+    --header 'Accept: application/json' \
+    --header 'Authorization: Bearer your_access_token'</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab3_3">
+                                    <pre><code class="language-http">GET /api/your_project_id/your_collection/{content_id} HTTP/1.1
+    Host: your-domain.com
+    Accept: application/json
+    Authorization: Bearer your_access_token</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab3_4">
+                                    <pre><code class="language-javascript">var myHeaders = new Headers();
+myHeaders.append("Accept", "application/json");
+myHeaders.append("Authorization", "Bearer your_access_token");
+
+var requestOptions = {
+    method: 'GET',
+    headers: myHeaders,
+    redirect: 'follow'
+};
+
+fetch("https://your-domain.com/api/your_project_id/your_collection/{content_id}", requestOptions)
+    .then(response => response.text())
+    .then(result => console.log(result))
+    .catch(error => console.log('error', error));</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab3_5">
+                                    <pre><code class="language-ruby">require "uri"
+require "net/http"
+
+url = URI("https://your-domain.com/api/your_project_id/your_collection/{content_id}")
+
+https = Net::HTTP.new(url.host, url.port)
+https.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+request["Accept"] = "application/json"
+request["Authorization"] = "Bearer your_access_token"
+
+response = https.request(request)
+puts response.read_body</code></pre>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="docs-section mt-5" id="create-an-entry">
+                            <h4><span class="badge bg-warning">POST</span> Create An Entry</h4>
+                            <p>
+                            <pre><code class="language-plaintext">https://your-domain.com/api/your_project_id/your_collection</code></pre></p>
+                            
+                            <h4 class="mt-5 border-bottom pb-2">Request Headers</h4>
+                            <table class="table">
+                                <tr>
+                                    <th class="w-25">Accept</th>
+                                    <td>application/json</td>
+                                </tr>
+                                <tr>
+                                    <th>Authorization</th>
+                                    <td>Bearer <em>your_access_token</em></td>
+                                </tr>
+                            </table>
+                            <h4 class="mt-5 border-bottom pb-2">Body <small>formdata</small></h4>
+                            <table class="table">
+                                <tr>
+                                    <th class="w-25">locale</th>
+                                    <td>en</td>
+                                </tr>
+                                <tr>
+                                    <th class="w-25">title</th>
+                                    <td>Post Title</td>
+                                </tr>
+                                <tr>
+                                    <th class="w-25">...</th>
+                                    <td></td>
+                                </tr>
+                            </table>
+
+                            <div class="callout-block callout-block-info">
+                                <div class="content">
+                                    <h4 class="callout-title">
+                                        <span class="callout-icon-holder me-1">
+                                            <i class="fas fa-info-circle"></i>
+                                        </span>
+                                        Save as Draft
+                                    </h4>
+                                    <p>If you want to create an entry as a draft add one more parameter to your request body.</p>
+                                    <h4 class="mt-5 border-bottom pb-2">Body <small>formdata</small></h4>
+                                    <table class="table">
+                                        <tr>
+                                            <th class="w-25">draft</th>
+                                            <td>1</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <h4 class="mt-5 border-bottom pb-2">Example Requests</h4>
+
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab4_1" type="button">PHP</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab4_2" type="button">CURL</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab4_3" type="button">HTTP</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab4_4" type="button">Javascript</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab4_5" type="button">Ruby</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="tab4_1">
+                                    <pre><code class="language-php">&lt;?php
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+    CURLOPT_URL => 'https://your-domain.com/api/your_project_id/your_collection',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 0,
+    CURLOPT_FOLLOWLOCATION => true,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'POST',
+    CURLOPT_POSTFIELDS => array('locale' => 'en', 'title' => 'Post Title'),
+    CURLOPT_HTTPHEADER => array(
+        'Accept: application/json',
+        'Authorization: Bearer your_access_token'
+    ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab4_2">
+<pre><code class="language-curl">curl --location --request POST 'https://your-domain.com/api/your_project_id/your_collection' \
+    --header 'Accept: application/json' \
+    --header 'Authorization: Bearer your_access_token' \
+    --form 'locale="en"' \
+    --form 'title="Post Title"' \</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab4_3">
+<pre><code class="language-http">POST /api/your_project_id/your_collection HTTP/1.1
+    Host: your-domain.com
+    Accept: application/json
+    Authorization: Bearer your_access_token
+    Content-Length: 221
+    Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+    
+    ----WebKitFormBoundary7MA4YWxkTrZu0gW
+    Content-Disposition: form-data; name="locale"
+    
+    en
+    ----WebKitFormBoundary7MA4YWxkTrZu0gW
+    Content-Disposition: form-data; name="title"
+    
+    Post Title
+    ----WebKitFormBoundary7MA4YWxkTrZu0gW</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab4_4">
+                                    <pre><code class="language-javascript">var myHeaders = new Headers();
+myHeaders.append("Accept", "application/json");
+myHeaders.append("Authorization", "Bearer your_access_token");
+
+var formdata = new FormData();
+formdata.append("locale", "en");
+formdata.append("title", "Post Title");
+
+var requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: formdata,
+    redirect: 'follow'
+};
+
+fetch("https://your-domain.com/api/your_project_id/your_collection", requestOptions)
+    .then(response => response.text())
+    .then(result => console.log(result))
+    .catch(error => console.log('error', error));</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab4_5">
+                                    <pre><code class="language-ruby">require "uri"
+require "net/http"
+
+url = URI("https://your-domain.com/api/your_project_id/your_collection")
+
+https = Net::HTTP.new(url.host, url.port)
+https.use_ssl = true
+
+request = Net::HTTP::Post.new(url)
+request["Accept"] = "application/json"
+request["Authorization"] = "Bearer your_access_token"
+form_data = [['locale', 'en'],['title', 'Post Title']]
+request.set_form form_data, 'multipart/form-data'
+response = https.request(request)
+puts response.read_body</code></pre>
+                                </div>
+                            </div>
+
+                            <h4 class="mt-5 border-bottom pb-2">Repeatable Fields</h4>
+                            <p>If your collection contains repeatable fields, when creating new entry you need to send that field as an array.</p>
+                            <p>Here is an example using GuzzleHttp:</p>
+                            <pre class="mt-3"><code>composer require guzzlehttp/guzzle:^7.0</code></pre>
+
+                            <pre><code class="language-php">&lt;?php
+require 'vendor/autoload.php';
+
+use GuzzleHttp\Client;
+
+$client = new Client([
+    'base_uri' => 'https://your-domain.com',
+]);
+
+$token = 'your_access_token';
+
+$response = $client->post(
+    '/api/your_project_id/your_collection', [
+        'headers' => [
+            'Accept'                => 'application/json',
+            'Authorization'         => 'Bearer '. $token,
+        ],
+        'json' => [
+            'repeatable-field-name' => [
+                'apple',
+                'orange',
+                'banana',
+            ],
+        ],
+    ],
+);
+
+echo $response->getBody()->getContents();</code></pre>
+                        </section>
+                        
+                        <section class="docs-section mt-5" id="update-an-entry">
+                            <h4><span class="badge bg-warning">POST</span> Update An Entry</h4>
+                            <p>
+                            <pre><code class="language-plaintext">https://your-domain.com/api/your_project_id/your_collection/update/{content_id}</code></pre></p>
+                            
+                            <h4 class="mt-5 border-bottom pb-2">Request Headers</h4>
+                            <table class="table">
+                                <tr>
+                                    <th class="w-25">Accept</th>
+                                    <td>application/json</td>
+                                </tr>
+                                <tr>
+                                    <th>Authorization</th>
+                                    <td>Bearer <em>your_access_token</em></td>
+                                </tr>
+                            </table>
+                            <h4 class="mt-5 border-bottom pb-2">Body <small>formdata</small></h4>
+                            <table class="table">
+                                <tr>
+                                    <th class="w-25">locale</th>
+                                    <td>en</td>
+                                </tr>
+                                <tr>
+                                    <th class="w-25">title</th>
+                                    <td>Post Title</td>
+                                </tr>
+                                <tr>
+                                    <th class="w-25">...</th>
+                                    <td></td>
+                                </tr>
+                            </table>
+
+                            <h4 class="mt-5 border-bottom pb-2">Example Requests</h4>
+
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab5_1" type="button">PHP</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab5_2" type="button">CURL</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab5_3" type="button">HTTP</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab5_4" type="button">Javascript</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab5_5" type="button">Ruby</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="tab5_1">
+                                    <pre><code class="language-php">&lt;?php
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+    CURLOPT_URL => 'https://your-domain.com/api/your_project_id/your_collection/update/{content_id}',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 0,
+    CURLOPT_FOLLOWLOCATION => true,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'POST',
+    CURLOPT_POSTFIELDS => array('locale' => 'en','title' => 'Post Title'),
+    CURLOPT_HTTPHEADER => array(
+        'Accept: application/json',
+        'Authorization: Bearer your_access_token'
+    ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab5_2">
+<pre><code class="language-curl">curl --location --request POST 'https://your-domain.com/api/your_project_id/your_collection/update/{content_id}' \
+    --header 'Accept: application/json' \
+    --header 'Authorization: Bearer your_access_token' \
+    --form 'locale="en"' \
+    --form 'title="Post Title"' \</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab5_3">
+<pre><code class="language-http">POST /api/your_project_id/your_collection/update/{content_id} HTTP/1.1
+    Host: your-domain.com
+    Accept: application/json
+    Authorization: Bearer your_access_token
+    Content-Length: 221
+    Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+    
+    ----WebKitFormBoundary7MA4YWxkTrZu0gW
+    Content-Disposition: form-data; name="locale"
+    
+    en
+    ----WebKitFormBoundary7MA4YWxkTrZu0gW
+    Content-Disposition: form-data; name="title"
+    
+    Post Title
+    ----WebKitFormBoundary7MA4YWxkTrZu0gW</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab5_4">
+                                    <pre><code class="language-javascript">var myHeaders = new Headers();
+myHeaders.append("Accept", "application/json");
+myHeaders.append("Authorization", "Bearer your_access_token");
+
+var formdata = new FormData();
+formdata.append("locale", "en");
+formdata.append("title", "Post Title");
+
+var requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: formdata,
+    redirect: 'follow'
+};
+
+fetch("https://your-domain.com/api/your_project_id/your_collection/update/{content_id}", requestOptions)
+    .then(response => response.text())
+    .then(result => console.log(result))
+    .catch(error => console.log('error', error));</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab5_5">
+                                    <pre><code class="language-ruby">require "uri"
+require "net/http"
+
+url = URI("https://your-domain.com/api/your_project_id/your_collection/update/{content_id}")
+
+https = Net::HTTP.new(url.host, url.port)
+https.use_ssl = true
+
+request = Net::HTTP::Post.new(url)
+request["Accept"] = "application/json"
+request["Authorization"] = "Bearer your_access_token"
+form_data = [['locale', 'en'],['title', 'Post Title']]
+request.set_form form_data, 'multipart/form-data'
+response = https.request(request)
+puts response.read_body</code></pre>
+                                </div>
+                            </div>
+
+                            <h4 class="mt-5 border-bottom pb-2">Repeatable Fields</h4>
+                            <p>If your collection contains repeatable fields, when updating an entry you need to send that field as an array.</p>
+                            <p>Editing existing content for repeatable fields is not available. Every parameter you send will be saved as a new entry.</p>
+                            <p>Here is an example using GuzzleHttp:</p>
+                            <pre class="mt-3"><code>composer require guzzlehttp/guzzle:^7.0</code></pre>
+
+                            <pre><code class="language-php">&lt;?php
+require 'vendor/autoload.php';
+
+use GuzzleHttp\Client;
+
+$client = new Client([
+    'base_uri' => 'https://your-domain.com',
+]);
+
+$token = 'your_access_token';
+
+$response = $client->post(
+    '/api/your_project_id/your_collection/update/:item_id', [
+        'headers' => [
+            'Accept'                => 'application/json',
+            'Authorization'         => 'Bearer '. $token,
+        ],
+        'json' => [
+            'repeatable-field-name' => [
+                'apple',
+                'orange',
+                'banana',
+            ],
+        ],
+    ],
+);
+
+echo $response->getBody()->getContents();</code></pre>
+                        </section>
+
+                        <section class="docs-section mt-5" id="delete-an-entry">
+                            <h4><span class="badge bg-danger">DEL</span> Delete an Entry</h4>
+                            <p>
+                            <pre><code class="language-plaintext">https://your-domain.com/api/your_project_id/your_collection/{content_id}</code></pre></p>
+                            
+                            <h4 class="mt-5 border-bottom pb-2">Request Headers</h4>
+                            <table class="table">
+                                <tr>
+                                    <th class="w-25">Accept</th>
+                                    <td>application/json</td>
+                                </tr>
+                                <tr>
+                                    <th>Authorization</th>
+                                    <td>Bearer <em>your_access_token</em></td>
+                                </tr>
+                            </table>
+
+                            <h4 class="mt-5 border-bottom pb-2">Example Requests</h4>
+
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab6_1" type="button">PHP</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab6_2" type="button">CURL</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab6_3" type="button">HTTP</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab6_4" type="button">Javascript</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab6_5" type="button">Ruby</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="tab6_1">
+                                    <pre><code class="language-php">&lt;?php
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+    CURLOPT_URL => 'https://your-domain.com/api/your_project_id/your_collection/{content_id}',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 0,
+    CURLOPT_FOLLOWLOCATION => true,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'DELETE',
+    CURLOPT_HTTPHEADER => array(
+        'Accept: application/json',
+        'Authorization: Bearer your_access_token'
+    ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab6_2">
+                                    <pre><code class="language-curl">curl --location --request DELETE 'https://your-domain.com/api/your_project_id/your_collection/{content_id}' \
+    --header 'Accept: application/json' \
+    --header 'Authorization: Bearer your_access_token'</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab6_3">
+                                    <pre><code class="language-http">DELETE /api/your_project_id/your_collection/{content_id} HTTP/1.1
+    Host: your-domain.com
+    Accept: application/json
+    Authorization: Bearer your_access_token</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab6_4">
+                                    <pre><code class="language-javascript">var myHeaders = new Headers();
+myHeaders.append("Accept", "application/json");
+myHeaders.append("Authorization", "Bearer your_access_token");
+
+var requestOptions = {
+    method: 'DELETE',
+    headers: myHeaders,
+    redirect: 'follow'
+};
+
+fetch("https://your-domain.com/api/your_project_id/your_collection/{content_id}", requestOptions)
+    .then(response => response.text())
+    .then(result => console.log(result))
+    .catch(error => console.log('error', error));</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab6_5">
+                                    <pre><code class="language-ruby">require "uri"
+require "net/http"
+
+url = URI("https://your-domain.com/api/your_project_id/your_collection/{content_id}")
+
+https = Net::HTTP.new(url.host, url.port)
+https.use_ssl = true
+
+request = Net::HTTP::Delete.new(url)
+request["Accept"] = "application/json"
+request["Authorization"] = "Bearer your_access_token"
+
+response = https.request(request)
+puts response.read_body</code></pre>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="docs-section mt-5" id="get-project-files">
+                            <h4><span class="badge bg-success">GET</span> Get Project Files</h4>
+                            <p>
+                            <pre><code class="language-plaintext">https://your-domain.com/api/your_project_id/project-media</code></pre></p>
+
+                            <h4 class="mt-5 border-bottom pb-2">Request Headers</h4>
+                            <table class="table">
+                                <tr>
+                                    <th class="w-25">Accept</th>
+                                    <td>application/json</td>
+                                </tr>
+                                <tr>
+                                    <th>Authorization</th>
+                                    <td>Bearer <em>your_access_token</em></td>
+                                </tr>
+                            </table>
+
+                            <h4 class="mt-5 border-bottom pb-2">Example Requests</h4>
+
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab7_1" type="button">PHP</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab7_2" type="button">CURL</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab7_3" type="button">HTTP</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab7_4" type="button">Javascript</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab7_5" type="button">Ruby</button>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="tab7_1">
+                                    <pre><code class="language-php">&lt;?php
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+    CURLOPT_URL => 'https://your-domain.com/api/your_project_id/project-media',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 0,
+    CURLOPT_FOLLOWLOCATION => true,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'GET',
+    CURLOPT_HTTPHEADER => array(
+    'Accept: application/json',
+    'Authorization: Bearer your_access_token'
+    ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab7_2">
+                                    <pre><code class="language-curl">curl --location --request GET 'https://your-domain.com/api/your_project_id/project-media' \
+    --header 'Accept: application/json' \
+    --header 'Authorization: Bearer your_access_token'</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab7_3">
+                                    <pre><code class="language-http">GET /api/your_project_id/project-media HTTP/1.1
+    Host: your-domain.com
+    Accept: application/json
+    Authorization: Bearer your_access_token</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab7_4">
+                                    <pre><code class="language-javascript">var myHeaders = new Headers();
+myHeaders.append("Accept", "application/json");
+myHeaders.append("Authorization", "Bearer your_access_token");
+
+var requestOptions = {
+    method: 'GET',
+    headers: myHeaders,
+    redirect: 'follow'
+};
+
+fetch("https://your-domain.com/api/your_project_id/project-media", requestOptions)
+    .then(response => response.text())
+    .then(result => console.log(result))
+    .catch(error => console.log('error', error));</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab7_5">
+                                    <pre><code class="language-ruby">require "uri"
+require "net/http"
+
+url = URI("https://your-domain.com/api/your_project_id/project-media")
+
+https = Net::HTTP.new(url.host, url.port)
+https.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+request["Accept"] = "application/json"
+request["Authorization"] = "Bearer your_access_token"
+
+response = https.request(request)
+puts response.read_body</code></pre>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="docs-section mt-5" id="get-file-by-id">
+                            <h4><span class="badge bg-success">GET</span> Get File By ID</h4>
+                            <p>
+                            <pre><code class="language-plaintext">https://your-domain.com/api/your_project_id/project-media/{file_id}</code></pre></p>
+                            
+                            <h4 class="mt-5 border-bottom pb-2">Request Headers</h4>
+                            <table class="table">
+                                <tr>
+                                    <th class="w-25">Accept</th>
+                                    <td>application/json</td>
+                                </tr>
+                                <tr>
+                                    <th>Authorization</th>
+                                    <td>Bearer <em>your_access_token</em></td>
+                                </tr>
+                            </table>
+
+                            <h4 class="mt-5 border-bottom pb-2">Example Requests</h4>
+
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab8_1" type="button">PHP</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab8_2" type="button">CURL</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab8_3" type="button">HTTP</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab8_4" type="button">Javascript</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab8_5" type="button">Ruby</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="tab8_1">
+                                    <pre><code class="language-php">&lt;?php
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+    CURLOPT_URL => 'https://your-domain.com/api/your_project_id/project-media/{file_id}',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 0,
+    CURLOPT_FOLLOWLOCATION => true,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'GET',
+    CURLOPT_HTTPHEADER => array(
+    'Accept: application/json',
+    'Authorization: Bearer your_access_token'
+    ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab8_2">
+                                    <pre><code class="language-curl">curl --location --request GET 'https://your-domain.com/api/your_project_id/project-media/{file_id}' \
+    --header 'Accept: application/json' \
+    --header 'Authorization: Bearer your_access_token'</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab8_3">
+                                    <pre><code class="language-http">GET /api/your_project_id/project-media/{file_id} HTTP/1.1
+    Host: your-domain.com
+    Accept: application/json
+    Authorization: Bearer your_access_token</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab8_4">
+                                    <pre><code class="language-javascript">var myHeaders = new Headers();
+myHeaders.append("Accept", "application/json");
+myHeaders.append("Authorization", "Bearer your_access_token");
+
+var requestOptions = {
+    method: 'GET',
+    headers: myHeaders,
+    redirect: 'follow'
+};
+
+fetch("https://your-domain.com/api/your_project_id/project-media/{file_id}", requestOptions)
+    .then(response => response.text())
+    .then(result => console.log(result))
+    .catch(error => console.log('error', error));</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab8_5">
+                                    <pre><code class="language-ruby">require "uri"
+require "net/http"
+
+url = URI("https://your-domain.com/api/your_project_id/project-media/{file_id}")
+
+https = Net::HTTP.new(url.host, url.port)
+https.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+request["Accept"] = "application/json"
+request["Authorization"] = "Bearer your_access_token"
+
+response = https.request(request)
+puts response.read_body</code></pre>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="docs-section mt-5" id="get-file-by-name">
+                            <h4><span class="badge bg-success">GET</span> Get File By Name</h4>
+                            <p>
+                            <pre><code class="language-plaintext">https://your-domain.com/api/your_project_id/project-media/name/{file_name}</code></pre></p>
+                            
+                            <h4 class="mt-5 border-bottom pb-2">Request Headers</h4>
+                            <table class="table">
+                                <tr>
+                                    <th class="w-25">Accept</th>
+                                    <td>application/json</td>
+                                </tr>
+                                <tr>
+                                    <th>Authorization</th>
+                                    <td>Bearer <em>your_access_token</em></td>
+                                </tr>
+                            </table>
+
+                            <h4 class="mt-5 border-bottom pb-2">Example Requests</h4>
+
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab9_1" type="button">PHP</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab9_2" type="button">CURL</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab9_3" type="button">HTTP</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab9_4" type="button">Javascript</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab9_5" type="button">Ruby</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="tab9_1">
+                                    <pre><code class="language-php">&lt;?php
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+    CURLOPT_URL => 'https://your-domain.com/api/your_project_id/project-media/name/{file_name}',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 0,
+    CURLOPT_FOLLOWLOCATION => true,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'GET',
+    CURLOPT_HTTPHEADER => array(
+    'Accept: application/json',
+    'Authorization: Bearer your_access_token'
+    ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab9_2">
+                                    <pre><code class="language-curl">curl --location --request GET 'https://your-domain.com/api/your_project_id/project-media/name/{file_name}' \
+    --header 'Accept: application/json' \
+    --header 'Authorization: Bearer your_access_token'</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab9_3">
+                                    <pre><code class="language-http">GET /api/your_project_id/project-media/name/{file_name} HTTP/1.1
+    Host: your-domain.com
+    Accept: application/json
+    Authorization: Bearer your_access_token</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab9_4">
+                                    <pre><code class="language-javascript">var myHeaders = new Headers();
+myHeaders.append("Accept", "application/json");
+myHeaders.append("Authorization", "Bearer your_access_token");
+
+var requestOptions = {
+    method: 'GET',
+    headers: myHeaders,
+    redirect: 'follow'
+};
+
+fetch("https://your-domain.com/api/your_project_id/project-media/name/{file_name}", requestOptions)
+    .then(response => response.text())
+    .then(result => console.log(result))
+    .catch(error => console.log('error', error));</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab9_5">
+                                    <pre><code class="language-ruby">require "uri"
+require "net/http"
+
+url = URI("https://your-domain.com/api/your_project_id/project-media/name/{file_name}")
+
+https = Net::HTTP.new(url.host, url.port)
+https.use_ssl = true
+
+request = Net::HTTP::Get.new(url)
+request["Accept"] = "application/json"
+request["Authorization"] = "Bearer your_access_token"
+
+response = https.request(request)
+puts response.read_body</code></pre>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="docs-section mt-5" id="upload-file">
+                            <h4><span class="badge bg-warning">POST</span> Upload a File</h4>
+                            <p>
+                            <pre><code class="language-plaintext">https://your-domain.com/api/your_project_id/project-media/upload</code></pre></p>
+                            
+                            <h4 class="mt-5 border-bottom pb-2">Request Headers</h4>
+                            <table class="table">
+                                <tr>
+                                    <th class="w-25">Accept</th>
+                                    <td>application/json</td>
+                                </tr>
+                                <tr>
+                                    <th>Authorization</th>
+                                    <td>Bearer <em>your_access_token</em></td>
+                                </tr>
+                            </table>
+                            <h4 class="mt-5 border-bottom pb-2">Body <small>formdata</small></h4>
+                            <table class="table">
+                                <tr>
+                                    <th class="w-25">file</th>
+                                    <td>your_file</td>
+                                </tr>
+                            </table>
+
+                            <h4 class="mt-5 border-bottom pb-2">Example Requests</h4>
+
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab11_0" type="button">PHP - GuzzleHttp</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab11_1" type="button">PHP</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab11_2" type="button">CURL</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab11_3" type="button">HTTP</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab11_4" type="button">Javascript</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab11_5" type="button">Ruby</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="tab11_0">
+                                    <pre class="mt-3"><code>composer require guzzlehttp/guzzle:^7.0</code></pre>
+
+                                    <pre class="mt-3"><code class="language-php">&lt;?php
+require 'vendor/autoload.php';
+
+use GuzzleHttp\Client;
+
+$client = new Client([
+    'base_uri' => 'https://your-domain.com',
+]);
+$token = 'your_access_token';
+
+if(isset($_FILES['file'])){
+    try {
+        $response = $client->post(
+            '/api/your_project_id/project-media/upload', [
+                'headers' => [
+                    'Accept'        => 'application/json',
+                    'Authorization' => 'Bearer '. $token,
+                ],
+                'multipart' => [
+                    [
+                        'name'     => 'file',
+                        'contents' => fopen($_FILES['file']['tmp_name'], 'r'),
+                        'filename' => $_FILES['file']['name']
+                    ],
+                ],
+            ],
+        );
+       echo $response->getBody()->getContents();
+    } catch (\GuzzleHttp\Exception\ClientException $e) {
+        echo $e->getMessage();
+        exit;
+    }
+}
+?></code></pre>
+
+<pre class="mt-4"><code class="language-html">&lt;html>
+    &lt;body>
+        &lt;form action="" method="post" enctype="multipart/form-data">
+            Select file to upload:
+            &lt;input type="file" name="file" id="file">
+            &lt;input type="submit" value="Upload File" name="submit">
+        &lt;/form>
+    &lt;/body>
+&lt;/html></code></pre>
+                                </div>
+                                <div class="tab-pane fade show" id="tab11_1">
+                                    <pre><code class="language-php">&lt;?php
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+    CURLOPT_URL => 'https://your-domain.com/api/your_project_id/project-media/upload',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 0,
+    CURLOPT_FOLLOWLOCATION => true,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'POST',
+    CURLOPT_POSTFIELDS => array('file'=> new CURLFILE('/path_to_file')),
+    CURLOPT_HTTPHEADER => array(
+    'Accept: application/json',
+    'Authorization: Bearer your_access_token'
+    ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab11_2">
+<pre><code class="language-curl">curl --location --request POST 'https://your-domain.com/api/your_project_id/project-media/upload' \
+--header 'Accept: application/json' \
+--header 'Authorization: Bearer your_access_token' \
+--form 'file=@"/path_to_file"'</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab11_3">
+<pre><code class="language-http">POST /api/your_project_id/project-media/upload HTTP/1.1
+    Host: your-domain.com
+    Accept: application/json
+    Authorization: Bearer your_access_token
+    Content-Length: 204
+    Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+    
+    ----WebKitFormBoundary7MA4YWxkTrZu0gW
+    Content-Disposition: form-data; name="file"; filename="path_to_file"
+    Content-Type: image/jpg
+    
+    (data)
+    ----WebKitFormBoundary7MA4YWxkTrZu0gW</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab11_4">
+                                    <pre><code class="language-javascript">var myHeaders = new Headers();
+myHeaders.append("Accept", "application/json");
+myHeaders.append("Authorization", "Bearer your_access_token");
+
+var formdata = new FormData();
+formdata.append("file", fileInput.files[0], "path_to_file");
+
+var requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: formdata,
+    redirect: 'follow'
+};
+
+fetch("https://your-domain.com/api/your_project_id/project-media/upload", requestOptions)
+    .then(response => response.text())
+    .then(result => console.log(result))
+    .catch(error => console.log('error', error));</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab11_5">
+                                    <pre><code class="language-ruby">require "uri"
+require "net/http"
+                                        
+url = URI("https://your-domain.com/api/your_project_id/project-media/upload")
+
+https = Net::HTTP.new(url.host, url.port)
+https.use_ssl = true
+
+request = Net::HTTP::Post.new(url)
+request["Accept"] = "application/json"
+request["Authorization"] = "Bearer your_access_token"
+form_data = [['file', File.open('/path_to_file')]]
+request.set_form form_data, 'multipart/form-data'
+response = https.request(request)
+puts response.read_body</code></pre>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="docs-section mt-5" id="delete-a-file">
+                            <h4><span class="badge bg-danger">DEL</span> Delete a File</h4>
+                            <p>
+                            <pre><code class="language-plaintext">https://your-domain.com/api/your_project_id/project-media/{file_id}</code></pre></p>
+                            
+                            <h4 class="mt-5 border-bottom pb-2">Request Headers</h4>
+                            <table class="table">
+                                <tr>
+                                    <th class="w-25">Accept</th>
+                                    <td>application/json</td>
+                                </tr>
+                                <tr>
+                                    <th>Authorization</th>
+                                    <td>Bearer <em>your_access_token</em></td>
+                                </tr>
+                            </table>
+
+                            <h4 class="mt-5 border-bottom pb-2">Example Requests</h4>
+
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab10_1" type="button">PHP</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab10_2" type="button">CURL</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab10_3" type="button">HTTP</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab10_4" type="button">Javascript</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab10_5" type="button">Ruby</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="tab10_1">
+                                    <pre><code class="language-php">&lt;?php
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+    CURLOPT_URL => 'https://your-domain.com/api/your_project_id/project-media/{file_id}',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_ENCODING => '',
+    CURLOPT_MAXREDIRS => 10,
+    CURLOPT_TIMEOUT => 0,
+    CURLOPT_FOLLOWLOCATION => true,
+    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    CURLOPT_CUSTOMREQUEST => 'DELETE',
+    CURLOPT_HTTPHEADER => array(
+        'Accept: application/json',
+        'Authorization: Bearer your_access_token'
+    ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab10_2">
+                                    <pre><code class="language-curl">curl --location --request DELETE 'https://your-domain.com/api/your_project_id/project-media/{file_id}' \
+    --header 'Accept: application/json' \
+    --header 'Authorization: Bearer your_access_token'</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab10_3">
+                                    <pre><code class="language-http">DELETE /api/your_project_id/project-media/{file_id} HTTP/1.1
+    Host: your-domain.com
+    Accept: application/json
+    Authorization: Bearer your_access_token</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab10_4">
+                                    <pre><code class="language-javascript">var myHeaders = new Headers();
+myHeaders.append("Accept", "application/json");
+myHeaders.append("Authorization", "Bearer your_access_token");
+
+var requestOptions = {
+    method: 'DELETE',
+    headers: myHeaders,
+    redirect: 'follow'
+};
+
+fetch("https://your-domain.com/api/your_project_id/project-media/{file_id}", requestOptions)
+    .then(response => response.text())
+    .then(result => console.log(result))
+    .catch(error => console.log('error', error));</code></pre>
+                                </div>
+                                <div class="tab-pane fade" id="tab10_5">
+                                    <pre><code class="language-ruby">require "uri"
+require "net/http"
+
+url = URI("https://your-domain.com/api/your_project_id/project-media/{file_id}")
+
+https = Net::HTTP.new(url.host, url.port)
+https.use_ssl = true
+
+request = Net::HTTP::Delete.new(url)
+request["Accept"] = "application/json"
+request["Authorization"] = "Bearer your_access_token"
+
+response = https.request(request)
+puts response.read_body</code></pre>
+                                </div>
+                            </div>
+                        </section>
+
+                        <h4 class="mt-5"><strong>Parameters</strong></h4>
+                        
+                        <section class="docs-section" id="where-clauses">
+                            <h4>Where Clauses</h4>
+                            <p>You can use where clauses to filter the results.</p>
+                            <h5 class="mt-5">Example Request</h5>
+                            <pre><code>https://your-domain.com/api/your_project_id/posts?where[id]=1</code></pre>
+
+                            <h5 class="mt-5">Single Where Clause</h5>
+                            <pre><code>?where[id]=1</code></pre>
+                            <pre><code>?where[locale]=en</code></pre>
+                            <pre><code>?where[created_at]=2021-11-25</code></pre>
+                            <pre><code>?where[updated_at]=2021-11-25</code></pre>
+                            <pre><code>?where[published_at]=2021-11-25</code></pre>
+                            <pre><code>?where[title]=About</code></pre>
+
+                            <h5 class="mt-5">Get the first result</h5>
+                            <pre><code>https://your-domain.com/api/your_project_id/posts?first</code></pre>
+
+                            <h5 class="mt-5"><em>like</em> operator</h5>
+                            <pre><code>?where[title][like]=about</code></pre>
+                            
+                            <h5 class="mt-5"><em>not</em> operator</h5>
+                            <pre><code>?where[title][not]=about</code></pre>
+                            
+                            <h5 class="mt-5"><em>in</em> and <em>not_in</em> operators</h5>
+                            <pre><code>?where[id][in]=1,2,3</code></pre>
+                            <pre><code>?where[id][not_in]=4,5,6</code></pre>
+
+                            <h5 class="mt-5"><em>lt</em> and <em>lte</em> operators</h5>
+                            <p>less than</p>
+                            <pre><code>?where[price][lt]=200</code></pre>
+                            <p>less than or equal to</p>
+                            <pre><code>?where[price][lte]=200</code></pre>
+
+                            <h5 class="mt-5"><em>gt</em> and <em>gte</em> operators</h5>
+                            <p>greater than</p>
+                            <pre><code>?where[price][gt]=200</code></pre>
+                            <p>greater than or equal to</p>
+                            <pre><code>?where[price][gte]=200</code></pre>
+
+                            <h5 class="mt-5"><em>null</em> and <em>not_null</em> operators</h5>
+                            <pre><code>?where[price]=null</code></pre>
+                            <pre><code>?where[price]=not_null</code></pre>
+
+                            <h5 class="mt-5"><em>between</em> and <em>not_between</em> operators</h5>
+                            <pre><code>?where[price][between]=20,21</code></pre>
+                            <pre><code>?where[price][not_between]=20,21</code></pre>
+
+                            <h5 class="mt-5">Combining where clauses</h5>
+                            <pre><code>?where[][price]=200&where[][name]=Watch</code></pre>
+
+                            <h5 class="mt-5"><em>OR</em></h5>
+                            <pre><code>?where[][price]=200&where[or][price]=300</code></pre>
+                        </section>
+
+                        <section class="docs-section" id="where-through-relation">
+                            <h4>Where Through Relation</h4>
+                            <p class="mt-2">You can filter your API requests through relation fields. There are two ways of doing this.</p>
+
+                            <p class="mt-5"><strong>For example;</strong> let's say we have two collections. Posts and Authors.</p>
+
+                            <table class="table border">
+                                <thead>
+                                    <tr>
+                                        <th colspan="3">Posts</th>
+                                    </tr>
+                                    <tr>
+                                        <th>Display Name</th>
+                                        <th>Field Name</th>
+                                        <th>Field Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Title</td>
+                                        <td>title</td>
+                                        <td>text</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Url</td>
+                                        <td>url</td>
+                                        <td>slug</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Author</td>
+                                        <td>author</td>
+                                        <td>relation(One to One to authors collection)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <table class="table border mt-4">
+                                <thead>
+                                    <tr>
+                                        <th colspan="3">Authors</th>
+                                    </tr>
+                                    <tr>
+                                        <th>Display Name</th>
+                                        <th>Field Name</th>
+                                        <th>Field Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Name</td>
+                                        <td>name</td>
+                                        <td>text</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Surname</td>
+                                        <td>surname</td>
+                                        <td>text</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <p class="mt-4">You want to get the Post entries that has an author named John.</p>
+                            
+                            <h5 class="mt-5"># Option 1</h5>
+                            <p>You can use two API requests.</p>
+                            <p>1- Get the author id filtering by name:</p>
+                            <pre><code>https://your-domain.com/api/your_project_id/authors?where[name]=John</code></pre>
+                            <p>2- Get the Post entries that has the author id:</p>
+                            <pre><code>https://your-domain.com/api/your_project_id/posts?where[author]=1</code></pre>
+                            
+                            <h5 class="mt-5"># Option 2</h5>
+                            <p class="mt-3">You can use <strong>whereRelation</strong> parameter.</p>
+                            <p class="mt-5">Get the Post entries that has author named John:</p>
+                            <pre><code>https://your-domain.com/api/your_project_id/posts?whereRelation[author][name]=John</code></pre>
+                            <p class="mt-5">Or you can get the Post entries by author's surname:</p>
+                            <pre><code>https://your-domain.com/api/your_project_id/posts?whereRelation[author][surname]=Doe</code></pre>
+                            <p class="mt-5">You can combine <strong>whereRelation</strong> option with other where clauses:</p>
+                            <pre><code>https://your-domain.com/api/your_project_id/posts?whereRelation[author][name]=John&where[title]=about</code></pre>
+                        </section>
+
+                        <section class="docs-section" id="counting-entries">
+                            <h4>Counting Entries</h4>
+                            <p>To get the total number of entries you can use <em>count</em> operator.</p>
+                            <h5 class="mt-1">Example Request</h5>
+                            <pre><code>https://your-domain.com/api/your_project_id/posts?count</code></pre>
+                            <p>You can combine <em>count</em> operator with other filter options.</p>
+                            <pre><code>https://your-domain.com/api/your_project_id/posts?where[price][lt]=200&count</code></pre>
+                        </section>
+                        
+                        <section class="docs-section" id="sorting">
+                            <h4>Sorting</h4>
+                            <h5 class="mt-1">Example Request</h5>
+                            <pre><code>https://your-domain.com/api/your_project_id/posts?sort=created_at:DESC</code></pre>
+                            <pre><code>https://your-domain.com/api/your_project_id/posts?sort=created_at:ASC,id:DESC</code></pre>
+                        </section>
+                        <section class="docs-section" id="limit">
+                            <h4>Limit and Offset</h4>
+                            <p>Limit the size of the returned results and skip a specific number of entries (useful for pagination).</p>
+                            <h5 class="mt-1">Example Request (limit)</h5>
+                            <pre><code>https://your-domain.com/api/your_project_id/posts?limit=20</code></pre>
+                            <h5 class="mt-1">Example Request (limit & offset)</h5>
+                            <pre><code>https://your-domain.com/api/your_project_id/posts?limit=20&offset=5</code></pre>
+                        </section>
+                        <section class="docs-section" id="draft">
+                            <h4>With or Only Draft</h4>
+                            <p>By default the content from the API is published. But you can include drafts as well. </p>
+                            <pre><code>https://your-domain.com/api/your_project_id/posts?state=with_draft</code></pre>
+                            <p>If you want to get only drafts;</p>
+                            <pre><code>https://your-domain.com/api/your_project_id/posts?state=only_draft</code></pre>
+                        </section>
+                        <section class="docs-section" id="include-timestamp-fields">
+                            <h4>Include Timestamp Fields</h4>
+                            <p>By default 3 timestamp fields (<em>created_at, updated_at, published_at</em>) are invisible in API calls.<br> You can include them using <strong>timestamps</strong> option.</p>
+                            <pre><code>https://your-domain.com/api/your_project_id/posts?timestamps</code></pre>
+                        </section>
+					</section>
+			    </article>
+		    </div> 
+	    </div>
+    </div>
+       
+    <!-- Javascript -->          
+    <script src="assets/plugins/popper.min.js"></script>
+    <script src="assets/plugins/bootstrap/js/bootstrap.min.js"></script>  
+    
+    <!-- Page Specific JS -->
+    <script src="assets/plugins/smoothscroll.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/highlight.min.js"></script>
+    <script src="assets/js/highlight-custom.js"></script> 
+    <script src="assets/plugins/simplelightbox/simple-lightbox.min.js"></script>      
+    <script src="assets/plugins/gumshoe/gumshoe.polyfills.min.js"></script> 
+    <script src="assets/js/docs.js"></script> 
+    <script src="assets/js/prism.js"></script> 
+
+</body>
+</html> 
+

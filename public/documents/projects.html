@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en"> 
+<head>
+    <title>AineCMS Documentation</title>
+    
+    <!-- Meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AineCMS Documentation">
+    <meta name="author" content="AineCMS">    
+    <link rel="shortcut icon" href="favicon.ico"> 
+    
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome JS-->
+    <script defer src="assets/fontawesome/js/all.min.js"></script>
+
+    <!-- Theme CSS -->  
+    <link id="theme-style" rel="stylesheet" href="assets/css/theme.css">
+    <link id="theme-style" rel="stylesheet" href="assets/css/custom.css">
+    <link id="theme-style" rel="stylesheet" href="assets/css/default.min.css">
+</head> 
+
+<body>    
+    <header class="header fixed-top">	 
+        <div class="branding docs-branding">
+            <div class="container-fluid position-relative py-2">
+                <div class="docs-logo-wrapper">
+					<button id="docs-sidebar-toggler" class="docs-sidebar-toggler docs-sidebar-visible me-2 d-xl-none" type="button">
+	                    <span></span>
+	                    <span></span>
+	                    <span></span>
+	                </button>
+	                <div class="site-logo">
+						<a class="navbar-brand" href="index.html"><span class="logo-text">AineCMS<span class="text-alt">Docs</span> <small class="text-normal">v1.0.0</small></span></a>
+					</div>    
+                </div><!--//docs-logo-wrapper-->
+            </div><!--//container-->
+        </div><!--//branding-->
+    </header><!--//header-->
+    
+    
+    <div class="docs-wrapper">
+	    <div id="docs-sidebar" class="docs-sidebar">
+		    <nav id="docs-nav" class="docs-nav navbar">
+			    <ul class="section-items list-unstyled nav flex-column pb-3">
+				    <li class="nav-item section-title"><a class="nav-link" href="index.html">Introduction</a></li>
+				    
+					<li class="nav-item section-title mt-1"><a class="nav-link" href="installation.html"></span>Installation</a></li>
+						<li class="nav-item"><a class="nav-link" href="installation.html#requirements">Server Requirements</a></li>
+						<li class="nav-item"><a class="nav-link" href="installation.html#unzipping_files">Unzipping Files</a></li>
+						<li class="nav-item"><a class="nav-link" href="installation.html#permissions">Directory Permissions</a></li>
+						<li class="nav-item"><a class="nav-link" href="installation.html#configuration">Configure .env file</a></li>
+						<li class="nav-item"><a class="nav-link" href="installation.html#database">Database</a></li>
+						<li class="nav-item"><a class="nav-link" href="installation.html#login">Login to the Application</a></li>
+						<li class="nav-item"><a class="nav-link" href="installation.html#create_super_admin">Creating A Super Admin</a></li>
+
+					<li class="nav-item section-title mt-1"><a class="nav-link" href="projects.html"></span>Managing Projects</a></li>
+						<li class="nav-item"><a class="nav-link" href="projects.html#creating_a_new_project">Creating A New Project</a></li>
+						<li class="nav-item"><a class="nav-link" href="projects.html#project_settings">Project Settings</a>
+							<ul class="section-items list-unstyled nav flex-column">
+								<li class="nav-item"><a class="nav-link" href="projects.html#settings_project">Project</a></li>
+								<li class="nav-item"><a class="nav-link" href="projects.html#settings_localization">Localization</a></li>
+								<li class="nav-item"><a class="nav-link" href="projects.html#settings_users_roles">Users & Roles</a></li>
+								<li class="nav-item"><a class="nav-link" href="projects.html#settings_api_access">API Access</a></li>
+                                <li class="nav-item"><a class="nav-link" href="projects.html#settings_webhooks">Webhooks</a></li>
+							</ul>
+						</li>
+						<li class="nav-item"><a class="nav-link" href="projects.html#collections">Collections</a></li>
+						<li class="nav-item"><a class="nav-link" href="projects.html#fields">Fields</a></li>
+						<li class="nav-item"><a class="nav-link" href="projects.html#field_types">Field Types</a></li>
+						<li class="nav-item"><a class="nav-link" href="projects.html#content">Content</a></li>
+                        <li class="nav-item"><a class="nav-link" href="projects.html#embeddable_forms">Embeddable Forms</a></li>
+						<li class="nav-item"><a class="nav-link" href="projects.html#media_library">Media Library</a></li>
+                        <li class="nav-item"><a class="nav-link" href="projects.html#media_library_s3">Amazon AWS S3 Upload</a></li>
+					
+					<li class="nav-item section-title mt-1"><a class="nav-link" href="content_api.html"></span>Content API</a></li>
+						<li class="nav-item"><a class="nav-link" href="content_api.html#get-project">Endpoints</a>
+							<ul class="section-items list-unstyled nav flex-column">
+								<li class="nav-item"><a class="nav-link" href="content_api.html#get-project"><span class="badge bg-success">GET</span> Get project</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#get-entries"><span class="badge bg-success">GET</span> Get entries</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#get-one-entry"><span class="badge bg-success">GET</span> Get one entry</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#create-an-entry"><span class="badge bg-warning">POST</span> Create an entry</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#update-an-entry"><span class="badge bg-warning">POST</span> Update an entry</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#delete-an-entry"><span class="badge bg-danger">DEL</span> Delete an entry</a></li>
+							</ul>
+						</li>
+
+                        <li class="nav-item"><a class="nav-link" href="content_api.html#get-project-files">Managing Media Library</a>
+                            <ul class="section-items list-unstyled nav flex-column">
+                                <li class="nav-item"><a class="nav-link" href="content_api.html#get-project-files"><span class="badge bg-success">GET</span> Get Project Files</a></li>
+                                <li class="nav-item"><a class="nav-link" href="content_api.html#get-file-by-id"><span class="badge bg-success">GET</span> Get File By ID</a></li>
+                                <li class="nav-item"><a class="nav-link" href="content_api.html#get-file-by-name"><span class="badge bg-success">GET</span> Get File By Name</a></li>
+                                <li class="nav-item"><a class="nav-link" href="content_api.html#upload-file"><span class="badge bg-warning">POST</span> Upload a File</a></li>
+                                <li class="nav-item"><a class="nav-link" href="content_api.html#delete-a-file"><span class="badge bg-danger">DEL</span> Delete a File</a></li>
+                            </ul>
+                        </li>
+
+						<li class="nav-item"><a class="nav-link" href="content_api.html#where-clauses">Parameters</a>
+							<ul class="section-items list-unstyled nav flex-column">
+								<li class="nav-item"><a class="nav-link" href="content_api.html#where-clauses">Where clauses</a></li>
+                                <li class="nav-item"><a class="nav-link" href="content_api.html#where-through-relation">Where through relation</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#counting-entries">Counting entries</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#sorting">Sorting</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#limit">Limit and Offset</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#draft">With or Only Draft</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#include-timestamp-fields">Include Timestamp Fields</a></li>
+							</ul>
+						</li>
+			    </ul>
+		    </nav><!--//docs-nav-->
+	    </div><!--//docs-sidebar-->
+		
+	    <div class="docs-content w-75">
+		    <div class="container w-75">
+				<article class="docs-article" id="section-1">
+				    <header class="docs-header">
+					    <h1 class="docs-heading">Managing Projects</h1>
+				    </header>
+                    <section class="docs-section" id="creating_a_new_project">
+                        <h2 class="section-heading">Creating A New Project</h2>
+                        <div>
+                            <p>After you logged in to your application you'll be redirected to your  dashboard. In this page you can see all your projects.</p>
+                            <p>When creating a new project you can choose one of the options. Blank projects don't have any collections or content. Templates are prebuild projects with collections to get you started.</p>
+                            <p><img src="assets/images/create_a_new_project.png" class="w-100 border" alt=""></p>
+                            <p class="mt-5">After you created a new project click the project to see details. This is the main page for your project. </p>
+                            <p>You can create collections and content. At the top right side you can see the settings icon.</p>
+                            <p><img src="assets/images/project_details.png" class="w-100 border" alt=""></p>
+                        </div>
+                    </section>
+                    <section class="docs-section" id="project_settings">
+                        <h2 class="section-heading">Project Settings</h2>
+
+                        <section class="docs-section" id="settings_project">
+                            <p><strong>Project</strong></p>
+                            <p>In this page you can change the name and description of the project. And you can delete the project permanently.</p>
+                            <p><img src="assets/images/project_settings_1.png" class="w-100 border" alt=""></p>
+                        </section>
+                        <section class="docs-section" id="settings_localization">
+                            <p class="mt-5"><strong>Localization</strong></p>
+                            <p>You can manage content locales for your project. Project must have at least one locale. In order to change the default locale you need to add a new one and set it as the default locale. Then you can delete the old locale.</p>
+                            <p><img src="assets/images/project_settings_2.png" class="w-100 border" alt=""></p>
+                        </section>
+                        <section class="docs-section" id="settings_users_roles">
+                            <p class="mt-5"><strong>Users & Roles</strong></p>
+                            <p>In this section you can manage user access to your your project. There are two roles you can use. Admin roles can manage project collections and content. Editors can only manage content. Super admin accounts have the admin role for all your projects.</p>
+                            <p><img src="assets/images/project_settings_3.png" class="w-100 border" alt=""></p>
+                            <p>When you're assigning a user to a project you can create a new user.</p>
+                            <p><img src="assets/images/project_settings_4.png" class="w-100 border" alt=""></p>
+                        </section>
+                        <section class="docs-section" id="settings_api_access">
+                            <p class="mt-5"><strong>API Access</strong></p>
+                            <p>In this page you can update your API settings. When you created a new project a random ID will be created.</p>
+                            <p>This section allows you to issue API tokens that can be used to authenticate API requests to your application. When making requests using API tokens, the token should be included in the <span class="aine">Authorization</span> header as a <span class="aine">Bearer</span> token. You can set permissions for access tokens.</p>
+                            <p>These tokens typically have a very long expiration time (years), but can be manually revoked at anytime.</p>
+                            <p><img src="assets/images/project_settings_5_1.png" class="w-100 border" alt=""></p>
+                            <p class="mt-5"><strong>Enabling Public API Access</strong></p>
+                            <p>You can enable public access for your project's endpoints. Public access is only available for the get requests(read). You're still going to need an access token for the create, update and delete operations. You can enable public access for projects separately.</p>
+                            <p><img src="assets/images/project_settings_5_2.png" class="w-50 border" alt=""></p>
+                        </section>
+                        <section class="docs-section" id="settings_webhooks">
+                            <p class="mt-5"><strong>Webhooks</strong></p>
+                            <p>Webhooks provide a method to notify other applications that an event occurred. </p>
+                            <p>Using webhooks, you can send information about events to third-party applications when new content is created or updated.</p>
+                            <p>The way a webhook works is by delivering information to a receiving application through <strong>POST</strong> requests.</p>
+                            <p>There are 7 different events you can use:</p>
+                            <ul>
+                                <li>Content Created</li>
+                                <li>Content Updated</li>
+                                <li>Content Trashed</li>
+                                <li>Content Deleted</li>
+                                <li>Content Published</li>
+                                <li>Content Unpublished</li>
+                                <li>Content Restored</li>
+                                <li>Form Submitted</li>
+                            </ul>
+                            <p><img src="assets/images/settings_webhooks.png" class="w-100 border" alt=""></p>
+
+                            <p><strong>Creating Webhooks</strong></p>
+                            <p>You can create multiple webhooks for any project.</p>
+                            <ol>
+                                <li>Navigate to Webhooks in the sidebar.</li>
+                                <li>Press "Create a New Webhook" in the upper right corner of the window.</li>
+                                <li>Fill out the configuration for your webhook.</li>
+                                <li>Press "Create Webhook"</li>
+                            </ol>
+                            <p><img src="assets/images/settings_webhooks_create.png" class="w-100 border" alt=""></p>
+                            <p><strong>Configuration</strong></p>
+                            <ul>
+                                <li><strong>Name</strong> of your webhook <span class="text-warning">(required)</span></li>
+                                <li><strong>Description</strong> for you webhook (optional)</li>
+                                <li><strong>URL</strong> to receive your webhook <span class="text-warning">(required)</span></li>
+                                <li><strong>Secret</strong> to sign your requests. Details below. (optional)</li>
+                                <li><strong>Collections</strong>. You can choose multiple collections to watch for an event. <span class="text-warning">(required)</span></li>
+                                <li><strong>Events</strong>. You can choose multiple events. <span class="text-warning">(required)</span></li>
+                                <li><strong>Source</strong> for your webhook. You can either choose User or API. <span class="text-warning">(required)</span></li>
+                                <li><strong>Include Payload</strong>. Choose to include or not the content data in your request.</li>
+                                <li><strong>Active</strong>. You can enable or disable your webhooks. This may be useful when you don't want to delete the webhook.</li>
+                            </ul>
+
+                            <p><strong>Securing Webhooks</strong></p>
+                            <p>When setting up, it's common to generate, store, and share a secret between your app and the app that wants to receive webhooks. You can generate a secure secret key by pressing the "Generate" button or you can manually create your secret key.</p>
+                            <p><img src="assets/images/settings_webhooks_secret.png" class="w-75 border" alt=""></p>
+                            <p>Aine will create a signature for your request using <strong>HMAC</strong> method.</p>
+
+                            <p><strong>Using HMAC signature to validate webhooks</strong></p>
+                            <p>When you create a webhook with a secret key to sign your request, Aine sends the request with a "signature" header. You can validate this signature to ensure the request is coming from your application.</p>
+                            <p>To verify the signature the steps required are:</p>
+                            <ul>
+                                <li>Get the raw body of the request;</li>
+                                <li>Extract the signature header value;</li>
+                                <li>Calculate the HMAC of the raw body using the SHA-256 hash function and the secret;</li>
+                                <li>Compare the calculated HMAC with the one sent in the  signature header</li>
+                            </ul>
+                            <p>Here is an example code for PHP:</p>
+                            <pre><code class="language-php">&lt;?php
+define('SECRET_KEY', 'webhook_secret_key');
+
+function verify_webhook($data, $hmac_signature){
+    # Calculate HMAC
+    $calculated_hmac = hash_hmac('sha256', $data, SECRET_KEY);
+    return hash_equals($hmac_signature, $calculated_hmac);
+}
+# Extract the signature header
+$headers = getallheaders();
+$hmac_signature = $headers['Signature'];
+
+# Get the raw body
+$data = file_get_contents('php://input');
+
+# Compare HMACs
+$verified = verify_webhook($data, $hmac_signature);
+
+error_log('Webhook verified: '.var_export($verified, true)); 
+if ($verified) {
+    # Do something with the webhook
+    http_response_code(200);
+} else {
+    http_response_code(401);
+}</code></pre>
+                        <p><strong>Using Queues</strong></p>
+                        <p>Aine uses Laravel's queue system to process webhooks. By default when an event happens, the webhook will be triggered immediately. That's because the default configuration for queue connection has been set to "sync". You can change this setting in your <span class="aine">.env</span> file. Avaible queue connections are : sync, database, beanstalkd, sqs, redis.</p>
+                        <pre><code class="language-plaintext">QUEUE_CONNECTION=sync</code></pre>
+                        <p>You can find more information about queues in the <a href="https://laravel.com/docs/9.x/queues" target="_blank">Laravel documentation</a>.</p>
+                        </section>
+                    </section>
+
+                    <section class="docs-section" id="collections">
+                        <h2 class="section-heading">Collections</h2>
+                        <div>
+                            <p>Collections are where you can create your schema for your content. Inside the collections module you can create new collections and add fields. All changes to your collections are immediately avaible in content managing view.</p>
+                            <p><img src="assets/images/collections.png" class="w-100 border" alt=""></p>
+                            
+                            <p><strong>Creating Collections</strong></p>
+                            <p>To create a new collection simply use the <strong>Add New</strong> button. Name your collection and the slug will be created. You can change the slug if you want to.</p>
+                            <p>You can create as many collections as you want.</p>
+                            <p><img src="assets/images/collection_new.png" class="w-100 border" alt=""></p>
+
+                            <p><strong>Adding Fields</strong></p>
+                            <p>You can add fields to your collection. Learn more about <strong>field types</strong> in the next section.</p>
+                            <p><img src="assets/images/collection_add_field.png" class="w-100 border" alt=""></p>
+                        </div>
+                    </section>
+
+                    <section class="docs-section" id="fields">
+                        <h2 class="section-heading">Fields</h2>
+                        <div>
+                            <p>Aine allows you to use 15 different field types to create your schema. </p>
+                            <p><img src="assets/images/fields1.png" class="w-50 border" alt=""></p>
+                            
+                            <p class="mt-5">Every field type has some default and additional settings according to its type.</p>
+                            <p><strong>Label:</strong> Display name of the field</p>
+                            <p><strong>Field name:</strong> Database name of the field</p>
+                            <p><strong>Description (optinal):</strong> Displays a hint for the field when creating or editing content</p>
+                            <p><strong>Placeholder (optional):</strong> Placeholder text for input fields.</p>
+                            <p><img src="assets/images/field_types_1.png" class="w-50 border" alt=""></p>
+                            
+                            <p class="mt-5"><strong>VALIDATIONS</strong></p>
+                            <p>When creating content, validation options can help users to keep the content data consistent and clean.</p>
+                            <p><strong>Required:</strong> Prevents saving content if this field is empty</p>
+                            <p><strong>Unique:</strong> Prevents saving content if there is a record with the same content.</p>
+                            <p><strong>Character count:</strong> Specifies a minimum and/or maximum allowed number of characters</p>
+                            <div class="callout-block callout-block-info">
+                                <div class="content">
+                                    <h4 class="callout-title">
+                                        <span class="callout-icon-holder me-1">
+                                            <i class="fas fa-info-circle"></i>
+                                        </span>
+                                        You can write a custom error message for validations.
+                                    </h4>
+                                </div>
+                            </div>
+                            <p><img src="assets/images/field_types_2.png" class="w-50 border" alt=""></p>
+
+                            <p class="mt-5"><strong>OTHER OPTIONS</strong></p>
+                            <p><strong>Repeatable Field:</strong> Allows multiple entries for the field. It's available for <strong>text, longtext, email, number, color, date</strong> and <strong>time</strong> field types.</p>
+                            <p><strong>Hide in content list:</strong> Field will be invisible in the content list table</p>
+                            <p><strong>Hidden in API:</strong> Field will be invisible in API.</p>
+                            <p><img src="assets/images/field_types_4.png" class="w-50 border" alt=""></p>
+                        </div>
+                    </section>
+
+                    <section class="docs-section" id="field_types">
+                        <h2 class="section-heading">Field Types</h2>
+                        <div>
+                            <p><strong>Text</strong></p>
+                            <p>Single line text. Can be used for headings, post titles etc.</p>
+                            <p><strong>Long Text</strong></p>
+                            <p>Multi line text. Can be used for descriptions, summary or excerpt of a post.</p>
+                            <p><strong>Rich Text</strong></p>
+                            <p>Rich text editor with formatting. HTML editor allows user to format their content.</p>
+                            <p><strong>Slug</strong></p>
+                            <p>Like Urls and permalinks. Slug fields can be attached to another field. Slug will be generated from selected field. Only text fields can be selected.</p>
+                            <p><strong>E-mail</strong></p>
+                            <p>Email field with validation. E-mail field can be used for user information.</p>
+                            <p><strong>Password</strong></p>
+                            <p>Password field with encryption. Passwords will be stored in the database with bcrypt encryption.</p>
+                            <p><strong>Number</strong></p>
+                            <p>Integer, decimal, float numbers. Can be used for prices, quantites etc.</p>
+                            <p><strong>Color</strong></p>
+                            <p>Color picker.</p>
+                            <p><strong>Enumeration</strong></p>
+                            <p>List of values. You can specify the list of values like cities, countries, gender etc.</p>
+                            <p><strong>Boolean</strong></p>
+                            <p>True or false.</p>
+                            <p><strong>Date</strong></p>
+                            <p>Calendar date picker</p>
+                            <p><strong>Time</strong></p>
+                            <p>Time picker</p>
+                            <p><strong>Media</strong></p>
+                            <p>Files, images, videos. Select files from the advanced media library. You can choose single or multiple file options.</p>
+                            <p><strong>Relation</strong></p>
+                            <p>Collection relations. You can create relation to other collections. You can choose One to One or One to Many relation types.</p>
+                            <p><strong>JSON</strong></p>
+                            <p>Data in JSON format.<p>
+                        </div>
+                    </section>
+
+                    <section class="docs-section" id="content">
+                        <h2 class="section-heading">Content</h2>
+                        <div>
+                            <p>Aine provides an advanced interface for content management. You can create, edit, publish content with easy to use content module.</p>
+                            <p><img src="assets/images/content_1.png" class="w-100 border" alt=""></p>
+                        </div>
+                    </section>
+
+                    <section class="docs-section" id="embeddable_forms">
+                        <h2 class="section-heading">Embeddable Forms</h2>
+                        <div>
+                            <p>With the Aine's Forms module you can create embeddable forms from your collections.</p>
+                            <p><img src="assets/images/forms_1.png" class="w-100 border" alt=""></p>
+                            <p>After creating a new form for the selected collection, in the detail view you can add fields to your form. You can change the title and the description of the fields. You can give your form a name and a description.</p>
+                            <p><img src="assets/images/forms_2.png" class="w-100 border" alt=""></p>
+                            <p>After updating your form according to your needs you can preview the form and get the embed code. Then you can add your form to your html file using the iframe method.</p>
+                            <p><img src="assets/images/forms_3.png" class="w-75 border" alt=""></p>
+                            <p>Submitted forms will appear in the content table for that collection. When a form is submitted a content item will be created as a draft. You can see the item on the content list with a different color. If the draft label is blue, that means that item has been created via form submission. You can edit form items as any other content item.</p>
+                            <p><img src="assets/images/forms_4.png" class="w-100 border" alt=""></p>
+                        </div>
+                    </section>
+
+                    <section class="docs-section" id="media_library">
+                        <h2 class="section-heading">Media Library</h2>
+                        <div>
+                            <p>Managing project files is very easy with Aine's advanced Media Library. Upload your files and add them to your content.</p>
+                            <div class="callout-block callout-block-info">
+                                <div class="content">
+                                    <h4 class="callout-title">
+                                        <span class="callout-icon-holder me-1">
+                                            <i class="fas fa-info-circle"></i>
+                                        </span>
+                                        You can set the maximum file size limit in your .env file
+                                    </h4>
+                                </div>
+                            </div>
+                            <p><img src="assets/images/media_library.png" class="w-100 border" alt=""></p>
+                        </div>
+                    </section>
+
+                    <section class="docs-section" id="media_library_s3">
+                        <h2 class="section-heading">Amazon AWS S3 Upload</h2>
+                        <div>
+                            <p>You can use AWS S3 to upload and retrieve media files. In order to configure Aine to use AWS S3 follow the instructions below.</p>
+
+                            <p><strong>Step 1 - Create a New S3 Bucket</strong></p>
+                            <p><em>If you want to use an existing bucket you can skip this part.</em></p>
+                            <ol>
+                                <li>Go to your AWS console</li>
+                                <li>Search for S3 and go to your S3 dashboard</li>
+                                <li>Go to <strong>Buckets</strong></li>
+                                <li>Click on the <strong>Create Bucket</strong> button</li>
+                                <li>Choose your bucket name</li>
+                                <li>Choose bucket's region</li>
+                                <li>Select <strong>ACLs enabled</strong></li>
+                                <li>Unselect <strong>Block all public access</strong></li>
+                                <li>Check the option for acknowledging current settings</li>
+                                <li>Click on <strong>Create Bucket</strong></li>
+                            </ol>
+                            <img src="assets/images/aws_s3_1.jpg" alt="Create a New S3 Bucket">
+
+                            <p class="mt-5"><strong>Step 2 - Create a User</strong></p>
+                            <p><em>If you want to use an existing user you can skip this part.</em></p>
+                            <ol>
+                                <li>Go to your AWS console</li>
+                                <li>Search for <strong>IAM</strong> and go to your IAM dashboard</li>
+                                <li>Go to <strong>Users</strong></li>
+                                <li>Click on the <strong>Add Users</strong> button</li>
+                                <li>Choose your user name</li>
+                                <li>Select <strong>Access key - Programmatic access</strong></li>
+                                <li>Click on <strong>Next: Permissions</strong></li>
+                                <li>Select <strong>Attach existing policies directly</strong></li>
+                                <li>Search for and select <strong>AmazonS3FullAccess</strong></li>
+                                <li>Click on <strong>Next: Tags</strong></li>
+                                <li>Skip this step and click on <strong>Next: Review</strong></li>
+                                <li>Click on <strong>Create User</strong></li>
+                                <li>Copy your <strong>Access key ID</strong> and <strong>Secret access key</strong></li>
+                            </ol>
+                            <img src="assets/images/aws_s3_2.jpg" alt="Create a User">
+
+                            <p class="mt-5"><strong>Step 3 - Configure Aine</strong></p>
+
+                            <ol>
+                                <li>Open your .env file</li>
+                                <li>Change the following lines according to your S3 credentials:</li>
+                                <ul>
+                                    <li>AWS_ACCESS_KEY_ID=your-access-key-id</li>
+                                    <li>AWS_SECRET_ACCESS_KEY=your-secret-access-key</li>
+                                    <li>AWS_DEFAULT_REGION=your-region</li>
+                                    <li>AWS_BUCKET=your-bucket-name</li>
+                                </ul>
+                            </ol>
+
+                            <p class="mt-5"><strong>Step 4 - Check the configuration</strong></p>
+
+                            <ol>
+                                <li>Go to one of your Aine projects.</li>
+                                <li>Go to project settings. You will see the <strong>Default Upload Disk</strong> option</li>
+                                <li>Select AWS S3 and click on <strong>Update Project</strong>. You can change the default disk later if you want. When you change this option you can continue to access older files which stored in other option. You can have files in both disk at the same time.</li>
+                                <li>Go to project's Media Library.</li>
+                                <li>Click on <strong>Upload Files</strong> and upload your files as usual.</li>
+                            </ol>
+                            
+                            <p class="mt-5"><strong>Access Denied Error</strong></p>
+                            <img src="assets/images/aws_s3_3.jpg" alt="Access Denied Error">
+                            <p class="mt-3">If you get an Access Denied error when you try to upload or access files to your S3 bucket, you need to grant the following permissions to your IAM user:</p>
+                            <ul>
+                                <li>PutObject</li>
+                                <li>GetObject</li>
+                                <li>ListBucket</li>
+                            </ul>
+                            <p>You can find more information about this error in the <a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html" target="_blank">AWS documentation</a>.</p>
+                            
+                            <p class="mt-4"></p>
+                            <p><strong>You can also add a Policy to your bucket:</strong></p>
+                            <ol>
+                                <li>Go to your bucket.</li>
+                                <li>Click on <strong>Permissions</strong>.</li>
+                                <li>Scroll to <strong>Bucket Policy</strong> section and Click on <strong>Edit</strong>.</li>
+                                <li>Add the following policy:
+                                    <pre><code class="language-json">{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicRead",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": [
+                "s3:GetObject",
+                "s3:GetObjectVersion"
+            ],
+            "Resource": "arn:aws:s3:::your-bucket-name/*"
+        }
+    ]
+}</code></pre>
+                                </li>
+                            </ol>
+
+                        </div>
+                    </section>
+			    </article>
+		    </div> 
+	    </div>
+    </div>
+       
+    <!-- Javascript -->          
+    <script src="assets/plugins/popper.min.js"></script>
+    <script src="assets/plugins/bootstrap/js/bootstrap.min.js"></script>  
+    
+    <!-- Page Specific JS -->
+    <script src="assets/plugins/smoothscroll.min.js"></script>
+    <script src="assets/js/highlight.min.js"></script> 
+    <script src="assets/plugins/simplelightbox/simple-lightbox.min.js"></script>      
+    <script src="assets/plugins/gumshoe/gumshoe.polyfills.min.js"></script> 
+    <script src="assets/js/docs.js"></script> 
+
+    <script>hljs.highlightAll();</script>
+
+    <!-- Dynamic Settings Loader -->
+    <script>
+    (function() {
+        fetch('/settings')
+            .then(function(response) { return response.json(); })
+            .then(function(settings) {
+                var name = settings.name || 'AineCMS';
+                var version = settings.version || '0.0.1';
+                var description = settings.description || name + ' Documentation';
+                
+                // Update title
+                document.title = name + ' Documentation - Managing Projects';
+                
+                // Update meta tags
+                var metaDesc = document.querySelector('meta[name="description"]');
+                if (metaDesc) metaDesc.setAttribute('content', description);
+                var metaAuthor = document.querySelector('meta[name="author"]');
+                if (metaAuthor) metaAuthor.setAttribute('content', name);
+                
+                // Update logo text - find elements with class logo-text
+                var logoTexts = document.querySelectorAll('.logo-text');
+                logoTexts.forEach(function(el) {
+                    el.innerHTML = name + '<span class="text-alt">Docs</span> <small class="text-normal">v' + version + '</small>';
+                });
+                
+                // Update all paragraphs mentioning "AineCMS"
+                var paras = document.querySelectorAll('.docs-article p, .docs-article h5, .docs-article strong');
+                paras.forEach(function(el) {
+                    el.innerHTML = el.innerHTML.replace(/AineCMS/g, name);
+                });
+            })
+            .catch(function(error) {
+                console.warn('Failed to load settings:', error);
+            });
+    })();
+    </script>
+</body>
+</html> 
+

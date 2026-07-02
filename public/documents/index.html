@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en"> 
+<head>
+    <title>AineCMS Documentation</title>
+    
+    <!-- Meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AineCMS Documentation">
+    <meta name="author" content="AineCMS">    
+    <link rel="shortcut icon" href="favicon.ico"> 
+    
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome JS-->
+    <script defer src="assets/fontawesome/js/all.min.js"></script>
+
+    <!-- Theme CSS -->  
+    <link id="theme-style" rel="stylesheet" href="assets/css/theme.css">
+    <link id="theme-style" rel="stylesheet" href="assets/css/custom.css">
+
+</head> 
+
+<body>    
+    <header class="header fixed-top">	 
+        <div class="branding docs-branding">
+            <div class="container-fluid position-relative py-2">
+                <div class="docs-logo-wrapper">
+					<button id="docs-sidebar-toggler" class="docs-sidebar-toggler docs-sidebar-visible me-2 d-xl-none" type="button">
+	                    <span></span>
+	                    <span></span>
+	                    <span></span>
+	                </button>
+	                <div class="site-logo">
+						<a class="navbar-brand" href="index.html"><span class="logo-text">AineCMS<span class="text-alt">Docs</span> <small class="text-normal">v0.0.1</small></span></a>
+					</div>    
+                </div><!--//docs-logo-wrapper-->
+            </div><!--//container-->
+        </div><!--//branding-->
+    </header><!--//header-->
+    
+    
+    <div class="docs-wrapper">
+	    <div id="docs-sidebar" class="docs-sidebar">
+		    <nav id="docs-nav" class="docs-nav navbar">
+			    <ul class="section-items list-unstyled nav flex-column pb-3">
+				    <li class="nav-item section-title"><a class="nav-link" href="index.html">Introduction</a></li>
+				    
+					<li class="nav-item section-title mt-1"><a class="nav-link" href="installation.html"></span>Installation</a></li>
+					<li class="nav-item"><a class="nav-link" href="installation.html#requirements">Server Requirements</a></li>
+					<li class="nav-item"><a class="nav-link" href="installation.html#unzipping_files">Unzipping Files</a></li>
+					<li class="nav-item"><a class="nav-link" href="installation.html#permissions">Directory Permissions</a></li>
+					<li class="nav-item"><a class="nav-link" href="installation.html#configuration">Configure .env file</a></li>
+					<li class="nav-item"><a class="nav-link" href="installation.html#database">Database</a></li>
+					<li class="nav-item"><a class="nav-link" href="installation.html#login">Login to the Application</a></li>
+					<li class="nav-item"><a class="nav-link" href="installation.html#create_super_admin">Creating A Super Admin</a></li>
+					<li class="nav-item section-title mt-1"><a class="nav-link" href="projects.html"></span>Managing Projects</a></li>
+					<li class="nav-item"><a class="nav-link" href="projects.html#creating_a_new_project">Creating A New Project</a></li>
+					<li class="nav-item"><a class="nav-link" href="projects.html#project_settings">Project Settings</a>
+						<ul class="section-items list-unstyled nav flex-column">
+							<li class="nav-item"><a class="nav-link" href="projects.html#settings_project">Project</a></li>
+							<li class="nav-item"><a class="nav-link" href="projects.html#settings_localization">Localization</a></li>
+							<li class="nav-item"><a class="nav-link" href="projects.html#settings_users_roles">Users & Roles</a></li>
+							<li class="nav-item"><a class="nav-link" href="projects.html#settings_api_access">API Access</a></li>
+							<li class="nav-item"><a class="nav-link" href="projects.html#settings_webhooks">Webhooks</a></li>
+						</ul>
+					</li>
+					<li class="nav-item"><a class="nav-link" href="projects.html#collections">Collections</a></li>
+					<li class="nav-item"><a class="nav-link" href="projects.html#fields">Fields</a></li>
+					<li class="nav-item"><a class="nav-link" href="projects.html#field_types">Field Types</a></li>
+					<li class="nav-item"><a class="nav-link" href="projects.html#content">Content</a></li>
+					<li class="nav-item"><a class="nav-link" href="projects.html#embeddable_forms">Embeddable Forms</a></li>
+					<li class="nav-item"><a class="nav-link" href="projects.html#media_library">Media Library</a></li>
+					<li class="nav-item"><a class="nav-link" href="projects.html#media_library_s3">Amazon AWS S3 Upload</a></li>
+				
+					<li class="nav-item section-title mt-1"><a class="nav-link" href="content_api.html"></span>Content API</a></li>
+						<li class="nav-item"><a class="nav-link" href="content_api.html#get-project">Endpoints</a>
+							<ul class="section-items list-unstyled nav flex-column">
+								<li class="nav-item"><a class="nav-link" href="content_api.html#get-project"><span class="badge bg-success">GET</span> Get project</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#get-entries"><span class="badge bg-success">GET</span> Get entries</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#get-one-entry"><span class="badge bg-success">GET</span> Get one entry</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#create-an-entry"><span class="badge bg-warning">POST</span> Create an entry</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#update-an-entry"><span class="badge bg-warning">POST</span> Update an entry</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#delete-an-entry"><span class="badge bg-danger">DEL</span> Delete an entry</a></li>
+							</ul>
+						</li>
+
+                        <li class="nav-item"><a class="nav-link" href="content_api.html#get-project-files">Managing Media Library</a>
+                            <ul class="section-items list-unstyled nav flex-column">
+                                <li class="nav-item"><a class="nav-link" href="content_api.html#get-project-files"><span class="badge bg-success">GET</span> Get Project Files</a></li>
+                                <li class="nav-item"><a class="nav-link" href="content_api.html#get-file-by-id"><span class="badge bg-success">GET</span> Get File By ID</a></li>
+                                <li class="nav-item"><a class="nav-link" href="content_api.html#get-file-by-name"><span class="badge bg-success">GET</span> Get File By Name</a></li>
+                                <li class="nav-item"><a class="nav-link" href="content_api.html#upload-file"><span class="badge bg-warning">POST</span> Upload a File</a></li>
+                                <li class="nav-item"><a class="nav-link" href="content_api.html#delete-a-file"><span class="badge bg-danger">DEL</span> Delete a File</a></li>
+                            </ul>
+                        </li>
+
+						<li class="nav-item"><a class="nav-link" href="content_api.html#where-clauses">Parameters</a>
+							<ul class="section-items list-unstyled nav flex-column">
+								<li class="nav-item"><a class="nav-link" href="content_api.html#where-clauses">Where clauses</a></li>
+                                <li class="nav-item"><a class="nav-link" href="content_api.html#where-through-relation">Where through relation</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#counting-entries">Counting entries</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#sorting">Sorting</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#limit">Limit and Offset</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#draft">With or Only Draft</a></li>
+								<li class="nav-item"><a class="nav-link" href="content_api.html#include-timestamp-fields">Include Timestamp Fields</a></li>
+							</ul>
+						</li>
+			    </ul>
+		    </nav><!--//docs-nav-->
+	    </div><!--//docs-sidebar-->
+		
+	    <div class="docs-content">
+		    <div class="container">
+			    <article class="docs-article" id="section-1">
+				    <header class="docs-header">
+					    <h1 class="docs-heading">Introduction</h1>
+				    </header>
+					<section class="docs-section">
+						<section class="docs-intro">
+						    <p>Welcome to the documentation for <strong>AineCMS</strong>, a self-hosted headless cms for building Content API. Here you'll find introductions to all features, as well as resources, guides, and reference documentation for API. </p>
+						</section>
+
+						<div class="callout-block callout-block-info">
+                            <div class="content">
+                                <h4 class="callout-title">
+	                                <span class="callout-icon-holder me-1">
+		                                <i class="fas fa-info-circle"></i>
+		                            </span>
+	                                Get Started
+	                            </h4>
+                                <p>Jump to the <a href="installation.html">Installation</a> guide to get a quick start.</p>
+                            </div>
+                        </div>
+						
+						<h5 class="mt-5">What is AineCMS?</h5>
+						<p>Aine is a self-hosted headless CMS built with Laravel and VueJs. It provides a clean and easy to use interface and a powerful Content API.</p>
+						
+						<h5 class="mt-5">What is a Headless CMS?</h5>
+						<p>A headless CMS is a backend-only content management system that makes content accessible via an API. A traditional CMS typically combines the content and frontend of a website. Headless CMS is a decoupled system that comprises just the content component and focuses entirely on the administrative interface. One advantage of this decoupled approach is that content can be sent via APIs to multiple display types, like mobile and Internet of Things (IoT) devices, alongside a website.</p>
+
+						<h5 class="mt-5">Support</h5>
+						<p>You can get professinal support using Envato comment section and via e-mail.</p>
+					</section>
+			    </article>
+		    </div> 
+	    </div>
+    </div>
+       
+    <!-- Javascript -->          
+    <script src="assets/plugins/popper.min.js"></script>
+    <script src="assets/plugins/bootstrap/js/bootstrap.min.js"></script>  
+    
+    <!-- Page Specific JS -->
+    <script src="assets/plugins/smoothscroll.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/highlight.min.js"></script>
+    <script src="assets/js/highlight-custom.js"></script> 
+    <script src="assets/plugins/simplelightbox/simple-lightbox.min.js"></script>   
+    
+    <!-- Dynamic Settings Loader -->
+    <script>
+    (function() {
+        fetch('/settings')
+            .then(function(response) { return response.json(); })
+            .then(function(settings) {
+                var name = settings.name || 'AineCMS';
+                var version = settings.version || '0.0.1';
+                var description = settings.description || name + ' Documentation';
+                
+                // Update title
+                document.title = name + ' Documentation';
+                
+                // Update meta tags
+                var metaDesc = document.querySelector('meta[name="description"]');
+                if (metaDesc) metaDesc.setAttribute('content', description);
+                var metaAuthor = document.querySelector('meta[name="author"]');
+                if (metaAuthor) metaAuthor.setAttribute('content', name);
+                
+                // Update logo text - find elements with class logo-text
+                var logoTexts = document.querySelectorAll('.logo-text');
+                logoTexts.forEach(function(el) {
+                    el.innerHTML = name + '<span class="text-alt">Docs</span> <small class="text-normal">v' + version + '</small>';
+                });
+                
+                // Update "What is AineCMS?" heading if exists
+                var headings = document.querySelectorAll('h5');
+                headings.forEach(function(el) {
+                    if (el.textContent.indexOf('What is AineCMS') !== -1) {
+                        el.textContent = 'What is ' + name + '?';
+                    }
+                });
+                
+                // Update intro paragraph with dynamic name
+                var strongs = document.querySelectorAll('.docs-article strong');
+                strongs.forEach(function(el) {
+                    if (el.textContent === 'AineCMS') {
+                        el.textContent = name;
+                    }
+                });
+                
+                // Update paragraphs mentioning "AineCMS"
+                var paras = document.querySelectorAll('.docs-article p');
+                paras.forEach(function(el) {
+                    el.innerHTML = el.innerHTML.replace(/AineCMS/g, name);
+                });
+            })
+            .catch(function(error) {
+                console.warn('Failed to load settings:', error);
+            });
+    })();
+    </script>
+</body>
+</html> 
+
