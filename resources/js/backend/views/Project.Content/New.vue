@@ -505,7 +505,7 @@
                                     <div v-if="field.type == 'relation'" class="w-full">
                                         <div class="w-full border rounded-md p-2">
                                             <div
-                                                class="text-indigo-500 text-sm cursor-pointer p-2 hover:bg-indigo-50 rounded-md w-full"
+                                                class="text-indigo-500 text-sm border cursor-pointer p-2 hover:bg-indigo-50 rounded-md w-full"
                                                 @click="openRelationModalFn(field.name, field.options.relation.collection, field.options.relation.type)"
                                             >
                                                 <i class="fa fa-link"></i>
@@ -517,8 +517,12 @@
                                                     <thead>
                                                         <tr>
                                                             <th scope="col" class="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
-                                                            <th scope="col" class="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
-                                                            <th scope="col" class="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
+                                                            <th scope="col" class="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                <div class="w-full flex justify-between item-center">NAME</div>
+                                                            </th>
+                                                            <th scope="col" class="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                <div class="w-full flex justify-between item-center">STATUS</div>
+                                                            </th>
                                                             <th
                                                                 scope="col"
                                                                 class="px-6 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap"
