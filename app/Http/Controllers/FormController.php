@@ -165,7 +165,9 @@ class FormController extends Controller
 
             $file_name = $this->renameFile($file->getClientOriginalName(), $project->uuid, $file, $project->disk);
 
-            Storage::disk($project->disk)->putFileAs('public/'.$project->uuid, $request->file('file'), $file_name);
+            $storagePath = $project->disk === 'public' ? $project->uuid : 'public/'.$project->uuid;
+
+            Storage::disk($project->disk)->putFileAs($storagePath, $request->file('file'), $file_name);
 
             $extension = $file->getClientOriginalExtension();
 
@@ -175,7 +177,7 @@ class FormController extends Controller
                     $constraint->aspectRatio();
                 })->encode($extension);
 
-                Storage::disk($project->disk)->put('public/'.$project->uuid.'/thumbnails/'.$file_name, $thumb);
+                Storage::disk($project->disk)->put($storagePath.'/thumbnails/'.$file_name, $thumb);
             }
 
             $image = getimagesize($file);
@@ -205,13 +207,15 @@ class FormController extends Controller
      */
     private function renameFile($file_name, $project_uuid, $file, $disk)
     {
-        $path = $project_uuid.'/'.$file_name;
+        $storagePath = $disk === 'public' ? $project_uuid : 'public/'.$project_uuid;
+
+        $path = $storagePath.'/'.$file_name;
 
         $i = 1;
         while (Storage::disk($disk)->exists($path)) {
             $name = explode('.', $file->getClientOriginalName());
             $file_name = $name[0].'('.$i.')'.'.'.$file->getClientOriginalExtension();
-            $path = $project_uuid.'/'.$file_name;
+            $path = $storagePath.'/'.$file_name;
             $i++;
         }
 

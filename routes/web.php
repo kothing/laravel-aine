@@ -146,6 +146,26 @@ Route::get('uploads/thumb/{dir}/{file}', function($dir, $file){
     abort(404);
 });
 
+Route::get('storage/{dir}/{file}', function($dir, $file){
+    $path = 'public/' . $dir . '/' . $file;
+
+    if(Storage::disk('local')->exists($path)){
+        return Storage::response($path);
+    }
+
+    abort(404);
+});
+
+Route::get('storage/{dir}/thumbnails/{file}', function($dir, $file){
+    $path = 'public/' . $dir . '/thumbnails/' . $file;
+
+    if(Storage::disk('local')->exists($path)){
+        return Storage::response($path);
+    }
+
+    abort(404);
+});
+
 Route::get('forms/preview/{form_uuid}', [FormController::class, 'showPreview']);
 Route::get('forms/{form_uuid}', [FormController::class, 'showEmbeded']);
 Route::post('forms/{form_uuid}', [FormController::class, 'getEmbeded']);

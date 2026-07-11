@@ -112,7 +112,9 @@ class MediaLibraryController extends Controller
 
             $file_name = $this->renameFile($file->getClientOriginalName(), $project->uuid, $file, $project->disk);
 
-            Storage::disk($project->disk)->putFileAs('public/'.$project->uuid, $request->file('file'), $file_name);
+            $storagePath = $project->disk === 'public' ? $project->uuid : 'public/'.$project->uuid;
+
+            Storage::disk($project->disk)->putFileAs($storagePath, $request->file('file'), $file_name);
 
             $extension = $file->getClientOriginalExtension();
 
@@ -122,7 +124,7 @@ class MediaLibraryController extends Controller
                     $constraint->aspectRatio();
                 })->encode($extension);
 
-                Storage::disk($project->disk)->put('public/'.$project->uuid.'/thumbnails/'.$file_name, $thumb);
+                Storage::disk($project->disk)->put($storagePath.'/thumbnails/'.$file_name, $thumb);
             }
 
             $image = getimagesize($file);
@@ -151,14 +153,15 @@ class MediaLibraryController extends Controller
      * @return string $file_name
      */
     private function renameFile($file_name, $project_uuid, $file, $disk){
+        $storagePath = $disk === 'public' ? $project_uuid : 'public/'.$project_uuid;
 
-        $path = 'public/'.$project_uuid.'/'.$file_name;
+        $path = $storagePath.'/'.$file_name;
 
         $i = 1;
         while(Storage::disk($disk)->exists($path)){
             $name = explode('.', $file->getClientOriginalName());
             $file_name = $name[0] . '('. $i .')' . '.' . $file->getClientOriginalExtension();
-            $path = 'public/'.$project_uuid.'/'.$file_name;
+            $path = $storagePath.'/'.$file_name;
             $i++;
         }
 
@@ -182,12 +185,14 @@ class MediaLibraryController extends Controller
 
         $file = Media::where('project_id', $project->id)->where('id', $file_id)->firstOrFail();
 
-        $original = 'public/'.$project->uuid.'/'.$file->name;
+        $storagePath = $file->disk === 'public' ? $project->uuid : 'public/'.$project->uuid;
+        
+        $original = $storagePath.'/'.$file->name;
         if(Storage::disk($file->disk)->exists($original)){
             Storage::disk($file->disk)->delete($original);
         }
 
-        $thumb = 'public/'.$project->uuid.'/thumbnails/'.$file->name;
+        $thumb = $storagePath.'/thumbnails/'.$file->name;
         if(Storage::disk($file->disk)->exists($thumb)){
             Storage::disk($file->disk)->delete($thumb);
         }
@@ -216,12 +221,14 @@ class MediaLibraryController extends Controller
             $file = Media::where('project_id', $project->id)->where('id', $file)->first();
 
             if($file){
-                $original = 'public/'.$project->uuid.'/'.$file->name;
+                $storagePath = $file->disk === 'public' ? $project->uuid : 'public/'.$project->uuid;
+                
+                $original = $storagePath.'/'.$file->name;
                 if(Storage::disk($file->disk)->exists($original)){
                     Storage::disk($file->disk)->delete($original);
                 }
 
-                $thumb = 'public/'.$project->uuid.'/thumbnails/'.$file->name;
+                $thumb = $storagePath.'/thumbnails/'.$file->name;
                 if(Storage::disk($file->disk)->exists($thumb)){
                     Storage::disk($file->disk)->delete($thumb);
                 }
@@ -249,7 +256,9 @@ class MediaLibraryController extends Controller
 
         $media = Media::where('project_id', $project->id)->where('id', $file_id)->firstOrFail();
 
-        $path = 'public/'.$project->uuid.'/'.$media->name;
+        $storagePath = $media->disk === 'public' ? $project->uuid : 'public/'.$project->uuid;
+
+        $path = $storagePath.'/'.$media->name;
         $file = Storage::disk($media->disk)->url($path);
 
         $ext = pathinfo($path, PATHINFO_EXTENSION);
@@ -260,26 +269,26 @@ class MediaLibraryController extends Controller
 
             return response($media, 200);
         } else {
-            $old_path = 'public/'.$project->uuid.'/'.$media->name;
+            $old_path = $storagePath.'/'.$media->name;
             $ext = pathinfo($old_path, PATHINFO_EXTENSION);
 
             $file_name = $request->get('name').'.'.$ext;
-            $new_path = 'public/'.$project->uuid.'/'.$file_name;
+            $new_path = $storagePath.'/'.$file_name;
             $name = pathinfo($new_path, PATHINFO_FILENAME);
 
             $i = 1;
             while(Storage::disk($media->disk)->exists($new_path)){
                 $file_name = $name . '('. $i .')' . '.' . $ext;
-                $new_path = 'public/'.$project->uuid.'/'.$file_name;
+                $new_path = $storagePath.'/'.$file_name;
                 $i++;
             }
 
-            $old_thumb_path = 'public/'.$project->uuid.'/thumbnails/'.$media->name;
+            $old_thumb_path = $storagePath.'/thumbnails/'.$media->name;
             Storage::disk($media->disk)->move($old_path, $new_path);
 
             $image_types = ['jpg', 'jpeg', 'png', 'bmp', 'gif', 'webp'];
             if(in_array($ext, $image_types)){
-                $new_thumb_path = 'public/'.$project->uuid.'/thumbnails/'.$file_name;
+                $new_thumb_path = $storagePath.'/thumbnails/'.$file_name;
                 Storage::disk($media->disk)->move($old_thumb_path, $new_thumb_path);
             }
 

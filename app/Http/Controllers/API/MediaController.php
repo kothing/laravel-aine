@@ -109,12 +109,14 @@ class MediaController extends Controller {
             return $this->notFound('Media not found');
         }
 
-        $original = 'public/'.$project->uuid.'/'.$file->name;
+        $storagePath = $file->disk === 'public' ? $project->uuid : 'public/'.$project->uuid;
+        
+        $original = $storagePath.'/'.$file->name;
         if(Storage::disk($file->disk)->exists($original)){
             Storage::disk($file->disk)->delete($original);
         }
 
-        $thumb = 'public/'.$project->uuid.'/thumbnails/'.$file->name;
+        $thumb = $storagePath.'/thumbnails/'.$file->name;
         if(Storage::disk($file->disk)->exists($thumb)){
             Storage::disk($file->disk)->delete($thumb);
         }
@@ -168,7 +170,9 @@ class MediaController extends Controller {
 
             $file_name = $this->renameFile($file->getClientOriginalName(), $project->uuid, $file, $project->disk);
 
-            Storage::disk($project->disk)->putFileAs('public/'.$project->uuid, $request->file('file'), $file_name);
+            $storagePath = $project->disk === 'public' ? $project->uuid : 'public/'.$project->uuid;
+
+            Storage::disk($project->disk)->putFileAs($storagePath, $request->file('file'), $file_name);
 
             $extension = $file->getClientOriginalExtension();
 
@@ -178,7 +182,7 @@ class MediaController extends Controller {
                     $constraint->aspectRatio();
                 })->encode($extension);
 
-                Storage::disk($project->disk)->put('public/'.$project->uuid.'/thumbnails/'.$file_name, (string)$thumb, 'public');
+                Storage::disk($project->disk)->put($storagePath.'/thumbnails/'.$file_name, (string)$thumb, 'public');
             }
 
             $image = getimagesize($file);
@@ -209,14 +213,15 @@ class MediaController extends Controller {
      * @return string $file_name
      */
     private function renameFile($file_name, $project_uuid, $file, $disk){
+        $storagePath = $disk === 'public' ? $project_uuid : 'public/'.$project_uuid;
 
-        $path = 'public/'.$project_uuid.'/'.$file_name;
+        $path = $storagePath.'/'.$file_name;
 
         $i = 1;
         while(Storage::disk($disk)->exists($path)){
             $name = explode('.', $file->getClientOriginalName());
             $file_name = $name[0] . '('. $i .')' . '.' . $file->getClientOriginalExtension();
-            $path = 'public/'.$project_uuid.'/'.$file_name;
+            $path = $storagePath.'/'.$file_name;
             $i++;
         }
 
