@@ -8,11 +8,15 @@ use Illuminate\Http\JsonResponse;
 trait AuthorizesProjectApi
 {
     /**
-     * Authorize read access to a project via public API flag or Sanctum token.
+     * Authorize read access to a project via public API flag, domain whitelist validation, or Sanctum token.
      */
     protected function authorizeProjectRead(Project $project): ?JsonResponse
     {
         if ($project->public_api) {
+            return null;
+        }
+
+        if (request()->attributes->has('resolved_project')) {
             return null;
         }
 
