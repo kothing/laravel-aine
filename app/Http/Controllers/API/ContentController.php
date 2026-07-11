@@ -28,7 +28,7 @@ class ContentController extends Controller {
      * @param \Illuminate\Http\Request $request
      * @return \App\Http\Resources\ContentResource
      */
-    public function getContent($uuid, $slug, Request $request){
+    public function getContentListByUuid($uuid, $slug, Request $request){
         $project = Project::where('uuid', $uuid)->first();
 
         if(!$project){
@@ -479,7 +479,7 @@ class ContentController extends Controller {
      * @param int $id
      * @return \App\Http\Resources\ContentResource
      */
-    public function getContentByID($uuid, $slug, $id, Request $request){
+    public function getContentByUuid($uuid, $slug, $slug_id, Request $request){
         $project = Project::where('uuid', $uuid)->first();
         if(!$project){
             return response(['error' => 'Project not found!'], 404);
@@ -506,7 +506,7 @@ class ContentController extends Controller {
             $selectFields[] = 'updated_at';
             $selectFields[] = 'published_at';
         }
-        $content = $content->select($selectFields)->find($id);
+        $content = $content->select($selectFields)->find($slug_id);
 
         if(!$content) {
             return $this->notFound('Not found');
@@ -523,7 +523,7 @@ class ContentController extends Controller {
      * @param \Illuminate\Http\Request $request
      * @return \App\Http\Resources\ContentResource
      */
-    public function create($uuid, $slug, Request $request){
+    public function createContentByUuid($uuid, $slug, Request $request){
         if ($response = $this->authorizeProjectAbility('create', $uuid)) {
             return $response;
         }
@@ -820,7 +820,7 @@ class ContentController extends Controller {
      * @param \Illuminate\Http\Request $request
      * @return \App\Http\Resources\ContentResource
      */
-    public function update($uuid, $slug, $id, Request $request){
+    public function updateContentByUuid($uuid, $slug, $slug_id, Request $request){
         if ($response = $this->authorizeProjectAbility('update', $uuid)) {
             return $response;
         }
@@ -836,7 +836,7 @@ class ContentController extends Controller {
             return $this->notFound('Collection not found');
         }
 
-        $content = Content::where('project_id', $project->id)->where('collection_id', $collection->id)->where('id', $id)->first();
+        $content = Content::where('project_id', $project->id)->where('collection_id', $collection->id)->where('id', $slug_id)->first();
         if(!$content) {
             return $this->notFound('Record not found');
         }
@@ -1138,7 +1138,7 @@ class ContentController extends Controller {
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function delete($uuid, $slug, $id){
+    public function deleteContentByUuid($uuid, $slug, $slug_id){
         if ($response = $this->authorizeProjectAbility('delete', $uuid)) {
             return $response;
         }
@@ -1156,7 +1156,7 @@ class ContentController extends Controller {
 
         $content = Content::where('project_id', $project->id)
             ->where('collection_id', $collection->id)
-            ->find($id);
+            ->find($slug_id);
         if(!$content) {
             return $this->notFound('Record not found');
         }
@@ -1184,33 +1184,242 @@ class ContentController extends Controller {
      * @param \Illuminate\Http\Request $request
      * @return \App\Http\Resources\ContentResource
      */
-    public function getContentByDomain($projectIdentifier, $slug, Request $request){
+    public function getContentList($projectIdentifier, $slug, Request $request){
         $project = $request->attributes->get('resolved_project');
         
         if (!$project) {
             return $this->notFound('Project not resolved');
         }
         
-        return $this->getContent($project->uuid, $slug, $request);
+        return $this->getContentListByUuid($project->uuid, $slug, $request);
     }
 
     /**
-     * Get content by ID by explicit project identifier (UUID or slug)
+     * Get content by ID using explicit project identifier (UUID or slug)
      * Project is resolved by ValidateProjectAccess middleware and set on request attributes
      *
      * @param string $projectIdentifier Project UUID or slug
      * @param string $slug Collection slug
-     * @param int $id Content ID
+     * @param int $slug_id Content ID
      * @param \Illuminate\Http\Request $request
      * @return \App\Http\Resources\ContentResource
      */
-    public function getContentByIDByDomain($projectIdentifier, $slug, $id, Request $request){
+    public function getProjectContentByID($project_identifier, $slug, $slug_id, Request $request){
         $project = $request->attributes->get('resolved_project');
         
         if (!$project) {
             return $this->notFound('Project not resolved');
         }
         
-        return $this->getContentByID($project->uuid, $slug, $id, $request);
+        return $this->getContentByUuid($project->uuid, $slug, $slug_id, $request);
+    }
+
+    /**
+     * Get content by related content using explicit project identifier
+     * 
+     * Query content from a related collection that is related to a specific content in a source collection.
+     * For example: get all posts in a specific category.
+     * 
+     * @param string $project_identifier Project UUID or slug
+     * @param string $slug Source collection slug (e.g., 'categories')
+     * @param int $slug_id Source content ID (e.g., category ID)
+     * @param string $related_slug Related collection slug (e.g., 'posts')
+     * @param \Illuminate\Http\Request $request
+     * @return \App\Http\Resources\ContentResource
+     */
+    public function getProjectContentByRelation($project_identifier, $slug, $slug_id, $related_slug, Request $request){
+        $project = $request->attributes->get('resolved_project');
+        
+        if (!$project) {
+            return $this->notFound('Project not resolved');
+        }
+        
+        return $this->getContentByRelationByUuid($project->uuid, $slug, $slug_id, $related_slug, $request);
+    }
+
+    /**
+     * Create content using explicit project identifier
+     * 
+     * @param string $project_identifier Project UUID or slug
+     * @param string $slug Collection slug
+     * @param \Illuminate\Http\Request $request
+     * @return \App\Http\Resources\ContentResource
+     */
+    public function createContent($project_identifier, $slug, Request $request){
+        $project = $request->attributes->get('resolved_project');
+        
+        if (!$project) {
+            return $this->notFound('Project not resolved');
+        }
+        
+        return $this->createContentByUuid($project->uuid, $slug, $request);
+    }
+
+    /**
+     * Update content using explicit project identifier
+     * 
+     * @param string $project_identifier Project UUID or slug
+     * @param string $slug Collection slug
+     * @param int $slug_id Content ID
+     * @param \Illuminate\Http\Request $request
+     * @return \App\Http\Resources\ContentResource
+     */
+    public function updateContent($project_identifier, $slug, $slug_id, Request $request){
+        $project = $request->attributes->get('resolved_project');
+        
+        if (!$project) {
+            return $this->notFound('Project not resolved');
+        }
+        
+        return $this->updateContentByUuid($project->uuid, $slug, $slug_id, $request);
+    }
+
+    /**
+     * Delete content using explicit project identifier
+     * 
+     * @param string $project_identifier Project UUID or slug
+     * @param string $slug Collection slug
+     * @param int $slug_id Content ID
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteContent($project_identifier, $slug, $slug_id, Request $request){
+        $project = $request->attributes->get('resolved_project');
+        
+        if (!$project) {
+            return $this->notFound('Project not resolved');
+        }
+        
+        return $this->deleteContentByUuid($project->uuid, $slug, $slug_id);
+    }
+
+    /**
+     * Get content by related content
+     * 
+     * Query content from a related collection that is related to a specific content in a source collection.
+     * For example: get all posts in a specific category.
+     * 
+     * @param string $uuid Project UUID
+     * @param string $slug Source collection slug (e.g., 'categories')
+     * @param int $id Source content ID (e.g., category ID)
+     * @param string $relatedSlug Related collection slug (e.g., 'posts')
+     * @param \Illuminate\Http\Request $request
+     * @return \App\Http\Resources\ContentResource
+     */
+    public function getContentByRelationByUuid($uuid, $slug, $slug_id, $relatedSlug, Request $request){
+        $project = Project::where('uuid', $uuid)->first();
+
+        if(!$project){
+            return $this->notFound('Project not found');
+        }
+        if ($response = $this->authorizeProjectRead($project)) {
+            return $response;
+        }
+
+        $sourceCollection = Collection::where('project_id', $project->id)->where('slug', $slug)->first();
+        if(!$sourceCollection) {
+            return $this->notFound('Source collection not found');
+        }
+
+        $sourceContent = Content::where('project_id', $project->id)
+            ->where('collection_id', $sourceCollection->id)
+            ->where('id', $slug_id)
+            ->first();
+        if(!$sourceContent) {
+            return $this->notFound('Source content not found');
+        }
+
+        $relatedCollection = Collection::where('project_id', $project->id)->where('slug', $relatedSlug)->first();
+        if(!$relatedCollection) {
+            return $this->notFound('Related collection not found');
+        }
+
+        $relationField = CollectionField::where('project_id', $project->id)
+            ->where('collection_id', $relatedCollection->id)
+            ->where('type', 'relation')
+            ->whereRaw('JSON_CONTAINS(options, ?)', ['{"relation":{"collection":'.$sourceCollection->id.'}}'])
+            ->first();
+
+        if(!$relationField) {
+            return $this->notFound('No relation field found between source and related collections');
+        }
+
+        $content = Content::with(['meta', 'collection'])
+            ->where('project_id', $project->id)
+            ->where('collection_id', $relatedCollection->id);
+
+        $metaThroughRelation = ContentMeta::where('project_id', $project->id)
+            ->where('collection_id', $relatedCollection->id)
+            ->where('field_name', $relationField->name)
+            ->whereRaw('FIND_IN_SET(?, cast(value as char)) > 0', [$sourceContent->id]);
+
+        $metaThroughRelation = $metaThroughRelation->get(['content_id']);
+
+        $content = $content->whereIn('id', $metaThroughRelation);
+
+        if($request->has('sort')){
+            $sortM = explode(',', $request->get('sort'));
+
+            foreach ($sortM as $s) {
+                $sort = explode(':', $s);
+                if(count($sort) <= 1 || count($sort) > 2) {
+                    return $this->validationError('Incorrect sort statement');
+                }
+
+                if($sort[0] == 'id' || $sort[0] == 'locale' || $sort[0] == 'created_at' || $sort[0] == 'updated_at' || $sort[0] == 'published_at'){
+                    $content = $content->orderBy($sort[0], $sort[1]);
+                } else {
+                    $content = $content->orderBy(
+                        ContentMeta::select('value')
+                            ->whereColumn('content_meta.content_id', 'content.id')
+                            ->where('field_name', $sort[0])
+                            ->latest()
+                            ->take(1),
+                        $sort[1]
+                    );
+                }
+            }
+        }
+
+        if($request->has('state')){
+            if($request->get('state') == 'only_draft'){
+                $content = $content->whereNull('published_at');
+            }
+        } else {
+            $content = $content->whereNotNull('published_at');
+        }
+
+        if($request->has('offset') && !$request->has('limit')){
+            return $this->validationError('Incorrect offset statement. Offset must be used with limit.');
+        }
+
+        if($request->has('offset')){
+            $content = $content->offset($request->get('offset'));
+        }
+        if($request->has('limit')){
+            $content = $content->limit($request->get('limit'));
+        }
+
+        if($request->has('count')){
+            return $this->success($content->count(), 'Success');
+        } else {
+            $selectFields = ['id', 'project_id', 'collection_id', 'locale'];
+
+            if($request->has('timestamps')){
+                $selectFields[] = 'created_at';
+                $selectFields[] = 'updated_at';
+                $selectFields[] = 'published_at';
+            }
+            $content = $content->select($selectFields);
+
+            if($request->has('first')){
+                $content = $content->first();
+                if(!$content) return $this->notFound('Not found');
+
+                return $this->success(new ContentResource($content), 'Success');
+            } else {
+                $content = $content->get();
+                return $this->success(ContentResource::collection($content), 'Success');
+            }
+        }
     }
 }

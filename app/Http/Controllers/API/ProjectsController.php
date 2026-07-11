@@ -18,7 +18,7 @@ class ProjectsController extends Controller {
      * @param string $uuid
      * @return \App\Http\Resources\ProjectResource
      */
-    public function show($uuid){
+    public function getProjectByUuid($uuid){
         $project = Project::where('uuid', $uuid)->first();
 
         if(!$project){
@@ -39,13 +39,13 @@ class ProjectsController extends Controller {
      * @param \Illuminate\Http\Request $request
      * @return \App\Http\Resources\ProjectResource
      */
-    public function showByDomain($projectIdentifier, Request $request){
+    public function getProject($projectIdentifier, Request $request){
         $project = $request->attributes->get('resolved_project');
         
         if (!$project) {
             return $this->notFound('Project not resolved');
         }
         
-        return $this->show($project->uuid);
+        return $this->getProjectByUuid($project->uuid);
     }
 }

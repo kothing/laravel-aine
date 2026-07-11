@@ -21,7 +21,7 @@ class MediaController extends Controller {
      * @param string $uuid
      * @return \App\Http\Resources\MediaResource
      */
-    public function getProjectMedia($uuid){
+    public function getMediaListByUuid($uuid){
         $project = Project::where('uuid', $uuid)->first();
         if(!$project){
             return $this->notFound('Project not found');
@@ -36,13 +36,13 @@ class MediaController extends Controller {
     }
 
     /**
-     * Get file by ID
+     * Get media by ID using UUID
      *
      * @param string $uuid
-     * @param int $id
+     * @param int $media_id
      * @return \App\Http\Resources\MediaResource
      */
-    public function getFileByID($uuid, $id){
+    public function getMediaByUuid($uuid, $media_id){
         $project = Project::where('uuid', $uuid)->first();
         if(!$project){
             return $this->notFound('Project not found');
@@ -51,23 +51,23 @@ class MediaController extends Controller {
             return $response;
         }
 
-        $file = Media::where('project_id', $project->id)->find($id);
+        $file = Media::where('project_id', $project->id)->find($media_id);
 
         if(!$file) {
-            return $this->notFound('File not found');
+            return $this->notFound('Media not found');
         }
 
         return $this->success(new MediaResource($file), 'Success');
     }
 
     /**
-     * Get file by name
+     * Get media by name using UUID
      *
      * @param string $uuid
-     * @param string $name
+     * @param string $media_name
      * @return \App\Http\Resources\MediaResource
      */
-    public function getFileByName($uuid, $name){
+    public function getMediaByNameByUuid($uuid, $media_name){
         $project = Project::where('uuid', $uuid)->first();
         if(!$project){
             return $this->notFound('Project not found');
@@ -76,23 +76,23 @@ class MediaController extends Controller {
             return $response;
         }
 
-        $file = Media::where('project_id', $project->id)->where('name', $name)->first();
+        $file = Media::where('project_id', $project->id)->where('name', $media_name)->first();
 
         if(!$file) {
-            return $this->notFound('File not found');
+            return $this->notFound('Media not found');
         }
 
         return $this->success(new MediaResource($file), 'Success');
     }
 
     /**
-     * Delete a file
+     * Delete media using UUID
      *
      * @param string $uuid
-     * @param int $id
+     * @param int $media_id
      * @return \Illuminate\Http\Response
      */
-    public function deleteFile($uuid, $id){
+    public function deleteMediaByUuid($uuid, $media_id){
         if ($response = $this->authorizeProjectAbility('delete', $uuid)) {
             return $response;
         }
@@ -103,10 +103,10 @@ class MediaController extends Controller {
             return $this->notFound('Project not found');
         }
 
-        $file = Media::where('project_id', $project->id)->find($id);
+        $file = Media::where('project_id', $project->id)->find($media_id);
 
         if(!$file) {
-            return $this->notFound('File not found');
+            return $this->notFound('Media not found');
         }
 
         $original = 'public/'.$project->uuid.'/'.$file->name;
@@ -120,20 +120,20 @@ class MediaController extends Controller {
         }
 
         if($file->delete()){
-            return $this->deleted('File deleted');
+            return $this->deleted('Media deleted');
         } else {
-            return $this->notFound('Failed to delete file');
+            return $this->notFound('Failed to delete media');
         }
     }
 
     /**
-     * Upload a file
+     * Upload media using UUID
      *
      * @param string $uuid
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function uploadFile($uuid, Request $request){
+    public function uploadMediaByUuid($uuid, Request $request){
         if ($response = $this->authorizeProjectAbility('create', $uuid)) {
             return $response;
         }
@@ -271,32 +271,85 @@ class MediaController extends Controller {
      * @param \Illuminate\Http\Request $request
      * @return \App\Http\Resources\MediaResource
      */
-    public function getProjectMediaByDomain($projectIdentifier, Request $request){
+    public function getMediaList($projectIdentifier, Request $request){
         $project = $request->attributes->get('resolved_project');
         
         if (!$project) {
             return $this->notFound('Project not resolved');
         }
         
-        return $this->getProjectMedia($project->uuid);
+        return $this->getMediaListByUuid($project->uuid);
     }
 
     /**
-     * Get file by ID by explicit project identifier (UUID or slug)
+     * Get media by ID using explicit project identifier (UUID or slug)
      * Project is resolved by ValidateProjectAccess middleware and set on request attributes
      *
      * @param string $projectIdentifier Project UUID or slug
-     * @param int $id File ID
+     * @param int $media_id Media ID
      * @param \Illuminate\Http\Request $request
      * @return \App\Http\Resources\MediaResource
      */
-    public function getFileByIDByDomain($projectIdentifier, $id, Request $request){
+    public function getMediaByID($project_identifier, $media_id, Request $request){
         $project = $request->attributes->get('resolved_project');
         
         if (!$project) {
             return $this->notFound('Project not resolved');
         }
         
-        return $this->getFileByID($project->uuid, $id);
+        return $this->getMediaByUuid($project->uuid, $media_id);
+    }
+
+    /**
+     * Get media by name using explicit project identifier
+     * 
+     * @param string $project_identifier Project UUID or slug
+     * @param string $media_name File name
+     * @param \Illuminate\Http\Request $request
+     * @return \App\Http\Resources\MediaResource
+     */
+    public function getMediaByName($project_identifier, $media_name, Request $request){
+        $project = $request->attributes->get('resolved_project');
+        
+        if (!$project) {
+            return $this->notFound('Project not resolved');
+        }
+        
+        return $this->getMediaByNameByUuid($project->uuid, $media_name);
+    }
+
+    /**
+     * Delete media using explicit project identifier
+     * 
+     * @param string $project_identifier Project UUID or slug
+     * @param int $media_id Media ID
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function deleteMedia($project_identifier, $media_id, Request $request){
+        $project = $request->attributes->get('resolved_project');
+        
+        if (!$project) {
+            return $this->notFound('Project not resolved');
+        }
+        
+        return $this->deleteMediaByUuid($project->uuid, $media_id);
+    }
+
+    /**
+     * Upload media using explicit project identifier
+     * 
+     * @param string $project_identifier Project UUID or slug
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function uploadMedia($project_identifier, Request $request){
+        $project = $request->attributes->get('resolved_project');
+        
+        if (!$project) {
+            return $this->notFound('Project not resolved');
+        }
+        
+        return $this->uploadMediaByUuid($project->uuid, $request);
     }
 }

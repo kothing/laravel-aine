@@ -23,31 +23,42 @@ use App\Http\Controllers\API\ProjectsController;
 // Requires explicit project identifier (UUID or slug) in URL
 // Validates project access via domain whitelist
 // ============================================
-Route::middleware(['validate.project.access'])->prefix('project')->group(function () {
-    Route::get('/{projectIdentifier}', [ProjectsController::class, 'showByDomain']);
-    Route::get('/{projectIdentifier}/media', [MediaController::class, 'getProjectMediaByDomain']);
-    Route::get('/{projectIdentifier}/media/{id}', [MediaController::class, 'getFileByIDByDomain']);
-    Route::get('/{projectIdentifier}/{slug}', [ContentController::class, 'getContentByDomain']);
-    Route::get('/{projectIdentifier}/{slug}/{id}', [ContentController::class, 'getContentByIDByDomain']);
+Route::middleware(['verify.domain.whitelist'])->prefix('project')->group(function () {
+    Route::get('/{project_identifier}', [ProjectsController::class, 'getProject']);
+    Route::get('/{project_identifier}/{slug}', [ContentController::class, 'getContentList']);
+    Route::get('/{project_identifier}/{slug}/{slug_id}', [ContentController::class, 'getProjectContentByID']);
+    Route::get('/{project_identifier}/{slug}/{slug_id}/{related_slug}', [ContentController::class, 'getProjectContentByRelation']);
+    Route::post('/{project_identifier}/{slug}', [ContentController::class, 'createContent'])->middleware('auth:sanctum');
+    Route::post('/{project_identifier}/{slug}/update/{slug_id}', [ContentController::class, 'updateContent'])->middleware('auth:sanctum');
+    Route::delete('/{project_identifier}/{slug}/{slug_id}', [ContentController::class, 'deleteContent'])->middleware('auth:sanctum');
+
+    Route::get('/{project_identifier}/media', [MediaController::class, 'getMediaList']);
+    Route::get('/{project_identifier}/media/{media_id}', [MediaController::class, 'getMediaByID']);
+    Route::get('/{project_identifier}/media/name/{media_name}', [MediaController::class, 'getMediaByName']);
+    Route::delete('/{project_identifier}/media/{media_id}', [MediaController::class, 'deleteMedia'])->middleware('auth:sanctum');
+    Route::post('/{project_identifier}/media/upload', [MediaController::class, 'uploadMedia'])->middleware('auth:sanctum');
 });
 
 // ============================================
 // Method 2: Original API (requires UUID + Token)
 // Use case: Laravel frontend projects, backend server calls
+// Security: All operations require UUID validation + Token authentication
+//           Prevents unauthorized cross-domain access from any website
 // ============================================
-Route::middleware(['verify.domain.whitelist'])->group(function () {
-    Route::get('/{uuid}/project-media', [MediaController::class, 'getProjectMedia']);
-    Route::get('/{uuid}/project-media/{id}', [MediaController::class, 'getFileByID']);
-    Route::get('/{uuid}/project-media/name/{name}', [MediaController::class, 'getFileByName']);
-    Route::delete('/{uuid}/project-media/{id}', [MediaController::class, 'deleteFile'])->middleware('auth:sanctum');
-    Route::post('/{uuid}/project-media/upload', [MediaController::class, 'uploadFile'])->middleware('auth:sanctum');
+Route::middleware(['validate.project.access', 'auth:sanctum'])->group(function () {
+    Route::get('/{uuid}', [ProjectsController::class, 'getProjectByUuid']);
+    Route::get('/{uuid}/{slug}', [ContentController::class, 'getContentListByUuid']);
+    Route::get('/{uuid}/{slug}/{slug_id}', [ContentController::class, 'getContentByUuid']);
+    Route::get('/{uuid}/{slug}/{slug_id}/{related_slug}', [ContentController::class, 'getContentByRelationByUuid']);
+    Route::post('/{uuid}/{slug}', [ContentController::class, 'createContentByUuid']);
+    Route::post('/{uuid}/{slug}/update/{slug_id}', [ContentController::class, 'updateContentByUuid']);
+    Route::delete('/{uuid}/{slug}/{slug_id}', [ContentController::class, 'deleteContentByUuid']);
 
-    Route::get('/{uuid}', [ProjectsController::class, 'show']);
-    Route::get('/{uuid}/{slug}', [ContentController::class, 'getContent']);
-    Route::get('/{uuid}/{slug}/{id}', [ContentController::class, 'getContentByID']);
-    Route::post('/{uuid}/{slug}', [ContentController::class, 'create'])->middleware('auth:sanctum');
-    Route::post('/{uuid}/{slug}/update/{id}', [ContentController::class, 'update'])->middleware('auth:sanctum');
-    Route::delete('/{uuid}/{slug}/{id}', [ContentController::class, 'delete'])->middleware('auth:sanctum');
+    Route::get('/{uuid}/project-media', [MediaController::class, 'getMediaListByUuid']);
+    Route::get('/{uuid}/project-media/{media_id}', [MediaController::class, 'getMediaByUuid']);
+    Route::get('/{uuid}/project-media/name/{media_name}', [MediaController::class, 'getMediaByNameByUuid']);
+    Route::delete('/{uuid}/project-media/{media_id}', [MediaController::class, 'deleteMediaByUuid']);
+    Route::post('/{uuid}/project-media/upload', [MediaController::class, 'uploadMediaByUuid']);
 });
 
 Route::options('{any}', function () {
