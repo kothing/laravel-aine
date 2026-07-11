@@ -1234,7 +1234,157 @@ class ContentController extends Controller {
             return $this->notFound('Project not resolved');
         }
         
-        return $this->getContentByRelationByUuid($project->uuid, $slug, $slug_id, $related_slug, $request);
+        $sourceCollection = Collection::where('project_id', $project->id)->where('slug', $slug)->first();
+        if(!$sourceCollection) {
+            return $this->notFound('Source collection "'.$slug.'" not found in project');
+        }
+
+        $relatedCollection = Collection::where('project_id', $project->id)->where('slug', $related_slug)->first();
+        if(!$relatedCollection) {
+            return $this->notFound('Related collection "'.$related_slug.'" not found in project');
+        }
+
+        $relationFields = CollectionField::where('project_id', $project->id)
+            ->where('collection_id', $relatedCollection->id)
+            ->where('type', 'relation')
+            ->get();
+
+        $relationField = null;
+        $sourceCollectionId = $sourceCollection->id;
+
+        foreach ($relationFields as $field) {
+            $options = json_decode($field->options, true);
+            if (isset($options['relation']['collection'])) {
+                $targetCollectionId = $options['relation']['collection'];
+                if ($targetCollectionId == $sourceCollectionId || (string)$targetCollectionId == (string)$sourceCollectionId) {
+                    $relationField = $field;
+                    break;
+                }
+            }
+        }
+
+        if(!$relationField) {
+            $debugInfo = [];
+            foreach ($relationFields as $field) {
+                $debugInfo[] = [
+                    'field_name' => $field->name,
+                    'field_id' => $field->id,
+                    'options' => $field->options,
+                ];
+            }
+            return response()->json([
+                'success' => false,
+                'code' => 404,
+                'message' => 'No relation field found from collection "'.$related_slug.'" to collection "'.$slug.'". Please check if there is a relation field in the "'.$related_slug.'" collection that points to the "'.$slug.'" collection.',
+                'debug' => [
+                    'source_collection_name' => $slug,
+                    'source_collection_id' => $sourceCollectionId,
+                    'related_collection_name' => $related_slug,
+                    'related_collection_id' => $relatedCollection->id,
+                    'relation_fields_found' => $debugInfo,
+                ],
+            ], 404);
+        }
+
+        $content = Content::with(['meta', 'collection'])
+            ->where('project_id', $project->id)
+            ->where('collection_id', $relatedCollection->id);
+
+        $metaThroughRelation = ContentMeta::where('project_id', $project->id)
+            ->where('collection_id', $relatedCollection->id)
+            ->where('field_name', $relationField->name)
+            ->whereRaw('FIND_IN_SET(?, cast(value as char)) > 0', [$slug_id]);
+
+        $metaThroughRelation = $metaThroughRelation->get(['content_id']);
+
+        $content = $content->whereIn('id', $metaThroughRelation);
+
+        if($request->has('where')){
+            $where = $request->get('where');
+            if(!is_array($where)) {
+                return $this->validationError('Incorrect where statement. See documentation: #where-clauses');
+            }
+            if (!is_numeric(array_key_first($where)) || array_key_first($where) != 'or') {
+                $multiDim = false;
+            } else {
+                $multiDim = true;
+            }
+            if(!$multiDim) {
+                $where = [$where];
+            }
+            foreach($where as $where_item) {
+                if(array_key_exists('or', $where_item)) {
+                    $content->where(function($query) use ($where_item) {
+                        foreach($where_item['or'] as $or_item) {
+                            $query->orWhereHas('meta', function ($query) use ($or_item) {
+                                $query->where('key', key($or_item))->where('value', $or_item[key($or_item)]);
+                            });
+                        }
+                    });
+                } else {
+                    $content->whereHas('meta', function ($query) use ($where_item) {
+                        $query->where('key', key($where_item))->where('value', $where_item[key($where_item)]);
+                    });
+                }
+            }
+        }
+
+        if($request->has('sort')){
+            $sort = $request->get('sort');
+            if(is_string($sort)) {
+                $sort = [$sort];
+            }
+            foreach($sort as $sort_item){
+                $sort_field = explode(':', $sort_item)[0];
+                $sort_direction = explode(':', $sort_item)[1] ?? 'asc';
+                if($sort_field === 'created_at' || $sort_field === 'updated_at' || $sort_field === 'published_at') {
+                    $content->orderBy($sort_field, $sort_direction);
+                } else {
+                    $content->orderByMeta($sort_field, $sort_direction);
+                }
+            }
+        } else {
+            $content->orderBy('created_at', 'desc');
+        }
+
+        if($request->has('offset')){
+            $content->skip($request->get('offset'));
+        }
+
+        if($request->has('limit')){
+            $content->limit($request->get('limit'));
+        }
+
+        if($request->has('state')){
+            switch($request->get('state')) {
+                case 'only_draft':
+                    $content->whereNull('published_at');
+                    break;
+                case 'only_published':
+                    $content->whereNotNull('published_at');
+                    break;
+                case 'all':
+                    break;
+            }
+        }
+
+        if($request->has('timestamps')){
+            $selectFields = ['id', 'project_id', 'collection_id', 'locale', 'created_at', 'updated_at', 'published_at'];
+        } else {
+            $selectFields = ['id', 'project_id', 'collection_id', 'locale'];
+        }
+
+        $content = $content->select($selectFields)->get();
+
+        if($request->has('first') && $request->get('first')){
+            $content = $content->first();
+        }
+
+        if($request->has('count') && $request->get('count')){
+            return $this->success($content->count(), 'Success');
+        }
+
+        return $this->success(ContentResource::collection($content), 'Success');
     }
 
     /**
@@ -1317,30 +1467,35 @@ class ContentController extends Controller {
 
         $sourceCollection = Collection::where('project_id', $project->id)->where('slug', $slug)->first();
         if(!$sourceCollection) {
-            return $this->notFound('Source collection not found');
-        }
-
-        $sourceContent = Content::where('project_id', $project->id)
-            ->where('collection_id', $sourceCollection->id)
-            ->where('id', $slug_id)
-            ->first();
-        if(!$sourceContent) {
-            return $this->notFound('Source content not found');
+            return $this->notFound('Source collection "'.$slug.'" not found in project');
         }
 
         $relatedCollection = Collection::where('project_id', $project->id)->where('slug', $relatedSlug)->first();
         if(!$relatedCollection) {
-            return $this->notFound('Related collection not found');
+            return $this->notFound('Related collection "'.$relatedSlug.'" not found in project');
         }
 
-        $relationField = CollectionField::where('project_id', $project->id)
+        $relationFields = CollectionField::where('project_id', $project->id)
             ->where('collection_id', $relatedCollection->id)
             ->where('type', 'relation')
-            ->whereRaw('JSON_CONTAINS(options, ?)', ['{"relation":{"collection":'.$sourceCollection->id.'}}'])
-            ->first();
+            ->get();
+
+        $relationField = null;
+        $sourceCollectionId = $sourceCollection->id;
+
+        foreach ($relationFields as $field) {
+            $options = json_decode($field->options, true);
+            if (isset($options['relation']['collection'])) {
+                $targetCollectionId = $options['relation']['collection'];
+                if ($targetCollectionId == $sourceCollectionId || (string)$targetCollectionId == (string)$sourceCollectionId) {
+                    $relationField = $field;
+                    break;
+                }
+            }
+        }
 
         if(!$relationField) {
-            return $this->notFound('No relation field found between source and related collections');
+            return $this->notFound('No relation field found from collection "'.$relatedSlug.'" to collection "'.$slug.'". Please check if there is a relation field in the "'.$relatedSlug.'" collection that points to the "'.$slug.'" collection.');
         }
 
         $content = Content::with(['meta', 'collection'])
@@ -1350,7 +1505,7 @@ class ContentController extends Controller {
         $metaThroughRelation = ContentMeta::where('project_id', $project->id)
             ->where('collection_id', $relatedCollection->id)
             ->where('field_name', $relationField->name)
-            ->whereRaw('FIND_IN_SET(?, cast(value as char)) > 0', [$sourceContent->id]);
+            ->whereRaw('FIND_IN_SET(?, cast(value as char)) > 0', [$slug_id]);
 
         $metaThroughRelation = $metaThroughRelation->get(['content_id']);
 

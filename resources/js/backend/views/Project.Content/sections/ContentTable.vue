@@ -211,6 +211,12 @@
                             </th>
                             <th
                                 scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase whitespace-nowrap"
+                            >
+                                ID
+                            </th>
+                            <th
+                                scope="col"
                                 v-for="field in collection.fields"
                                 :key="field.id"
                                 v-show="field.type != 'password' && field.type != 'json' && columns[field.name]"
@@ -310,6 +316,9 @@
                         <tr v-for="item in content.data" :key="item.id" class="relative">
                             <td class="pl-2 py-4 text-sm text-center w-px">
                                 <input type="checkbox" :checked="checkIfSelected(item.id)" @click="selectRecord(item.id)" v-formcheckbox class="cursor-pointer" />
+                            </td>
+                            <td class="px-6 py-3 text-sm w-px whitespace-nowrap text-gray-600">
+                                {{ item.id }}
                             </td>
                             <td
                                 v-for="field in collection.fields"
