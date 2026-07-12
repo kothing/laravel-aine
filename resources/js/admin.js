@@ -1,5 +1,5 @@
 /**
- * Backend admin entry
+ * Admin entry
  */
 import Vue from "vue";
 
@@ -28,10 +28,10 @@ import "./utils/directives";
 import "./utils/filters";
 
 // Routes
-import router from "./backend/routes";
+import router from "./admin/routes";
 
 // Store
-import store from "./backend/store";
+import store from "./admin/store";
 
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
@@ -124,7 +124,7 @@ Vue.use(VueSweetalert2, {
 Vue.use(Slugify);
 
 // Admin
-Vue.component("admin", require("./backend/Layout.vue").default);
+Vue.component("admin", require("./admin/Layout.vue").default);
 
 /**
  * Render

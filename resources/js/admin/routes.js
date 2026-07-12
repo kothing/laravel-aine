@@ -33,10 +33,10 @@ const checkPermission = async (to, from, next, options = {}) => {
     return next();
 };
 
-const Dashboard = () => import(/* webpackChunkName: "backend.dashboard" */ "./views/Dashboard");
-const Settings = () => import(/* webpackChunkName: "backend.settings" */ "./views/Settings");
-const Profile = () => import(/* webpackChunkName: "backend.profile" */ "./views/Profile");
-const Projects = () => import(/* webpackChunkName: "backend.projects" */ "./views/Projects");
+const Dashboard = () => import(/* webpackChunkName: "admin.dashboard" */ "./views/Dashboard");
+const Settings = () => import(/* webpackChunkName: "admin.settings" */ "./views/Settings");
+const Profile = () => import(/* webpackChunkName: "admin.profile" */ "./views/Profile");
+const Projects = () => import(/* webpackChunkName: "admin.projects" */ "./views/Projects");
 const ProjectIndex = () => import(/* webpackChunkName: "project.index" */ "./views/Project.Index/Index");
 const ProjectCollectionIndex = () => import(/* webpackChunkName: "project.collection" */ "./views/Project.Collection/CollectionIndex");
 const ProjectCollectionList = () => import(/* webpackChunkName: "project.collection.list" */ "./views/Project.Collection/CollectionList");

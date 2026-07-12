@@ -1,27 +1,18 @@
 <?php
 
 use App\Http\Resources\UserResource;
-use App\Http\Resources\SettingResource;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\FormController;
-use App\Http\Controllers\UsersController;
-use App\Http\Controllers\ContentController;
-use App\Http\Controllers\ProjectsController;
-use App\Http\Controllers\CollectionsController;
-use App\Http\Controllers\MediaLibraryController;
-use App\Http\Controllers\CollectionFieldsController;
-use App\Http\Controllers\SettingsController;
-
-Route::get('/', function () {
-    return view('app');
-});
-
-Route::get('/settings', [SettingsController::class, 'index']);
+use App\Http\Controllers\Admin\UsersController;
+use App\Http\Controllers\Admin\ContentController;
+use App\Http\Controllers\Admin\ProjectsController;
+use App\Http\Controllers\Admin\CollectionsController;
+use App\Http\Controllers\Admin\MediaLibraryController;
+use App\Http\Controllers\Admin\CollectionFieldsController;
+use App\Http\Controllers\Admin\SettingsController;
 
 Route::middleware('auth:web')->prefix('admin')->group(function(){
     Route::get('/', function () {
-        return view('admin');
+        return view('admin.admin');
     });
     
     Route::get('/user', function () {
@@ -108,11 +99,6 @@ Route::middleware('auth:web')->prefix('admin')->group(function(){
         Route::post('/move-to-trash-selected/{project_id}/{collection_id}', [ContentController::class, 'moveToTrashSelected']);
         Route::post('/delete-selected/{project_id}/{collection_id}', [ContentController::class, 'deleteSelected']);
         Route::post('/restore-selected/{project_id}/{collection_id}', [ContentController::class, 'restoreSelected']);
-
-        Route::get('/forms/{project_id}/{collection_id}', [FormController::class, 'forms']);
-        Route::post('/forms/{project_id}/{collection_id}', [FormController::class, 'store']);
-        Route::post('/forms/save/{project_id}/{collection_id}/{form_id}', [FormController::class, 'save']);
-        Route::delete('/forms/delete/{project_id}/{collection_id}/{form_id}', [FormController::class, 'delete']);
     });
 
     Route::prefix('media')->group(function(){
@@ -123,53 +109,3 @@ Route::middleware('auth:web')->prefix('admin')->group(function(){
         Route::post('/update/{project_id}/{file_id}', [MediaLibraryController::class, 'update']);
     });
 });
-
-Route::get('uploads/{dir}/{file}', function($dir, $file){
-
-	$path = 'public/' . $dir . '/' . $file;
-
-    if(Storage::disk('local')->exists($path)){
-        return  Storage::response($path);
-    }
-
-    abort(404);
-});
-
-Route::get('uploads/thumb/{dir}/{file}', function($dir, $file){
-
-	$path = 'public/' . $dir . '/thumbnails/' . $file;
-
-    if(Storage::disk('local')->exists($path)){
-        return  Storage::response($path);
-    }
-
-    abort(404);
-});
-
-Route::get('storage/{dir}/{file}', function($dir, $file){
-    $path = 'public/' . $dir . '/' . $file;
-
-    if(Storage::disk('local')->exists($path)){
-        return Storage::response($path);
-    }
-
-    abort(404);
-});
-
-Route::get('storage/{dir}/thumbnails/{file}', function($dir, $file){
-    $path = 'public/' . $dir . '/thumbnails/' . $file;
-
-    if(Storage::disk('local')->exists($path)){
-        return Storage::response($path);
-    }
-
-    abort(404);
-});
-
-Route::get('forms/preview/{form_uuid}', [FormController::class, 'showPreview']);
-Route::get('forms/{form_uuid}', [FormController::class, 'showEmbeded']);
-Route::post('forms/{form_uuid}', [FormController::class, 'getEmbeded']);
-Route::post('forms/submit/{form_uuid}', [FormController::class, 'submit']);
-Route::post('forms/{form_uuid}/upload', [FormController::class, 'upload']);
-
-require __DIR__.'/auth.php';
