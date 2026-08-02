@@ -25,5 +25,11 @@ export default {
     props: {
         items: { type: Array, default: () => [] },
     },
+    computed: {
+        // 兜底空数组：即使父组件传入 null/undefined 也不报错
+        safeItems() {
+            return Array.isArray(this.items) ? this.items : [];
+        },
+    },
 }
 </script>

@@ -7,12 +7,10 @@
                 </svg>
             </button>
         </div>
-        <template v-if="topbar">
-            <Breadcrumb v-if="topbar.breadcrumb" :items="topbar.breadcrumb" />
-            <div v-if="topbar.title" class="text-sm font-semibold text-gray-700 ml-2">
-                {{ topbar.title }}
-            </div>
-        </template>
+        <Breadcrumb :items="topbar && topbar.breadcrumb" />
+        <!-- <div v-if="topbar && topbar.title" class="text-sm font-semibold text-gray-700 ml-2">
+            {{ topbar.title }}
+        </div> -->
     </header>
 </template>
 
