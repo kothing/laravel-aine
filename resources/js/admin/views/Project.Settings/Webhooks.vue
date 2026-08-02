@@ -402,6 +402,7 @@ import UiModal from "../../../components/Modal.vue";
 
 import ProjectHeader from "../components/ProjectHeader.vue";
 import SettingsNav from "./sections/SettingsNav.vue";
+import projectBreadcrumb from "../../mixins/projectBreadcrumb";
 
 Vue.use(Clipboard);
 
@@ -412,6 +413,8 @@ export default {
         UiButton,
         UiModal,
     },
+
+    mixins: [projectBreadcrumb],
 
     data() {
         return {

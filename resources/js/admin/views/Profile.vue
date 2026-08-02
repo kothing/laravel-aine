@@ -210,5 +210,21 @@ export default {
             );
         },
     },
+
+    created() {
+        this.$store.commit('SET_TOPBAR_CONTENT', { 
+            page: 'profile',
+            type: 'profile', 
+            title: 'Profile',
+            breadcrumb: [
+                { name: 'Dashboard', url: '/', icon: 'fa fa-tachometer-alt' },
+                { name: 'Profile', icon: 'fa fa-user' },
+            ],
+        });
+    },
+
+    mounted() {
+        //
+    }
 };
 </script>

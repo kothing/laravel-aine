@@ -7,27 +7,31 @@ Vue.use(Vuex);
 const getDefaultState = () => {
     return {
         user: {},
+        currentProject: null,
+        currentCollection: null,
+        topbarContent: null,
         columnSettings: [],
-        currentProject: null
     }
   }
-  
+
 const store = new Vuex.Store({
     state: {
         user: {},
         settings: {},
+        currentProject: null,
+        currentCollection: null,
+        topbarContent: null,
         columnSettings: [],
-        currentProject: null
     },
     mutations: {
         UPDATE_USER: (state, user) => {
             state.user = user;
         },
-        SET_COLUMNS: (state, obj) => {
-            state.columnSettings.push(obj);
+        SET_TOPBAR_CONTENT: (state, component) => {
+            state.topbarContent = component;
         },
-        UPDATE_COLUMN: (state, obj) => {
-            state.columnSettings.find(o => (o.collection_id === obj.collection_id)).columns = obj.columns;
+        CLEAR_TOPBAR_CONTENT: (state) => {
+            state.topbarContent = null;
         },
         SET_CURRENT_PROJECT: (state, project) => {
             state.currentProject = project;
@@ -35,9 +39,21 @@ const store = new Vuex.Store({
         CLEAR_CURRENT_PROJECT: (state) => {
             state.currentProject = null;
         },
+        SET_CURRENT_COLLECTION: (state, collection) => {
+            state.currentCollection = collection;
+        },
+        CLEAR_CURRENT_COLLECTION: (state) => {
+            state.currentCollection = null;
+        },
+        SET_COLUMNS: (state, obj) => {
+            state.columnSettings.push(obj);
+        },
+        UPDATE_COLUMN: (state, obj) => {
+            state.columnSettings.find(o => (o.collection_id === obj.collection_id)).columns = obj.columns;
+        },
         LOGOUT: (state) => {
             Object.assign(state, getDefaultState())
-        }
+        },
     },
     actions: {
         async getUser({commit}) {
@@ -58,6 +74,19 @@ const store = new Vuex.Store({
                 commit('CLEAR_CURRENT_PROJECT');
             }
         },
+        async setCurrentCollection({commit}, {projectId, colId}) {
+            if (!colId) {
+                commit('CLEAR_CURRENT_COLLECTION');
+                return;
+            }
+            try {
+                const response = await axios.get('/admin/collections/show/' + projectId + '/' + colId);
+                commit('SET_CURRENT_COLLECTION', response.data.collection);
+            } catch (error) {
+                console.error('Failed to load collection:', error);
+                commit('CLEAR_CURRENT_COLLECTION');
+            }
+        },
         setColumns({commit}, obj){
             commit('SET_COLUMNS', obj)
         },
@@ -69,6 +98,7 @@ const store = new Vuex.Store({
         user: state => state.user,
         columnSettings: state => state.columnSettings,
         currentProject: state => state.currentProject,
+        currentCollection: state => state.currentCollection,
     }
 })
 

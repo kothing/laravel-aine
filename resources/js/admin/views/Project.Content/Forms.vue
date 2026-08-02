@@ -112,6 +112,7 @@ import UiDropdown from "../../../components/Dropdown.vue";
 import ProjectHeader from "../components/ProjectHeader.vue";
 import ContentSidebar from "./sections/ContentSidebar.vue";
 import ContentFormsSidebar from "./sections/ContentFormsSidebar.vue";
+import projectBreadcrumb from "../../mixins/projectBreadcrumb";
 
 export default {
     components: {
@@ -122,6 +123,8 @@ export default {
         UiDropdown,
         ContentFormsSidebar,
     },
+
+    mixins: [projectBreadcrumb],
 
     data() {
         return {

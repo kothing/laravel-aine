@@ -195,6 +195,7 @@ import UiModal from "../../../components/Modal.vue";
 
 import ProjectHeader from "../components/ProjectHeader.vue";
 import SettingsNav from "./sections/SettingsNav.vue";
+import projectBreadcrumb from "../../mixins/projectBreadcrumb";
 
 export default {
     components: {
@@ -204,6 +205,8 @@ export default {
         UiModal,
         codemirror,
     },
+
+    mixins: [projectBreadcrumb],
 
     data() {
         return {

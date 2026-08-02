@@ -140,6 +140,7 @@ import ProjectHeader from "../components/ProjectHeader.vue";
 import SettingsNav from "./sections/SettingsNav.vue";
 
 import checkRole from "../../../utils/checkrole";
+import projectBreadcrumb from "../../mixins/projectBreadcrumb";
 
 export default {
     components: {
@@ -147,6 +148,8 @@ export default {
         SettingsNav,
         UiButton,
     },
+
+    mixins: [projectBreadcrumb],
 
     data() {
         return {

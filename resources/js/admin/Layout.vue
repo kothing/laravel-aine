@@ -14,16 +14,7 @@
         </div>
 
         <div class="admin__content w-full flex flex-col flex-1 verflow-auto" :class="screenWidth < 1024 ? 'sidebar-close' : ''">
-            <header class="admin__topbar flex items-center py-1 px-3 absolute top-0 bg-white border-b border-gray-200 lg:hidden z-10">
-                <div class="flex items-center m-r-2">
-                    <button @click="sidebarOpen = !sidebarOpen" class="text-gray-500 focus:outline-none lg:hidden">
-                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M4 6H20M4 12H20M4 18H11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                        </svg>
-                    </button>
-                </div>
-            </header>
-
+            <Topbar @toggle-sidebar="sidebarOpen = !sidebarOpen" />
             <router-view></router-view>
         </div>
     </div>
@@ -31,10 +22,12 @@
 
 <script>
 import Sidebar from './components/Sidebar.vue';
+import Topbar from './components/Topbar.vue';
 
 export default {
     components: {
         Sidebar,
+        Topbar,
     },
     data() {
         return {

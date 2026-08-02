@@ -295,6 +295,7 @@ import UiModal from "../../../components/Modal.vue";
 import ProjectHeader from "../components/ProjectHeader.vue";
 import ContentSidebar from "./sections/ContentSidebar.vue";
 import ContentFormsSidebar from "./sections/ContentFormsSidebar.vue";
+import projectBreadcrumb from "../../mixins/projectBreadcrumb";
 
 Vue.use(Clipboard);
 
@@ -309,6 +310,8 @@ export default {
         draggable,
         TinyEditor,
     },
+
+    mixins: [projectBreadcrumb],
 
     data() {
         return {
@@ -445,6 +448,8 @@ export default {
                         this.$forceUpdate();
                     }
                 });
+
+                this.setTopbar();
             });
         },
 
@@ -544,6 +549,9 @@ export default {
             let APP_URL = document.querySelector('meta[name="APP_URL"]').content;
             let url = APP_URL + "/forms/" + this.form.uuid;
             return '<iframe width="100%" height="100%"  style="border:none;" src="' + url + '"></iframe>';
+        },
+        breadcrumbFormName() {
+            return (this.form && this.form.name) || 'Form';
         },
         dragOptions() {
             return {

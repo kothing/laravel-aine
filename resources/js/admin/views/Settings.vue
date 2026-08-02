@@ -125,6 +125,18 @@ export default {
         },
     },
 
+    created() {
+        this.$store.commit('SET_TOPBAR_CONTENT', { 
+            page: 'settings',
+            type: 'settings', 
+            title: 'Settings',
+            breadcrumb: [
+                { name: 'Dashboard', url: '/', icon: 'fa fa-tachometer-alt' },
+                { name: 'Settings', icon: 'fa fa-cog' },
+            ],
+        });
+    },
+
     mounted() {
         this.getSettings();
     },

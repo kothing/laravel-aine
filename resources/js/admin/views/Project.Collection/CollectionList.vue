@@ -861,6 +861,7 @@ import UiModal from "../../../components/Modal.vue";
 
 import ProjectHeader from "../components/ProjectHeader.vue";
 import CollectionSidebar from "./sections/CollectionSidebar.vue";
+import projectBreadcrumb from "../../mixins/projectBreadcrumb";
 
 export default {
     components: {
@@ -871,6 +872,8 @@ export default {
         draggable,
         UiDropdown,
     },
+
+    mixins: [projectBreadcrumb],
 
     data() {
         return {

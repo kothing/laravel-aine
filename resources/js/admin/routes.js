@@ -239,6 +239,8 @@ router.beforeEach(async (to, from, next) => {
         await store.dispatch("getUser");
     }
 
+    store.commit('CLEAR_TOPBAR_CONTENT');
+
     // Check if entering a project page
     const isProjectPage = to.path.includes('/project/') && to.params.project_id;
     const wasProjectPage = from && from.path && from.path.includes('/project/') && from.params && from.params.project_id;
@@ -250,9 +252,22 @@ router.beforeEach(async (to, from, next) => {
         if (!currentProjectId || currentProjectId != to.params.project_id) {
             await store.dispatch('setCurrentProject', to.params.project_id);
         }
+
+        if (to.params.col_id) {
+            const currentCollectionId = store.getters.currentCollection?.id;
+            if (!currentCollectionId || currentCollectionId != to.params.col_id) {
+                await store.dispatch('setCurrentCollection', {
+                    projectId: to.params.project_id,
+                    colId: to.params.col_id,
+                });
+            }
+        } else {
+            store.commit('CLEAR_CURRENT_COLLECTION');
+        }
     } else if (wasProjectPage && !isProjectPage) {
         // Clear current project when leaving a project page
         store.dispatch('setCurrentProject', null);
+        store.commit('CLEAR_CURRENT_COLLECTION');
     }
 
     next();

@@ -10,12 +10,15 @@
 <script>
 import ProjectHeader from "../components/ProjectHeader.vue";
 import ContentSidebar from "./sections/ContentSidebar.vue";
+import projectBreadcrumb from "../../mixins/projectBreadcrumb";
 
 export default {
     components: {
         ProjectHeader,
         ContentSidebar,
     },
+
+    mixins: [projectBreadcrumb],
 
     data() {
         return {

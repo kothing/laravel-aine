@@ -11,12 +11,15 @@
 <script>
 import ProjectHeader from "../components/ProjectHeader.vue";
 import CollectionSidebar from "./sections/CollectionSidebar.vue";
+import projectBreadcrumb from "../../mixins/projectBreadcrumb";
 
 export default {
     components: {
         CollectionSidebar,
         ProjectHeader,
     },
+
+    mixins: [projectBreadcrumb],
 
     data() {
         return {

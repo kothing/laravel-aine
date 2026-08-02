@@ -45,7 +45,7 @@
 
             <template #content>
                 <div class="mt-4 pb-4">
-                    <form @submit.prevent="addNewProjectSubmit">
+                    <form @submit.prevent="handleNewProjectSubmit">
                         <div class="mt-2">
                             <label v-formlabel>Project Name</label>
                             <input
@@ -156,7 +156,7 @@
 
                 <ui-button
                     color="indigo-500"
-                    @click.native="addNewProjectSubmit"
+                    @click.native="handleNewProjectSubmit"
                     :class="{ 'opacity-25': processing }"
                     :disabled="processing"
                 >
@@ -229,7 +229,7 @@ export default {
             this.new_project.slugExists = false;
         },
 
-        addNewProjectSubmit() {
+        handleNewProjectSubmit() {
             this.processing = true;
 
             axios.post("/admin/projects", this.new_project).then(
@@ -246,6 +246,7 @@ export default {
                 }
             );
         },
+
         closeNewProjectModal() {
             this.openNewProjectModal = false;
             this.new_project = {
@@ -259,6 +260,7 @@ export default {
             };
             this.processing = false;
         },
+
         getProjects() {
             axios
                 .get("/admin/projects", { params: { search: this.search } })
@@ -266,6 +268,18 @@ export default {
                     this.projects = response.data;
                 });
         },
+    },
+
+    created() {
+        this.$store.commit('SET_TOPBAR_CONTENT', { 
+            page: 'projects',
+            type: 'projectList', 
+            title: 'Project List',
+            breadcrumb: [
+                { name: 'Dashboard', url: '/', icon: 'fa fa-tachometer-alt' },
+                { name: 'Project List', icon: 'fas fa-list' },
+            ],
+        });
     },
 
     mounted() {

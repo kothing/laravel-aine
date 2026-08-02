@@ -38,6 +38,17 @@
             },
         },
 
+        created() {
+            this.$store.commit('SET_TOPBAR_CONTENT', { 
+                page: 'dashboard',
+                type: 'dashboard', 
+                title: 'Dashboard',
+                breadcrumb: [
+                    { name: 'Dashboard', url: '/', icon: 'fa fa-tachometer-alt' },
+                ],
+            });
+        },
+
         mounted() {
             this.getSettings();
         },

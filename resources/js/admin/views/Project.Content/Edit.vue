@@ -757,6 +757,7 @@ import ContentSidebar from "./sections/ContentSidebar.vue";
 import ContentTable from "./sections/ContentTable.vue";
 
 import localesJson from "../../../locales.json";
+import projectBreadcrumb from "../../mixins/projectBreadcrumb";
 
 export default {
     components: {
@@ -770,6 +771,8 @@ export default {
         ContentTable,
         TinyEditor,
     },
+
+    mixins: [projectBreadcrumb],
 
     data() {
         return {

@@ -39,6 +39,7 @@ import ProjectHeader from "../components/ProjectHeader.vue";
 import CollectionSidebar from "../Project.Collection/sections/CollectionSidebar.vue";
 import ContentSidebar from "../Project.Content/sections/ContentSidebar.vue";
 import checkRole from "../../../utils/checkrole";
+import projectBreadcrumb from "../../mixins/projectBreadcrumb";
 
 export default {
     components: {
@@ -46,6 +47,8 @@ export default {
         CollectionSidebar,
         ContentSidebar,
     },
+
+    mixins: [projectBreadcrumb],
 
     data() {
         return {
@@ -58,10 +61,10 @@ export default {
 
         getProject() {
             axios
-            .get("/admin/projects/" + this.$route.params.project_id)
-            .then((response) => {
-                this.project = response.data;
-            });
+                .get("/admin/projects/" + this.$route.params.project_id)
+                .then((response) => {
+                    this.project = response.data;
+                });
         },
     },
 

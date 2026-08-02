@@ -18,6 +18,7 @@
 import ProjectHeader from "../components/ProjectHeader.vue";
 import ContentSidebar from "./sections/ContentSidebar.vue";
 import ContentTable from "./sections/ContentTable.vue";
+import projectBreadcrumb from "../../mixins/projectBreadcrumb";
 
 export default {
     components: {
@@ -25,6 +26,8 @@ export default {
         ContentSidebar,
         ContentTable,
     },
+
+    mixins: [projectBreadcrumb],
 
     data() {
         return {
