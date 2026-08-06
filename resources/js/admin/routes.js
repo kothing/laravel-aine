@@ -229,7 +229,7 @@ const routes = [
 
 const router = new VueRouter({
     routes: routes,
-    linkExactActiveClass: "bg-gray-100",
+    // linkExactActiveClass: "bg-gray-100",
 });
 
 router.beforeEach(async (to, from, next) => {
@@ -238,8 +238,6 @@ router.beforeEach(async (to, from, next) => {
     if (!hasRoles) {
         await store.dispatch("getUser");
     }
-
-    store.commit('CLEAR_TOPBAR_CONTENT');
 
     // Check if entering a project page
     const isProjectPage = to.path.includes('/project/') && to.params.project_id;

@@ -4,7 +4,7 @@
 
         <div class="flex flex-1 overflow-y-auto">
             <div class="w-3/12 bg-white overflow-x-hidden">
-                <settings-nav :project="project"></settings-nav>
+                <settings-sidebar :project="project"></settings-sidebar>
             </div>
             <div class="w-9/12 overflow-x-hidden">
                 <div class="p-4">
@@ -465,7 +465,7 @@ Vue.use(Clipboard);
 export default {
     components: {
         ProjectHeader,
-        SettingsNav,
+        SettingsSidebar,
         UiButton,
         UiModal,
     },

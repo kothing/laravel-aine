@@ -9,6 +9,8 @@
                         name: 'projects.settings',
                         params: { project_id: project.id },
                     }"
+                    :active-class="'bg-blue-50 text-blue-700'"
+                    :exact-active-class="'bg-blue-100 text-blue-700 font-semibold'"
                     class="block w-full p-2 cursor-pointer hover:bg-gray-100 rounded"
                 >
                     Project
@@ -21,6 +23,8 @@
                         name: 'projects.settings.locales',
                         params: { project_id: project.id },
                     }"
+                    :active-class="'bg-blue-50 text-blue-700'"
+                    :exact-active-class="'bg-blue-100 text-blue-700 font-semibold'"
                     class="block w-full p-2 cursor-pointer hover:bg-gray-100 rounded"
                 >
                     Localization
@@ -33,6 +37,8 @@
                         name: 'projects.settings.users',
                         params: { project_id: project.id },
                     }"
+                    :active-class="'bg-blue-50 text-blue-700'"
+                    :exact-active-class="'bg-blue-100 text-blue-700 font-semibold'"
                     class="block w-full p-2 cursor-pointer hover:bg-gray-100 rounded"
                 >
                     Users & Roles
@@ -45,6 +51,8 @@
                         name: 'projects.settings.api',
                         params: { project_id: project.id },
                     }"
+                    :active-class="'bg-blue-50 text-blue-700'"
+                    :exact-active-class="'bg-blue-100 text-blue-700 font-semibold'"
                     class="block w-full p-2 cursor-pointer hover:bg-gray-100 rounded"
                 >
                     API Access
@@ -57,6 +65,8 @@
                         name: 'projects.settings.webhooks',
                         params: { project_id: project.id }
                     }"
+                    :active-class="'bg-blue-50 text-blue-700'"
+                    :exact-active-class="'bg-blue-100 text-blue-700 font-semibold'"
                     class="block w-full p-2 cursor-pointer hover:bg-gray-100 rounded"
                 >
                     Webhooks

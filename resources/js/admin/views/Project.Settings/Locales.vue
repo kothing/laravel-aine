@@ -4,7 +4,7 @@
 
         <div class="flex flex-1 overflow-y-auto">
             <div class="w-3/12 bg-white overflow-x-hidden">
-                <settings-nav :project="project"></settings-nav>
+                <settings-sidebar :project="project"></settings-sidebar>
             </div>
             <div class="w-9/12 overflow-x-hidden">
                 <div class="p-4">
@@ -101,7 +101,7 @@ import UiButton from "../../../components/Button.vue";
 
 import ProjectHeader from "../components/ProjectHeader.vue";
 
-import SettingsNav from "./sections/SettingsNav.vue";
+import SettingsSidebar from "./sections/SettingsSidebar.vue";
 
 import localesJson from "../../../locales.json";
 import projectBreadcrumb from "../../mixins/projectBreadcrumb";
@@ -109,7 +109,7 @@ import projectBreadcrumb from "../../mixins/projectBreadcrumb";
 export default {
     components: {
         ProjectHeader,
-        SettingsNav,
+        SettingsSidebar,
         UiButton,
     },
 

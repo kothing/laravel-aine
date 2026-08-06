@@ -7,7 +7,7 @@
                 </svg>
             </button>
         </div>
-        <Breadcrumb :items="topbar && topbar.breadcrumb" />
+        <Breadcrumb :items="breadcrumbItems" />
         <!-- <div v-if="topbar && topbar.title" class="text-sm font-semibold text-gray-700 ml-2">
             {{ topbar.title }}
         </div> -->
@@ -22,7 +22,10 @@ export default {
     computed: {
         topbar() {
             return this.$store.state.topbarContent;
-        }
+        },
+        breadcrumbItems() {
+            return (this.topbar && this.topbar.breadcrumb) || [];
+        },
     }
 }
 </script>

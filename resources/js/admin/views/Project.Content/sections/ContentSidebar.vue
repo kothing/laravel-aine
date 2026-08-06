@@ -35,6 +35,8 @@
                         name: 'projects.content.list',
                         params: { project_id: project.id, col_id: collection.id },
                     }"
+                    :active-class="'bg-blue-50 text-blue-700'"
+                    :exact-active-class="'bg-blue-100 text-blue-700 font-semibold'"
                     class="block w-full p-2 cursor-pointer hover:bg-gray-100 rounded"
                 >
                     {{ collection.name }}
@@ -47,6 +49,8 @@
                 <router-link
                     v-if="typeof project.id !== 'undefined'"
                     :to="{ name: 'projects.media_library', params: { id: project.id } }"
+                    :active-class="'bg-blue-50 text-blue-700'"
+                    :exact-active-class="'bg-blue-100 text-blue-700 font-semibold'"
                     class="block w-full p-2 cursor-pointer hover:bg-gray-100 rounded"
                 >
                     <i class="fas fa-images text-gray-600 mr-3"></i> Media Library

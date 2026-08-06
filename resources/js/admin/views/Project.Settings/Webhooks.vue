@@ -4,7 +4,7 @@
 
         <div class="flex flex-1 overflow-y-auto">
             <div class="w-3/12 bg-white overflow-x-hidden">
-                <settings-nav :project="project"></settings-nav>
+                <settings-sidebar :project="project"></settings-sidebar>
             </div>
 
             <div class="w-9/12 overflow-x-hidden">
@@ -401,7 +401,7 @@ import UiButton from "../../../components/Button.vue";
 import UiModal from "../../../components/Modal.vue";
 
 import ProjectHeader from "../components/ProjectHeader.vue";
-import SettingsNav from "./sections/SettingsNav.vue";
+import SettingsSidebar from "./sections/SettingsSidebar.vue";
 import projectBreadcrumb from "../../mixins/projectBreadcrumb";
 
 Vue.use(Clipboard);
@@ -409,7 +409,7 @@ Vue.use(Clipboard);
 export default {
     components: {
         ProjectHeader,
-        SettingsNav,
+        SettingsSidebar,
         UiButton,
         UiModal,
     },
