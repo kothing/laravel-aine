@@ -67,7 +67,7 @@
                                 v-model="new_project.slug"
                                 v-forminput
                                 placeholder="project-slug"
-                                pattern="[a-z0-9-]+"
+                                pattern="[a-z0-9\-]+"
                                 @blur="checkSlug"
                                 @input="clearSlugError"
                             />

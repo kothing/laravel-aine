@@ -331,7 +331,7 @@ import UiModal from "../../../components/Modal.vue";
 
 import ProjectHeader from "../components/ProjectHeader.vue";
 
-import SettingsNav from "./sections/SettingsNav.vue";
+import SettingsSidebar from "./sections/SettingsSidebar.vue";
 import projectBreadcrumb from "../../mixins/projectBreadcrumb";
 
 export default {

@@ -15,26 +15,34 @@
             <div class="admin__menu-group">
                 <router-link
                     :to="{ name: 'projects' }"
-                    :class="['admin__main-menu-item flex flex-nowrap items-center px-8 py-4 hover:bg-gray-700', { 'bg-gray-700': isProjectsActive }]"
+                    :class="['admin__main-menu-item flex flex-nowrap items-center px-8 py-4 hover:bg-blue-500', { 'bg-blue-500': isProjectsActive }]"
                 >
                     <i class="admin__menu-item-icon pr-4 fas fa-list"></i>
                     <span class="text-xs">Projects</span>
                 </router-link>
                 <div v-if="isProjectPage" class="admin__project-group bg-gray-800">
-                    <router-link
-                        :to="{
-                            name: 'projects.index',
-                            params: { project_id: $route.params.project_id },
-                        }"
-                        :active-class="'text-blue-500'"
-                        class="admin__project-name flex items-center pl-8 py-3 border-t border-b border-gray-700 hover:text-blue-600"
-                    >
-                        <i class="admin__menu-item-icon pr-4 fas fa-cubes"></i>
-                        <span class="px-2 text-sm font-bold truncate" :title="currentProjectName">
-                            {{ currentProjectName }}
+                    <div class="admin__project-name-row flex items-center px-8 py-3 border-b border-gray-700">
+                        <span
+                            @click="projectExpanded = !projectExpanded"
+                            class="cursor-pointer mr-2 w-4 text-center text-gray-400 hover:text-white select-none"
+                        >
+                            <i :class="projectExpanded ? 'fas fa-minus' : 'fas fa-plus'"></i>
                         </span>
-                    </router-link>
-                    <div class="admin__project-sub-menu">
+                        <router-link
+                            :to="{
+                                name: 'projects.index',
+                                params: { project_id: $route.params.project_id },
+                            }"
+                            :active-class="'text-blue-500'"
+                            class="admin__project-name flex items-center flex-1 hover:text-blue-600"
+                        >
+                            <i class="admin__menu-item-icon pr-4 fas fa-cubes"></i>
+                            <span class="text-sm font-bold truncate" :title="currentProjectName">
+                                {{ currentProjectName }}
+                            </span>
+                        </router-link>
+                    </div>
+                    <div v-show="projectExpanded" class="admin__project-sub-menu">
                         <router-link
                             v-if="checkRole(['admin' + $route.params.project_id])"
                             :to="{
@@ -42,7 +50,7 @@
                                 params: { project_id: $route.params.project_id },
                             }"
                             :active-class="'text-blue-500'"
-                            class="admin__sub-menu-item flex flex-nowrap items-center pl-10 px-6 py-4 hover:text-blue-600"
+                            class="admin__sub-menu-item flex flex-nowrap items-center ml-4 pl-10 px-6 py-4 hover:text-blue-600"
                         >
                             <i class="admin__menu-item-icon pr-4 fas fa-table"></i>
                             <span class="text-xs">Collections</span>
@@ -53,7 +61,7 @@
                                 params: { project_id: $route.params.project_id },
                             }"
                             :active-class="'text-blue-500'"
-                            class="admin__sub-menu-item flex flex-nowrap items-center pl-10 px-6 py-4 hover:text-blue-600"
+                            class="admin__sub-menu-item flex flex-nowrap items-center ml-4 pl-10 px-6 py-4 hover:text-blue-600"
                         >
                             <i class="admin__menu-item-icon pr-4 fas fa-edit"></i>
                             <span class="text-xs">Content</span>
@@ -65,7 +73,7 @@
                                 params: { project_id: $route.params.project_id },
                             }"
                             :active-class="'text-blue-500'"
-                            class="admin__sub-menu-item flex flex-nowrap items-center pl-10 px-6 py-4 hover:text-blue-600"
+                            class="admin__sub-menu-item flex flex-nowrap items-center ml-4 pl-10 px-6 py-4 hover:text-blue-600"
                         >
                             <i class="admin__menu-item-icon pr-4 fas fa-cog"></i>
                             <span class="text-xs">Settings</span>
@@ -118,6 +126,7 @@ export default {
     data() {
         return {
             sidebarOpen: false,
+            projectExpanded: true,
         };
     },
 
@@ -163,6 +172,15 @@ export default {
                 return this.currentProject.name;
             }
             return 'Loading...';
+        },
+    },
+
+    watch: {
+        '$route'(to) {
+            const name = to.name;
+            if (name && (name.startsWith('projects.collections') || name.startsWith('projects.content') || name.startsWith('projects.settings'))) {
+                this.projectExpanded = true;
+            }
         },
     },
 };
