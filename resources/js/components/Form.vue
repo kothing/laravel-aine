@@ -390,13 +390,13 @@
                         </div>
                         <div v-if="field.type == 'boolean'">
                             <label
-                                for="toggleB"
+                                :for="'toggle-' + field.name"
                                 class="flex w-1 items-center cursor-pointer"
                             >
                                 <div class="relative">
                                     <input
                                         type="checkbox"
-                                        id="toggleB"
+                                        :id="'toggle-' + field.name"
                                         class="sr-only"
                                         v-model="newData.data[field.name]"
                                     />

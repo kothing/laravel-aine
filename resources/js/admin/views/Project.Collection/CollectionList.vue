@@ -517,10 +517,10 @@
                             <div class="w-full mt-5">
                                 <div class="flex items-start">
                                     <div class="flex items-center h-5">
-                                        <input v-model="new_field.options.multiple" id="required" type="checkbox" v-formcheckbox />
+                                        <input v-model="new_field.options.multiple" id="allowMultiple" type="checkbox" v-formcheckbox />
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="required" class="font-medium text-gray-700">{{ __('Allow multiple') }}</label>
+                                        <label for="allowMultiple" class="font-medium text-gray-700">{{ __('Allow multiple') }}</label>
                                     </div>
                                 </div>
                             </div>
@@ -530,10 +530,10 @@
                             <div class="w-full">
                                 <div class="flex items-start">
                                     <div class="flex items-center h-5">
-                                        <input v-model="new_field.options.timepicker" id="required" type="checkbox" v-formcheckbox />
+                                        <input v-model="new_field.options.timepicker" id="timepicker" type="checkbox" v-formcheckbox />
                                     </div>
                                     <div class="ml-3 text-sm">
-                                        <label for="required" class="font-medium text-gray-700">{{ __('Include time picker') }}</label>
+                                        <label for="timepicker" class="font-medium text-gray-700">{{ __('Include time picker') }}</label>
                                     </div>
                                 </div>
                             </div>
@@ -642,10 +642,10 @@
                             <div class="w-full">
                                 <div class="flex items-start">
                                     <div class="flex items-center h-5">
-                                        <input v-model="new_field.validations.required.status" id="required" type="checkbox" v-formcheckbox />
-                                    </div>
-                                    <div class="ml-3 text-sm">
-                                        <label for="required" class="font-medium text-gray-700">{{ __('Required') }}</label>
+                                        <input v-model="new_field.validations.required.status" id="requiredValidation" type="checkbox" v-formcheckbox />
+                                        </div>
+                                        <div class="ml-3 text-sm">
+                                        <label for="requiredValidation" class="font-medium text-gray-700">{{ __('Required') }}</label>
                                         <p class="text-gray-500">{{ __('Prevents saving content if this field is empty') }}</p>
                                     </div>
                                 </div>
