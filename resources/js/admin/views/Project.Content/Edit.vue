@@ -653,7 +653,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="w-full">
+                    <div class="w-full flex gap-2 justify-end">
                         <div class="bg-white mb-2 rounded-md">
                             <router-link
                                 :to="{
