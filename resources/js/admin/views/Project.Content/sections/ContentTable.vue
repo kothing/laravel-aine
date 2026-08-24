@@ -4,7 +4,7 @@
     >
         <h4 class="h-10 flex justify-end items-center font-bold text-lg mb-2">
             <div class="flex-1">
-                {{ collection.name }}
+                {{ __(collection.name) }}
                 <small class="text-gray-400 ml-1">#{{ collection.slug }}</small>
             </div>
 
@@ -584,7 +584,7 @@
                         <tr v-for="item in relationRecords" :key="item.id">
                             <td class="pl-2 py-4 text-sm text-center w-px">
                                 <span class="text-gray-500 text-sm rounded-md bg-gray-200 px-3 py-1 whitespace-nowrap">
-                                    {{ relationRecords.collection.name }}
+                                    {{ __(relationRecords.collection.name) }}
                                 </span>
                             </td>
                             <td class="pl-2 py-4 text-sm text-center w-px">

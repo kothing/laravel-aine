@@ -74,7 +74,7 @@
                         :active-class="'bg-blue-50 text-blue-700'"
                         :exact-active-class="'bg-blue-100 text-blue-700 font-semibold'"
                         class="block w-full p-2 cursor-pointer hover:bg-gray-100 rounded"
-                        >{{ collection.name }}</router-link
+                        >{{ __(collection.name) }}</router-link
                     >
                 </div>
             </transition-group>

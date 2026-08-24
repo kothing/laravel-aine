@@ -40,7 +40,7 @@
                         { 'bg-blue-100 text-blue-700 font-semibold': isCollectionActive(collection.id) },
                     ]"
                 >
-                    {{ collection.name }}
+                    {{ __(collection.name) }}
                 </router-link>
             </li>
             <li class="mb-2">

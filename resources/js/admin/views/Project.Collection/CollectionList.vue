@@ -12,7 +12,7 @@
             >
                 <div class="mb-2 p-2 font-bold text-lg flex">
                     <div class="flex">
-                        {{ collection.name }}
+                        {{ __(collection.name) }}
                         <small class="text-gray-400 ml-1">#{{ collection.slug }}</small>
                     </div>
                     <div class="flex ml-1">
@@ -567,7 +567,7 @@
 
                                 <v-select
                                     :options="project.collections"
-                                    :get-option-label="(option) => option.name + ' (' + option.slug + ')'"
+                                    :get-option-label="(option) => __(option.name) + ' (' + option.slug + ')'"
                                     :reduce="(option) => option.id"
                                     class="v-select"
                                     :placeholder="__('Select Collection')"
