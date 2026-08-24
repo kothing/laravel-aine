@@ -125,7 +125,7 @@
                                 ></pagination>
 
                                 <div class="text-sm italic text-gray-500">
-                                    {{ paginationInfo() }}
+                                    {{ paginationInfo }}
                                 </div>
                             </div>
                         </div>

@@ -459,7 +459,7 @@
                 <pagination :data="content" size="small" :limit="3" @pagination-change-page="getContent"></pagination>
             </div>
 
-            <div class="text-sm italic text-gray-500">{{ paginationInfo() }}</div>
+            <div class="text-sm italic text-gray-500">{{ paginationInfo }}</div>
 
             <div class="text-sm italic text-gray-500">
                 <select v-model="each" @change="getContent()" v-formselect>
