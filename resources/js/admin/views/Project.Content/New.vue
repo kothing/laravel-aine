@@ -629,7 +629,7 @@
                             </div>
                         </form>
 
-                        <div class="clear-both h-32"></div>
+                        <div class="clear-both"></div>
                     </div>
 
                     <div class="w-full">
@@ -651,13 +651,13 @@
 
                                 <div class="mt-2">
                                     <input name="locale" id="default_locale" type="radio" v-model="newData.locale" :value="project.default_locale" />
-                                    <label for="default_locale"> {{ project.default_locale }} ({{ getLocale(project.default_locale) }}) </label>
+                                    <label class="pl-2" for="default_locale"> {{ project.default_locale }} ({{ getLocale(project.default_locale) }}) </label>
                                 </div>
                                 <div v-if="project.locales">
                                     <div class="mt-2" v-for="locale in project.locales.split(',')" :key="locale">
                                         <div v-if="locale != project.default_locale">
                                             <input name="locale" :id="'locale_' + locale" type="radio" v-model="newData.locale" :value="locale" />
-                                            <label :for="'locale_' + locale"> {{ locale }} ({{ getLocale(locale) }}) </label>
+                                            <label class="pl-2" :for="'locale_' + locale"> {{ locale }} ({{ getLocale(locale) }}) </label>
                                         </div>
                                     </div>
                                 </div>
