@@ -9,7 +9,7 @@
 
             <div class="w-9/12 flex flex-col">
                 <div class="px-4 py-2 font-bold text-lg flex justify-between flex-shrink-0">
-                    <div class="flex">
+                    <div class="flex items-center">
                         <router-link
                             :to="{
                                 name: 'projects.content.list',
@@ -310,8 +310,8 @@
                                         <label :for="'toggle-' + field.name" class="flex w-1 items-center cursor-pointer">
                                             <div class="relative">
                                                 <input type="checkbox" :id="'toggle-' + field.name" class="sr-only" v-model="newData.data[field.name]" :run="(newData.data[field.name] = false)" />
-                                                <div class="block bg-gray-600 w-12 h-6 rounded-full"></div>
-                                                <div class="dot absolute left-1 top-1 bg-white w-5 h-5 rounded-full transition"></div>
+                                                <div class="block bg-gray-600 w-10 h-6 rounded-full"></div>
+                                                <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition"></div>
                                             </div>
                                         </label>
                                     </div>
