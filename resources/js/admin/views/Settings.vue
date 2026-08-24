@@ -6,7 +6,7 @@
         
         <div class="w-full flex flex-col flex-1 an__xxl:w-3/4 m-auto p-4 overflow-y-auto">
             <div class="w-full bg-white rounded-md shadow-sm p-4">
-                <form class="space-y-6">
+                <form class="space-y-6" @submit.prevent="updateSettings()">
                     <div class="form-item">
                         <label v-formlabel>{{ __('App Name') }}</label>
                         <div class="mt-1 relative">

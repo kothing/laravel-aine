@@ -77,7 +77,7 @@
 
                 <div class="flex-1 overflow-y-auto p-4 space-y-4">
                     <div class="w-full p-5 rounded-md bg-white">
-                        <form class="space-y-6">
+                        <form class="space-y-6" @submit.prevent>
                             <div v-for="field in collection.fields" :key="field.id" :class="`field-${field.type}`">
                                 <label v-formlabel>
                                     {{ field.label }}

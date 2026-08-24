@@ -25,7 +25,7 @@
                                 <input type="text" v-model="form.name" :placeholder="__('Form Name')" class="text-lg border-0 mb-2 pl-0" v-forminput />
                                 <input type="text" v-model="form.description" :placeholder="__('Description')" class="border-0 pl-0" v-forminput />
 
-                                <form class="mt-5 w-full">
+                                <form class="mt-5 w-full" @submit.prevent>
                                     <VueDraggable :list="form.fields" v-bind="dragOptions" handle=".handle">
                                         <transition-group type="transition" class="space-y-6">
                                             <div class="bg-gray-50 p-2 w-full relative handle" v-for="field in form.fields" :key="field.id">
