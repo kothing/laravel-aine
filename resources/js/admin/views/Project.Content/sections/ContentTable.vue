@@ -44,7 +44,7 @@
                 <span class="h-full leading-snug font-normal absolute text-center text-gray-400 absolute bg-transparent rounded-md text-base items-center justify-center w-8 pl-3 py-2">
                     <i class="fas fa-search"></i>
                 </span>
-                <form class="w-full">
+                <form class="w-full" @submit.prevent="getContent()">
                     <input
                         type="text"
                         v-model="search"
