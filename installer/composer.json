@@ -1,0 +1,30 @@
+{
+    "name": "aine/installer",
+    "description": "Aine web installer - setup wizard for the Aurora management backend",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Aine"
+        }
+    ],
+    "require": {
+        "php": ">=8.3.0",
+        "laravel/framework": "^10.0|^11.0|^12.0|^13.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Aine\\Installer\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Aine\\Installer\\Providers\\InstallerServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable"
+}
