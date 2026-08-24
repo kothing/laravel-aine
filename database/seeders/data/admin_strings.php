@@ -254,7 +254,7 @@ return [
     'Logs',
     'Long Text',
     'Mark as Draft',
-    'marks a runtime value — keep the same number in your translation.',
+    'marks a runtime value — keep it in your translation.',
     'Max',
     'Media',
     'Media Library',

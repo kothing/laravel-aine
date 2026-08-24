@@ -3,37 +3,6 @@
  * database/seeders/data/admin_strings.php (the seed source for the
  * admin_string_sources registry table).
  * Run with:  node scripts/extract-admin-strings.js
- *
- * The generated file holds:
- *   - 'sources' : the registry (machine-extracted, regenerated on each run)
- *   - 'defaults': factory default translations per locale (e.g. zh) — this
- *     block is PRESERVED verbatim across runs, edit it by hand or translate
- *     through the admin panel instead.
- *
- * After running this script, sync the registry into the database with:
- *   php artisan db:seed --class=AdminTranslationsSeeder
- *
- * Captures:
- *  - static text nodes inside templates:  >Some Label<
- *  - static placeholder attributes:       placeholder="Search..."
- *  - directive-bound string literals:     v-tooltip="'Open website'"
- *  - human-readable string literals in the <script> block of .vue files AND
- *    in admin .js files (toast messages, confirm dialogs, error messages,
- *    option labels, breadcrumb segments, etc.)
- *
- * Interpolated strings (Vue "{{ ... }}" in templates and "${...}" in JS
- * template literals) are normalized to the "{{ ... }}" placeholder and kept
- * in the dictionary: the admin translation engine matches them with a
- * pattern (see translations/engine.js — lookup()).
- *
- * Skips:
- *  - comments (stripped lexically before string extraction)
- *  - console.* diagnostic calls
- *  - Vue directives / dynamic attributes (:prop, @event)
- *  - strings shorter than 2 chars or without letters
- *  - pure symbols / arrows / punctuation
- *  - URLs, file paths, CSS class names, camelCase / kebab-case code tokens,
- *    HTML tag constants, component-name prefixes (V*, Ui*, App*)
  */
 const fs = require("fs");
 const path = require("path");
@@ -259,8 +228,7 @@ function normalizeInterpolation(expr) {
 
 function isMeaningful(s, allowLowercaseToken = false) {
     // Collapse placeholders before judging, so their inner content doesn't
-    // disguise paths (e.g. "localization/{name}"). Handles both the new
-    // named "{name}" form and the legacy "{{ ... }}" form.
+    // disguise paths (e.g. "localization/{name}").
     const compact = s.replace(/\{\{[^{}]*\}\}/g, "{}").replace(/\{[^{}]*\}/g, "{}");
     if (!compact || compact.length < 2) return false;
     if (!/[A-Za-z]/.test(compact)) return false;   // must contain letters

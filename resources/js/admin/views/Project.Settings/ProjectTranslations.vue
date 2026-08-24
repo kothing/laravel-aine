@@ -83,8 +83,8 @@
                     <!-- Strings table -->
                     <!-- Placeholder hint for translators. -->
                     <p v-if="!loading && filtered.length" class="mb-2 text-xs text-gray-500">
-                        <span class="rounded bg-red-100 px-1 font-mono text-red-700">{{ '{{ ... }}' }}</span>
-                        {{ __('marks a runtime value — keep the same number in your translation.') }}
+                        <span class="rounded bg-red-100 px-1 font-mono text-red-700">{name}</span>
+                        {{ __('marks a runtime value — keep it in your translation.') }}
                     </p>
 
                     <div v-if="loading" class="space-y-2">
@@ -204,15 +204,11 @@ export default {
             return l.toUpperCase() + " (" + l + ")";
         },
 
-        // --- Placeholder helpers ------------------------------------------------
-        // Same logic as the global Translations.vue: project strings (field
-        // labels, placeholders, descriptions) may contain named "{name}"
-        // runtime placeholders (or legacy "{{ ... }}"), and a translation
-        // must keep the same names/count.
 
         splitPlaceholders(str) {
             if (!str) return [];
-            const re = /\{\{\s*\.\.\.\s*\}\}|\{[a-zA-Z_][a-zA-Z0-9_]*\}/g;
+            // Match named "{name}" placeholders.
+            const re = /\{[a-zA-Z_][a-zA-Z0-9_]*\}/g;
             const segments = [];
             let last = 0;
             let m;
@@ -227,11 +223,11 @@ export default {
 
         extractPlaceholders(str) {
             if (!str) return [];
-            const re = /\{\{\s*\.\.\.\s*\}\}|\{([a-zA-Z_][a-zA-Z0-9_]*)\}/g;
+            const re = /\{([a-zA-Z_][a-zA-Z0-9_]*)\}/g;
             const names = [];
             let m;
             while ((m = re.exec(str)) !== null) {
-                names.push(m[1] || "_pos");
+                names.push(m[1]);
             }
             return names;
         },
@@ -243,13 +239,12 @@ export default {
             if (src.length !== val.length) {
                 return __('Source has {sourceCount} placeholders, translation has {valueCount}.', { sourceCount: src.length, valueCount: val.length });
             }
-            const srcNamed = src.filter((n) => n !== "_pos").sort();
-            const valNamed = val.filter((n) => n !== "_pos").sort();
-            if (srcNamed.length === src.length && valNamed.length === val.length) {
-                const mismatch = srcNamed.some((n, i) => n !== valNamed[i]);
-                if (mismatch) {
-                    return __('Placeholder names in the translation must match the source.');
-                }
+            // Verify the name sets match (no renames).
+            const srcNamed = src.slice().sort();
+            const valNamed = val.slice().sort();
+            const mismatch = srcNamed.some((n, i) => n !== valNamed[i]);
+            if (mismatch) {
+                return __('Placeholder names in the translation must match the source.');
             }
             return null;
         },

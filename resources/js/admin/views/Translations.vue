@@ -73,8 +73,8 @@
         <!-- Strings table -->
         <!-- Placeholder hint for translators. -->
         <p v-if="!loading && filtered.length" class="mb-2 text-xs text-gray-500">
-            <span class="rounded bg-red-100 px-1 font-mono text-red-700">{{ '{{ ... }}' }}</span>
-            {{ __('marks a runtime value — keep the same number in your translation.') }}
+            <span class="rounded bg-red-100 px-1 font-mono text-red-700">{name}</span>
+            {{ __('marks a runtime value — keep it in your translation.') }}
         </p>
 
         <div v-if="loading" class="space-y-2">
@@ -204,19 +204,10 @@ export default {
         },
 
         // --- Placeholder helpers ------------------------------------------------
-        // The source strings use "{{ ... }}" as a runtime-value placeholder
-        // (see extract-admin-strings.js). Translators must keep the same
-        // number of placeholders in their translation; otherwise the engine
-        // can't fill the values back in. These helpers power the in-editor
-        // highlight + save-time validation so bad data never lands.
-
-        // Split a string into alternating { text, placeholder } segments so
-        // the template can render placeholders in red. Recognizes both the
-        // named "{name}" form and the legacy "{{ ... }}" form.
         splitPlaceholders(str) {
             if (!str) return [];
-            // Match {name} (named) OR {{ ... }} (legacy positional).
-            const re = /\{\{\s*\.\.\.\s*\}\}|\{[a-zA-Z_][a-zA-Z0-9_]*\}/g;
+            // Match named "{name}" placeholders.
+            const re = /\{[a-zA-Z_][a-zA-Z0-9_]*\}/g;
             const segments = [];
             let last = 0;
             let m;
@@ -230,23 +221,19 @@ export default {
         },
 
         // Extract placeholder names from a string. Returns an array of names
-        // (e.g. ["languageName", "count"]); legacy "{{ ... }}" yields "_pos".
+        // (e.g. ["languageName", "count"]).
         extractPlaceholders(str) {
             if (!str) return [];
-            const re = /\{\{\s*\.\.\.\s*\}\}|\{([a-zA-Z_][a-zA-Z0-9_]*)\}/g;
+            const re = /\{([a-zA-Z_][a-zA-Z0-9_]*)\}/g;
             const names = [];
             let m;
             while ((m = re.exec(str)) !== null) {
-                names.push(m[1] || "_pos");
+                names.push(m[1]);
             }
             return names;
         },
 
-        // Return an error message if the translation's placeholders don't
-        // match the source, otherwise null. Empty translations are skipped.
-        // Match is by NAME SET: every placeholder name in the source must
-        // appear in the translation, with the same count (no drops, no
-        // renames, no duplicates). Legacy "{{ ... }}" is matched by count.
+        // renames, no duplicates).
         placeholderError(item) {
             if (!item.value || !item.value.trim()) return null;
             const src = this.extractPlaceholders(item.source);
@@ -254,15 +241,12 @@ export default {
             if (src.length !== val.length) {
                 return __('Source has {sourceCount} placeholders, translation has {valueCount}.', { sourceCount: src.length, valueCount: val.length });
             }
-            // For named placeholders, verify the name sets match (no renames).
-            const srcNamed = src.filter((n) => n !== "_pos").sort();
-            const valNamed = val.filter((n) => n !== "_pos").sort();
-            if (srcNamed.length === src.length && valNamed.length === val.length) {
-                // All named: compare sorted name arrays.
-                const mismatch = srcNamed.some((n, i) => n !== valNamed[i]);
-                if (mismatch) {
-                    return __('Placeholder names in the translation must match the source.');
-                }
+            // Verify the name sets match (no renames).
+            const srcNamed = src.slice().sort();
+            const valNamed = val.slice().sort();
+            const mismatch = srcNamed.some((n, i) => n !== valNamed[i]);
+            if (mismatch) {
+                return __('Placeholder names in the translation must match the source.');
             }
             return null;
         },
@@ -273,9 +257,6 @@ export default {
                 this.baseLocale = data.base_locale;
                 this.sourceLocale = data.source_locale || "en";
                 this.locales = data.locales || ["en", "zh"];
-                // In the source-language view, strings without an explicit
-                // value show the source text itself (pre-filled, editable).
-                // Other locales start empty ("Not translated").
                 this.strings = (data.strings || []).map((s) => ({
                     source: s.source,
                     value: s.value ?? (this.locale === this.sourceLocale ? s.source : null),
@@ -287,8 +268,6 @@ export default {
             }
         },
         async saveAll() {
-            // Block the save when any visible translation has a placeholder
-            // mismatch — the translator must fix those first.
             if (this.hasPlaceholderErrors) {
                 this.$toast.error(__('Some translations have placeholder mismatches. Please fix them before saving.'));
                 return;

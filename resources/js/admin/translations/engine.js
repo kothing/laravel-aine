@@ -172,126 +172,23 @@ export function setBaseUiDict(dict) {
 //
 //   __('Language "{languageName}" added.', { languageName: code })
 //
-// The params may also be an array (legacy positional form) — each value is
-// then filled into the placeholders in order of appearance. This keeps old
-// `__('{{ ... }} items', [n])` call sites working during the migration.
-//
-// The "{{ ... }}" pattern-key machinery below is retained for dictionaries
-// that still hold legacy "{{ ... }}" source strings (older seeded data):
-// the engine matches a rendered text against pattern keys and fills the
-// captured values back into the translation.
+// A missing param empties the placeholder rather than leaving a raw
+// `{name}` token on screen.
 
-const PLACEHOLDER_RE = /\{\{\s*\.\.\.\s*\}\}/;
-// A named placeholder: {name} or {name_with_underscores}. Not "{ ... }" (the
-// legacy positional marker) and not "{{" (Vue interpolation).
 const NAMED_RE = /\{([a-zA-Z_][a-zA-Z0-9_]*)\}/g;
 
-let patternIndex = null;
-let patternIndexDict = null;
-
-function escapeRegExp(s) {
-    return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
 /**
- * Precompile pattern keys ("{{ ... }}" placeholders) of a dictionary into
- * regexes. Cached until the dictionary object changes. Longer (more
- * specific) patterns are matched first.
- */
-function getPatternIndex(dict) {
-    if (patternIndex && patternIndexDict === dict) return patternIndex;
-    const entries = [];
-    for (const key of Object.keys(dict)) {
-        if (!key.includes("{{")) continue;
-        const parts = key.split(PLACEHOLDER_RE);
-        const source = parts.map(escapeRegExp).join("([\\s\\S]*?)");
-        try {
-            entries.push({ key, regex: new RegExp("^" + source + "$") });
-        } catch (error) {
-            // Skip malformed pattern keys.
-        }
-    }
-    entries.sort((a, b) => b.key.length - a.key.length);
-    patternIndex = entries;
-    patternIndexDict = dict;
-    return entries;
-}
-
-function matchPatternKey(trimmed, dict) {
-    if (!dict) return null;
-    for (const entry of getPatternIndex(dict)) {
-        const match = entry.regex.exec(trimmed);
-        if (match) return { translation: dict[entry.key], match };
-    }
-    return null;
-}
-
-/**
- * Resolve a key to a translation. Tries the exact key first (project layer,
- * then UI/base layer); falls back to pattern keys with "{{ ... }}"
- * placeholders (e.g. `Language "{{ ... }}" added.` against the rendered
- * text `Language "zh" added.`).
- */
-function lookup(key) {
-    const direct = state.projectDict[key] || state.dict[key];
-    if (direct && direct !== key) {
-        return { translation: direct, isPattern: false, match: null };
-    }
-    const pattern =
-        matchPatternKey(key, state.projectDict) || matchPatternKey(key, state.dict);
-    if (pattern) {
-        return { translation: pattern.translation, isPattern: true, match: pattern.match };
-    }
-    return null;
-}
-
-/**
- * Fill the "{{ ... }}" placeholders of a pattern translation with the values
- * captured from the source text (in order).
- */
-function applyPattern(translation, match) {
-    let index = 0;
-    return translation.replace(/\{\{\s*\.\.\.\s*\}\}/g, () => {
-        const value = match[++index];
-        return value === undefined ? "" : value;
-    });
-}
-
-/**
- * Fill named `{name}` placeholders in a translation from the given params.
- *
- * - If `params` is a plain object, each `{name}` is replaced by
- *   `params[name]` (missing → emptied).
- * - If `params` is an array (legacy positional form), values are filled into
- *   the placeholders in order of appearance.
- *
- * Legacy "{{ ... }}" positional placeholders are also filled from an array
- * so old call sites keep working during the migration.
+ * Fill named `{name}` placeholders in a translation from the params object.
+ * Each `{name}` is replaced by `params[name]` (missing → emptied).
  */
 function fillPlaceholders(translation, params) {
     if (params == null) return translation;
-
-    if (Array.isArray(params)) {
-        // Legacy positional form: fill both named {name} and legacy {{ ... }}
-        // placeholders in order of appearance.
-        let i = 0;
-        const byOrder = () => {
-            const v = params[i++];
-            return v === undefined ? "" : v;
-        };
-        let out = translation.replace(NAMED_RE, byOrder);
-        out = out.replace(/\{\{\s*\.\.\.\s*\}\}/g, byOrder);
-        return out;
-    }
-
     if (typeof params === "object") {
-        // Named form: replace each {name} with params[name].
         return translation.replace(NAMED_RE, (_, name) => {
             const v = params[name];
             return v === undefined ? "" : v;
         });
     }
-
     return translation;
 }
 
@@ -303,27 +200,19 @@ function fillPlaceholders(translation, params) {
  * reactive `dictView`, so any component that renders `__()` re-renders
  * automatically when the language changes or a translation is saved.
  *
- * Named placeholders are filled from the params object (or array, legacy):
+ * Named placeholders are filled from the params object:
  *
  *   {{ __('Language "{languageName}" added.', { languageName: code }) }}
  *   {{ __('{total} records, {from} - {to} showing', { total, from, to }) }}
- *
- * Legacy "{{ ... }}" pattern keys are still matched against rendered text,
- * and legacy positional array params still fill placeholders in order.
  */
 export function __(key, ...args) {
     if (!key || typeof key !== "string") return key;
-    let translation = dictView.project[key] || dictView.ui[key];
-    if (!translation || translation === key) {
-        const pattern =
-            matchPatternKey(key, dictView.project) || matchPatternKey(key, dictView.ui);
-        if (pattern) translation = applyPattern(pattern.translation, pattern.match);
-        else return key;
-    }
+    const translation = dictView.project[key] || dictView.ui[key];
+    if (!translation || translation === key) return key;
     if (args.length) {
-        // The first arg is the params object/array; later args are ignored
-        // (kept for forward-compat with future overloads).
-        translation = fillPlaceholders(translation, args[0]);
+        // The first arg is the params object; later args are ignored (kept
+        // for forward-compat with future overloads).
+        return fillPlaceholders(translation, args[0]);
     }
     return translation;
 }

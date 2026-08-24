@@ -164,23 +164,14 @@ class TranslationsController extends Controller
     }
 
     /**
-     * Extract placeholder names from a string. Returns an array of names:
-     *   - Named "{name}" → ["name", ...]
-     *   - Legacy "{{ ... }}" → ["_pos", ...] (positional, matched by count)
-     * Used by save() to guard against translations that dropped, duplicated,
-     * or renamed a placeholder.
+     * Extract placeholder names from a string. Returns an array of names
+     * (e.g. ["languageName", "count"]). Used by save() to guard against
+     * translations that dropped, duplicated, or renamed a placeholder.
      */
     protected function placeholderNames(?string $str): array
     {
         $str = $str ?? '';
         $names = [];
-        // Legacy positional "{{ ... }}" first (so it isn't caught by the
-        // named regex below).
-        $legacyCount = preg_match_all('/\{\{\s*\.\.\.\s*\}\}/', $str);
-        for ($i = 0; $i < $legacyCount; $i++) {
-            $names[] = '_pos';
-        }
-        // Named "{name}".
         if (preg_match_all('/\{([a-zA-Z_][a-zA-Z0-9_]*)\}/', $str, $m)) {
             foreach ($m[1] as $name) {
                 $names[] = $name;

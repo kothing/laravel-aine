@@ -174,17 +174,12 @@ class ProjectTranslationsController extends Controller
 
     /**
      * Extract placeholder names from a string. Mirrors the global
-     * TranslationsController guard: named "{name}" → ["name"], legacy
-     * "{{ ... }}" → ["_pos"] (matched by count).
+     * TranslationsController guard: named "{name}" → ["name", ...].
      */
     protected function placeholderNames(?string $str): array
     {
         $str = $str ?? '';
         $names = [];
-        $legacyCount = preg_match_all('/\{\{\s*\.\.\.\s*\}\}/', $str);
-        for ($i = 0; $i < $legacyCount; $i++) {
-            $names[] = '_pos';
-        }
         if (preg_match_all('/\{([a-zA-Z_][a-zA-Z0-9_]*)\}/', $str, $m)) {
             foreach ($m[1] as $name) {
                 $names[] = $name;
