@@ -50,6 +50,7 @@ return [
         'admin_email'    => 'Admin Email',
         'back'           => 'Back to Configuration',
         'install'        => 'Start Installation',
+        'install_loading' => 'Installing, please wait...',
         'admin_email_missing' => 'The admin account details were lost (session expired). Please go back and re-submit the configuration form.',
     ],
 

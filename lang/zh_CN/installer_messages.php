@@ -49,6 +49,7 @@ return [
         'admin_email' => '管理员邮箱',
         'back' => '返回修改配置',
         'install' => '开始安装',
+        'install_loading' => '安装中，请稍候...',
         'admin_email_missing' => '管理员账号信息已丢失（会话过期），请返回并重新提交配置表单。',
     ],
 
