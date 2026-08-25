@@ -1,6 +1,6 @@
 <template>
     <div class="relative" ref="dropdown">
-        <div @click="open = ! open">
+        <div class="trigger" @click="open = ! open">
             <slot name="trigger"></slot>
         </div>
 
@@ -17,7 +17,7 @@
                 style="display: none;"
                 @click="close"
             >
-                <div class="rounded-md shadow-xs" :class="contentClasses">
+                <div class="rounded-md shadow-xs border border-gray-200" :class="contentClasses">
                     <slot name="content"></slot>
                 </div>
             </div>

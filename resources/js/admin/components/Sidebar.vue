@@ -95,22 +95,6 @@
                 <i class="admin__menu-item-icon pr-4 fas fa-language"></i>
                 <span class="text-xs">{{ __('Language') }}</span>
             </router-link>
-            <router-link
-                :to="{ name: 'profile' }"
-                :active-class="'bg-blue-500'"
-                class="admin__footer-menu-item flex flex-nowrap items-center px-8 py-4 hover:bg-blue-500 cursor-pointer"
-            >
-                <i class="admin__menu-item-icon pr-4 fas fa-user"></i>
-                <span class="text-xs">{{ __('My Profile') }}</span>
-            </router-link>
-            <div
-                @click="logout()"
-                :active-class="'bg-blue-500'"
-                class="admin__footer-menu-item flex flex-nowrap items-center px-8 py-4 hover:bg-blue-500 cursor-pointer"
-            >
-                <i class="admin__menu-item-icon pr-4 fas fa-sign-out-alt"></i>
-                <span class="text-xs">{{ __('Logout') }}</span>
-            </div>
         </nav>
     </div>
 </template>
