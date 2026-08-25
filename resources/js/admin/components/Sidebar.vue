@@ -120,26 +120,6 @@ export default {
 
     methods: {
         checkRole,
-
-        logout() {
-            const store = useAdminStore();
-            store.logout();
-
-            // Override the global axios baseURL (/admin-api) so the request
-            // goes to the real web route POST /logout, and carry the CSRF token.
-            const csrfToken = document.head.querySelector('meta[name="csrf-token"]');
-            axios
-                .post("/logout", {}, {
-                    baseURL: "",
-                    headers: csrfToken ? { "X-CSRF-TOKEN": csrfToken.content } : {},
-                })
-                .then((response) => {
-                    location.reload();
-                })
-                .catch((error) => {
-                    location.reload();
-                });
-        },
     },
 
     computed: {

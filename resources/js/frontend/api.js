@@ -111,7 +111,7 @@ export const api = {
     /**
      * Fetch content of a related collection through a relation.
      * GET /api/project/{identifier}/{source}/{id}/{related}
-     * e.g. listings of a category: related("bdl", "categories", 5, "listings")
+     * e.g. listings of a category: related("business-directory", "categories", 5, "listings")
      * Resolves with the list (array) or `null` on failure.
      */
     async related(projectIdentifier, sourceSlug, id, relatedSlug, params = {}) {

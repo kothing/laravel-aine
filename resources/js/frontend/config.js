@@ -25,7 +25,7 @@ export const PROJECTS = {
         fallbackToLatest: true,
     },
     directory: {
-        identifier: meta("directory-project-identifier") || "bdl",
+        identifier: meta("directory-project-identifier") || "business-directory",
         contentCollection: "listings",
         path: "/directory",
         label: "Directory",

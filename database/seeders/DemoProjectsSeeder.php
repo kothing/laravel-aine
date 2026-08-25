@@ -41,50 +41,9 @@ class DemoProjectsSeeder extends Seeder
         // before anything else renders. Idempotent.
         $this->call(AdminTranslationsSeeder::class);
 
-        $this->cleanupOrphans();
-        $this->removeLegacyDemoProjects();
         $this->seedBaseData();
         $this->seedCmsProject();
         $this->seedDirectoryProject();
-    }
-
-    /**
-     * The preset projects were renamed (slug demo-cms → cms,
-     * demo-directory → bdl); drop any project still carrying the old slugs
-     * so re-seeding does not leave orphaned copies behind.
-     */
-    protected function removeLegacyDemoProjects(): void
-    {
-        foreach (['demo-cms', 'demo-directory'] as $oldSlug) {
-            $old = Project::where('slug', $oldSlug)->first();
-            if ($old) {
-                $this->removeProject($old);
-            }
-        }
-    }
-
-    /**
-     * Remove rows whose project no longer exists. Older seeder versions
-     * deleted the project row without its relations, so a re-seed (e.g. a
-     * retried web installer) would otherwise accumulate orphan collections,
-     * content, media and so on forever.
-     */
-    protected function cleanupOrphans(): void
-    {
-        $validProjectIds = Project::pluck('id');
-        $validUuids = Project::pluck('uuid');
-
-        foreach (['collections', 'collection_fields', 'content', 'content_meta', 'media', 'webhooks', 'project_translations', 'forms'] as $table) {
-            DB::table($table)->whereNotIn('project_id', $validProjectIds)->delete();
-        }
-
-        DB::table('webhook_logs')->whereNotIn('project_uuid', $validUuids)->delete();
-
-        // Sanctum personal access tokens are polymorphic.
-        DB::table('personal_access_tokens')
-            ->where('tokenable_type', Project::class)
-            ->whereNotIn('tokenable_id', $validProjectIds)
-            ->delete();
     }
 
     /* ------------------------------------------------------------------ */
@@ -664,9 +623,9 @@ class DemoProjectsSeeder extends Seeder
     protected function seedDirectoryProject(): void
     {
         $project = $this->createProject([
-            'name' => 'BDL',
-            'slug' => 'bdl',
-            'description' => 'A complete Business Directory Listing — listings with categories, tags, locations, reviews, logos and galleries.',
+            'name' => 'Business Directory',
+            'slug' => 'business-directory',
+            'description' => 'A complete Business Directory — listings with categories, tags, locations, reviews, logos and galleries.',
             'default_locale' => 'en',
             'locales' => 'en,zh',
             'disk' => 'local',
@@ -784,10 +743,10 @@ class DemoProjectsSeeder extends Seeder
 
         /* --- Globals --- */
         foreach ([
-            ['label' => 'site-name', 'value' => 'BDL'],
+            ['label' => 'site-name', 'value' => 'Business Directory'],
             ['label' => 'site-description', 'value' => 'Find the best local businesses around town'],
-            ['label' => 'footer-text', 'value' => '© 2026 Business Directory Listing — built with Aine CMS'],
-            ['label' => 'support-email', 'value' => 'support@bdl.example'],
+            ['label' => 'footer-text', 'value' => '© 2026 Business Directory — built with Aine CMS'],
+            ['label' => 'support-email', 'value' => 'support@business-directory.example'],
         ] as $i => $data) {
             $this->addContent($project, $c['globals'], $data, published: true, daysAgo: 15 - $i);
         }

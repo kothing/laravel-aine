@@ -174,11 +174,11 @@
                                                 value="3"
                                             />
                                             <div class="ml-2">
-                                                {{ __('BDL Template') }}
+                                                {{ __('Business Directory Template') }}
                                             </div>
                                         </div>
                                         <div class="block">
-                                            {{ __('Business Directory Listing (Listings, Categories, Tags, Locations, Reviews, Globals)') }}
+                                            {{ __('Business Directory (Listings, Categories, Tags, Locations, Reviews, Globals)') }}
                                         </div>
                                     </div>
                                 </div>

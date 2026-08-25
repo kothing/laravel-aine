@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
         <meta name="APP_URL" content="{{ env('APP_URL') }}">
         <meta name="cms-project-identifier" content="{{ env('FRONTEND_CMS_PROJECT', 'cms') }}">
-        <meta name="directory-project-identifier" content="{{ env('FRONTEND_DIRECTORY_PROJECT', 'bdl') }}">
+        <meta name="directory-project-identifier" content="{{ env('FRONTEND_DIRECTORY_PROJECT', 'business-directory') }}">
 
         <!-- <title>{{ env("APP_NAME") }}</title> -->
         <title>{{ config('app.name', 'Aine') }}</title>

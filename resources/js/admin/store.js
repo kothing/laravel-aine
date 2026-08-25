@@ -107,14 +107,6 @@ export const useAdminStore = defineStore('admin', {
         async initUiLocale(expectedBase = null) {
             const seq = ++this._localeSeq;
 
-            // Drop the legacy per-user language preference (old topbar
-            // switcher) — the global default is the single source of truth.
-            try {
-                localStorage.removeItem('aine_admin_locale');
-            } catch (error) {
-                // ignore
-            }
-
             // Phase 1 — synchronous, no network. Apply the cached dictionary
             // for the global default language in the same task as the app
             // mount, so a page refresh never flashes the base language
