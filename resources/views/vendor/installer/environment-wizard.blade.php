@@ -136,7 +136,7 @@
 
                 <div class="{{ $errors->has('database_name') ? 'has-error' : '' }}">
                     <label for="database_name" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.db_name_label') }}</label>
-                    <input type="text" name="database_name" id="database_name" value="{{ old('database_name') }}" placeholder="{{ trans('installer_messages.environment.wizard.form.db_name_placeholder') }}" class="{{ $inputClass }}" />
+                    <input type="text" name="database_name" id="database_name" value="{{ old('database_name') }}" placeholder="{{ trans('installer_messages.environment.wizard.form.db_name_placeholder') }}" data-sqlite-placeholder="{{ trans('installer_messages.environment.wizard.form.sqlite_path_placeholder') }}" class="{{ $inputClass }}" />
                     @if ($errors->has('database_name'))
                         <span class="{{ $errorBlock }}">{{ $errors->first('database_name') }}</span>
                     @endif
@@ -327,7 +327,7 @@
                 var dbName = document.getElementById('database_name');
                 if (dbName) {
                     dbName.placeholder = isSqlite
-                        ? '{{ trans('installer_messages.environment.wizard.form.sqlite_path_placeholder') }}'
+                        ? (dbName.dataset.sqlitePlaceholder || 'database/database.sqlite')
                         : dbName.dataset.originalPlaceholder || dbName.placeholder;
                     if (!dbName.dataset.originalPlaceholder) dbName.dataset.originalPlaceholder = dbName.placeholder;
                 }
