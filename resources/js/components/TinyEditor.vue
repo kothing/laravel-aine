@@ -78,10 +78,9 @@ export default {
     computed: {
         editorInit() {
             return {
-                // Explicitly load minified runtime assets from the public
-                // folder (see the module-level suffix/baseURL comments).
                 suffix: ".min",
                 base_url: "/js/tinymce",
+                license_key: "gpl",
                 plugins: this.plugins,
                 toolbar: this.toolbarButtons,
                 height: parseInt(this.height),
