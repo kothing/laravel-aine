@@ -68,7 +68,7 @@
                         </p>
                     </div>
                 </div>
-                <div class="form-item">
+                <div class="form-item mt-2">
                     <label v-formlabel>{{ __('Password') }}</label>
                     <div class="mt-1 relative">
                         <input
