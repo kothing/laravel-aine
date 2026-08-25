@@ -28,14 +28,21 @@
             <button type="button" data-tab="envPanel" class="wizard-tab is-active -mb-px border-b-2 border-transparent px-4 py-2.5 text-sm font-semibold transition">
                 {{ trans('installer_messages.environment.wizard.tabs.environment') }}
             </button>
-            <button type="button" data-tab="appPanel" class="wizard-tab -mb-px border-b-2 border-transparent px-4 py-2.5 text-sm font-semibold transition">
-                {{ trans('installer_messages.environment.wizard.tabs.application') }}
+            <button type="button" data-tab="dbPanel" class="wizard-tab -mb-px border-b-2 border-transparent px-4 py-2.5 text-sm font-semibold transition">
+                {{ trans('installer_messages.environment.wizard.tabs.database') }}
+            </button>
+            <button type="button" data-tab="adminPanel" class="wizard-tab -mb-px border-b-2 border-transparent px-4 py-2.5 text-sm font-semibold transition">
+                {{ trans('installer_messages.environment.wizard.form.app_tabs.admin_label') }}
+            </button>
+            <button type="button" data-tab="otherPanel" class="wizard-tab -mb-px border-b-2 border-transparent px-4 py-2.5 text-sm font-semibold transition">
+                {{ trans('installer_messages.environment.wizard.form.app_tabs.other_label') }}
             </button>
         </div>
 
         <form method="post" action="{{ route('LaravelInstaller::environmentSaveWizard') }}" class="mt-6">
             @csrf
 
+            {{-- Environment --}}
             <div id="envPanel" data-panel class="space-y-4">
                 <div class="{{ $errors->has('app_name') ? 'has-error' : '' }}">
                     <label for="app_name" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_name_label') }}</label>
@@ -99,140 +106,133 @@
                         <span class="{{ $errorBlock }}">{{ $errors->first('app_url') }}</span>
                     @endif
                 </div>
+            </div>
 
-                <div class="flex justify-end pt-2">
-                    <button type="button" class="inline-flex items-center gap-2 rounded-lg bg-primary-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-primary-500" data-goto="appPanel">
-                        {{ trans('installer_messages.environment.wizard.form.buttons.setup_application') }}
-                        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
-                    </button>
+            {{-- Database --}}
+            <div id="dbPanel" data-panel class="hidden space-y-4">
+                <div class="{{ $errors->has('database_connection') ? 'has-error' : '' }}">
+                    <label for="database_connection" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.db_connection_label') }}</label>
+                    <select name="database_connection" id="database_connection" class="{{ $inputClass }}">
+                        <option value="mysql" {{ old('database_connection') == 'mysql' ? 'selected' : '' }}>{{ trans('installer_messages.environment.wizard.form.db_connection_label_mysql') }}</option>
+                        <option value="sqlite" {{ old('database_connection') == 'sqlite' ? 'selected' : '' }}>{{ trans('installer_messages.environment.wizard.form.db_connection_label_sqlite') }}</option>
+                        <option value="pgsql" {{ old('database_connection') == 'pgsql' ? 'selected' : '' }}>{{ trans('installer_messages.environment.wizard.form.db_connection_label_pgsql') }}</option>
+                        <option value="sqlsrv" {{ old('database_connection') == 'sqlsrv' ? 'selected' : '' }}>{{ trans('installer_messages.environment.wizard.form.db_connection_label_sqlsrv') }}</option>
+                    </select>
+                    @if ($errors->has('database_connection'))
+                        <span class="{{ $errorBlock }}">{{ $errors->first('database_connection') }}</span>
+                    @endif
+                </div>
+
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="{{ $errors->has('database_hostname') ? 'has-error' : '' }}">
+                        <label for="database_hostname" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.db_host_label') }}</label>
+                        <input type="text" name="database_hostname" id="database_hostname" value="{{ old('database_hostname', '127.0.0.1') }}" class="{{ $inputClass }}" />
+                    </div>
+                    <div class="{{ $errors->has('database_port') ? 'has-error' : '' }}">
+                        <label for="database_port" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.db_port_label') }}</label>
+                        <input type="number" name="database_port" id="database_port" value="{{ old('database_port', '3306') }}" class="{{ $inputClass }}" />
+                    </div>
+                </div>
+
+                <div class="{{ $errors->has('database_name') ? 'has-error' : '' }}">
+                    <label for="database_name" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.db_name_label') }}</label>
+                    <input type="text" name="database_name" id="database_name" value="{{ old('database_name') }}" placeholder="{{ trans('installer_messages.environment.wizard.form.db_name_placeholder') }}" class="{{ $inputClass }}" />
+                    @if ($errors->has('database_name'))
+                        <span class="{{ $errorBlock }}">{{ $errors->first('database_name') }}</span>
+                    @endif
+                </div>
+
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="{{ $errors->has('database_username') ? 'has-error' : '' }}">
+                        <label for="database_username" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.db_username_label') }}</label>
+                        <input type="text" name="database_username" id="database_username" value="{{ old('database_username') }}" class="{{ $inputClass }}" />
+                    </div>
+                    <div class="{{ $errors->has('database_password') ? 'has-error' : '' }}">
+                        <label for="database_password" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.db_password_label') }}</label>
+                        <input type="password" name="database_password" id="database_password" value="{{ old('database_password') }}" class="{{ $inputClass }}" />
+                    </div>
                 </div>
             </div>
 
-            <div id="appPanel" data-panel class="hidden">
-                <div data-tabs class="sub-wizard">
-                    <div class="flex flex-wrap gap-2 mb-5">
-                        <button type="button" data-tab="appTab1" class="wizard-tab is-active rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold transition">{{ trans('installer_messages.environment.wizard.tabs.database') }}</button>
-                        <button type="button" data-tab="appTab2" class="wizard-tab rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold transition">{{ trans('installer_messages.environment.wizard.form.app_tabs.admin_label') }}</button>
-                        <button type="button" data-tab="appTab3" class="wizard-tab rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold transition">{{ trans('installer_messages.environment.wizard.form.app_tabs.broadcasting_title') }}</button>
-                        <button type="button" data-tab="appTab4" class="wizard-tab rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold transition">{{ trans('installer_messages.environment.wizard.form.app_tabs.redis_label') }}</button>
-                        <button type="button" data-tab="appTab5" class="wizard-tab rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold transition">{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_label') }}</button>
-                        <button type="button" data-tab="appTab6" class="wizard-tab rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold transition">{{ trans('installer_messages.environment.wizard.form.app_tabs.pusher_label') }}</button>
-                    </div>
+            {{-- Admin Account --}}
+            <div id="adminPanel" data-panel class="hidden space-y-4">
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="{{ $errors->has('admin_name') ? 'has-error' : '' }}"><label for="admin_name" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.admin_name_label') }}</label><input type="text" name="admin_name" id="admin_name" value="{{ old('admin_name') }}" placeholder="{{ trans('installer_messages.environment.wizard.form.app_tabs.admin_name_placeholder') }}" class="{{ $inputClass }}" />@if ($errors->has('admin_name'))<span class="{{ $errorBlock }}"><svg class="h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>{{ $errors->first('admin_name') }}</span>@endif</div>
+                    <div class="{{ $errors->has('admin_email') ? 'has-error' : '' }}"><label for="admin_email" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.admin_email_label') }}</label><input type="email" name="admin_email" id="admin_email" value="{{ old('admin_email') }}" placeholder="{{ trans('installer_messages.environment.wizard.form.app_tabs.admin_email_placeholder') }}" class="{{ $inputClass }}" />@if ($errors->has('admin_email'))<span class="{{ $errorBlock }}"><svg class="h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>{{ $errors->first('admin_email') }}</span>@endif</div>
+                    <div class="sm:col-span-2 {{ $errors->has('admin_password') ? 'has-error' : '' }}"><label for="admin_password" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.admin_password_label') }}</label><input type="password" name="admin_password" id="admin_password" placeholder="{{ trans('installer_messages.environment.wizard.form.app_tabs.admin_password_placeholder') }}" class="{{ $inputClass }}" />@if ($errors->has('admin_password'))<span class="{{ $errorBlock }}"><svg class="h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>{{ $errors->first('admin_password') }}</span>@endif</div>
+                </div>
+            </div>
 
-                    {{-- Tab 1: Database --}}
-                    <div id="appTab1" data-panel class="space-y-4">
-                        <div class="{{ $errors->has('database_connection') ? 'has-error' : '' }}">
-                            <label for="database_connection" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.db_connection_label') }}</label>
-                            <select name="database_connection" id="database_connection" class="{{ $inputClass }}">
-                                <option value="mysql" {{ old('database_connection') == 'mysql' ? 'selected' : '' }}>{{ trans('installer_messages.environment.wizard.form.db_connection_label_mysql') }}</option>
-                                <option value="sqlite" {{ old('database_connection') == 'sqlite' ? 'selected' : '' }}>{{ trans('installer_messages.environment.wizard.form.db_connection_label_sqlite') }}</option>
-                                <option value="pgsql" {{ old('database_connection') == 'pgsql' ? 'selected' : '' }}>{{ trans('installer_messages.environment.wizard.form.db_connection_label_pgsql') }}</option>
-                                <option value="sqlsrv" {{ old('database_connection') == 'sqlsrv' ? 'selected' : '' }}>{{ trans('installer_messages.environment.wizard.form.db_connection_label_sqlsrv') }}</option>
+            {{-- Other --}}
+            <div id="otherPanel" data-panel class="hidden space-y-6">
+                {{-- Broadcasting / Cache / Session / Queue --}}
+                <div class="space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-700">{{ trans('installer_messages.environment.wizard.form.app_tabs.broadcasting_title') }}</h3>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div><label for="broadcast_driver" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.broadcasting_label') }}</label><input type="text" name="broadcast_driver" id="broadcast_driver" value="{{ old('broadcast_driver', 'log') }}" class="{{ $inputClass }}" /></div>
+                        <div><label for="cache_driver" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.cache_label') }}</label><input type="text" name="cache_driver" id="cache_driver" value="{{ old('cache_driver', 'file') }}" class="{{ $inputClass }}" /></div>
+                        <div><label for="session_driver" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.session_label') }}</label><input type="text" name="session_driver" id="session_driver" value="{{ old('session_driver', 'file') }}" class="{{ $inputClass }}" /></div>
+                        <div><label for="queue_connection" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.queue_label') }}</label><input type="text" name="queue_connection" id="queue_connection" value="{{ old('queue_connection', 'sync') }}" class="{{ $inputClass }}" /></div>
+                    </div>
+                </div>
+
+                <hr class="border-slate-200">
+
+                {{-- Redis --}}
+                <div class="space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-700">{{ trans('installer_messages.environment.wizard.form.app_tabs.redis_label') }}</h3>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div class="sm:col-span-2"><label for="redis_hostname" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.redis_host') }}</label><input type="text" name="redis_hostname" id="redis_hostname" value="{{ old('redis_hostname', '127.0.0.1') }}" class="{{ $inputClass }}" /></div>
+                        <div><label for="redis_password" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.redis_password') }}</label><input type="password" name="redis_password" id="redis_password" value="{{ old('redis_password', 'null') }}" class="{{ $inputClass }}" /></div>
+                        <div><label for="redis_port" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.redis_port') }}</label><input type="number" name="redis_port" id="redis_port" value="{{ old('redis_port', '6379') }}" class="{{ $inputClass }}" /></div>
+                    </div>
+                </div>
+
+                <hr class="border-slate-200">
+
+                {{-- Mail (all fields optional) --}}
+                <div class="space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-700">{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_label') }}</h3>
+                    <div class="rounded-lg bg-slate-50 border border-slate-200 px-4 py-3 text-xs text-slate-600">
+                        {{ trans('installer_messages.environment.wizard.form.app_tabs.mail_optional_hint') }}
+                    </div>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div class="sm:col-span-2">
+                            <label for="mail_mailer" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_driver_label') }}</label>
+                            <select name="mail_mailer" id="mail_mailer" class="{{ $inputClass }}" onchange="toggleSmtpFields(this.value);">
+                                <option value="log" {{ old('mail_mailer', 'log') == 'log' ? 'selected' : '' }}>{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_option_log') }}</option>
+                                <option value="smtp" {{ old('mail_mailer') == 'smtp' ? 'selected' : '' }}>{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_option_smtp') }}</option>
+                                <option value="sendmail" {{ old('mail_mailer') == 'sendmail' ? 'selected' : '' }}>{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_option_sendmail') }}</option>
                             </select>
-                            @if ($errors->has('database_connection'))
-                                <span class="{{ $errorBlock }}">{{ $errors->first('database_connection') }}</span>
-                            @endif
                         </div>
-
-                        <div class="grid gap-4 sm:grid-cols-2">
-                            <div class="{{ $errors->has('database_hostname') ? 'has-error' : '' }}">
-                                <label for="database_hostname" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.db_host_label') }}</label>
-                                <input type="text" name="database_hostname" id="database_hostname" value="{{ old('database_hostname', '127.0.0.1') }}" class="{{ $inputClass }}" />
-                            </div>
-                            <div class="{{ $errors->has('database_port') ? 'has-error' : '' }}">
-                                <label for="database_port" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.db_port_label') }}</label>
-                                <input type="number" name="database_port" id="database_port" value="{{ old('database_port', '3306') }}" class="{{ $inputClass }}" />
-                            </div>
-                        </div>
-
-                        <div class="{{ $errors->has('database_name') ? 'has-error' : '' }}">
-                            <label for="database_name" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.db_name_label') }}</label>
-                            <input type="text" name="database_name" id="database_name" value="{{ old('database_name') }}" placeholder="{{ trans('installer_messages.environment.wizard.form.db_name_placeholder') }}" class="{{ $inputClass }}" />
-                            @if ($errors->has('database_name'))
-                                <span class="{{ $errorBlock }}">{{ $errors->first('database_name') }}</span>
-                            @endif
-                        </div>
-
-                        <div class="grid gap-4 sm:grid-cols-2">
-                            <div class="{{ $errors->has('database_username') ? 'has-error' : '' }}">
-                                <label for="database_username" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.db_username_label') }}</label>
-                                <input type="text" name="database_username" id="database_username" value="{{ old('database_username') }}" class="{{ $inputClass }}" />
-                            </div>
-                            <div class="{{ $errors->has('database_password') ? 'has-error' : '' }}">
-                                <label for="database_password" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.db_password_label') }}</label>
-                                <input type="password" name="database_password" id="database_password" value="{{ old('database_password') }}" class="{{ $inputClass }}" />
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Tab 2: Admin Account --}}
-                    <div id="appTab2" data-panel class="hidden space-y-4">
-                        <div class="grid gap-4 sm:grid-cols-2">
-                            <div class="{{ $errors->has('admin_name') ? 'has-error' : '' }}"><label for="admin_name" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.admin_name_label') }}</label><input type="text" name="admin_name" id="admin_name" value="{{ old('admin_name') }}" placeholder="{{ trans('installer_messages.environment.wizard.form.app_tabs.admin_name_placeholder') }}" class="{{ $inputClass }}" />@if ($errors->has('admin_name'))<span class="{{ $errorBlock }}"><svg class="h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>{{ $errors->first('admin_name') }}</span>@endif</div>
-                            <div class="{{ $errors->has('admin_email') ? 'has-error' : '' }}"><label for="admin_email" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.admin_email_label') }}</label><input type="email" name="admin_email" id="admin_email" value="{{ old('admin_email') }}" placeholder="{{ trans('installer_messages.environment.wizard.form.app_tabs.admin_email_placeholder') }}" class="{{ $inputClass }}" />@if ($errors->has('admin_email'))<span class="{{ $errorBlock }}"><svg class="h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>{{ $errors->first('admin_email') }}</span>@endif</div>
-                            <div class="sm:col-span-2 {{ $errors->has('admin_password') ? 'has-error' : '' }}"><label for="admin_password" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.admin_password_label') }}</label><input type="password" name="admin_password" id="admin_password" placeholder="{{ trans('installer_messages.environment.wizard.form.app_tabs.admin_password_placeholder') }}" class="{{ $inputClass }}" />@if ($errors->has('admin_password'))<span class="{{ $errorBlock }}"><svg class="h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>{{ $errors->first('admin_password') }}</span>@endif</div>
-                        </div>
-                    </div>
-
-                    {{-- Tab 3: Broadcasting / Cache / Session / Queue --}}
-                    <div id="appTab3" data-panel class="hidden space-y-4">
-                        <div class="grid gap-4 sm:grid-cols-2">
-                            <div><label for="broadcast_driver" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.broadcasting_label') }}</label><input type="text" name="broadcast_driver" id="broadcast_driver" value="{{ old('broadcast_driver', 'log') }}" class="{{ $inputClass }}" /></div>
-                            <div><label for="cache_driver" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.cache_label') }}</label><input type="text" name="cache_driver" id="cache_driver" value="{{ old('cache_driver', 'file') }}" class="{{ $inputClass }}" /></div>
-                            <div><label for="session_driver" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.session_label') }}</label><input type="text" name="session_driver" id="session_driver" value="{{ old('session_driver', 'file') }}" class="{{ $inputClass }}" /></div>
-                            <div><label for="queue_connection" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.queue_label') }}</label><input type="text" name="queue_connection" id="queue_connection" value="{{ old('queue_connection', 'sync') }}" class="{{ $inputClass }}" /></div>
-                        </div>
-                    </div>
-
-                    {{-- Tab 4: Redis --}}
-                    <div id="appTab4" data-panel class="hidden space-y-4">
-                        <div class="grid gap-4 sm:grid-cols-2">
-                            <div class="sm:col-span-2"><label for="redis_hostname" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.redis_host') }}</label><input type="text" name="redis_hostname" id="redis_hostname" value="{{ old('redis_hostname', '127.0.0.1') }}" class="{{ $inputClass }}" /></div>
-                            <div><label for="redis_password" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.redis_password') }}</label><input type="password" name="redis_password" id="redis_password" value="{{ old('redis_password', 'null') }}" class="{{ $inputClass }}" /></div>
-                            <div><label for="redis_port" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.redis_port') }}</label><input type="number" name="redis_port" id="redis_port" value="{{ old('redis_port', '6379') }}" class="{{ $inputClass }}" /></div>
-                        </div>
-                    </div>
-
-                    {{-- Tab 5: Mail (all fields optional) --}}
-                    <div id="appTab5" data-panel class="hidden space-y-4">
-                        <div class="rounded-lg bg-slate-50 border border-slate-200 px-4 py-3 text-xs text-slate-600">
-                            {{ trans('installer_messages.environment.wizard.form.app_tabs.mail_optional_hint') }}
-                        </div>
-                        <div class="grid gap-4 sm:grid-cols-2">
-                            <div class="sm:col-span-2">
-                                <label for="mail_mailer" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_driver_label') }}</label>
-                                <select name="mail_mailer" id="mail_mailer" class="{{ $inputClass }}" onchange="toggleSmtpFields(this.value);">
-                                    <option value="log" {{ old('mail_mailer', 'log') == 'log' ? 'selected' : '' }}>{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_option_log') }}</option>
-                                    <option value="smtp" {{ old('mail_mailer') == 'smtp' ? 'selected' : '' }}>{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_option_smtp') }}</option>
-                                    <option value="sendmail" {{ old('mail_mailer') == 'sendmail' ? 'selected' : '' }}>{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_option_sendmail') }}</option>
-                                </select>
-                            </div>
-                            <div class="sm:col-span-2 smtp-only" style="display:none;"><label for="mail_host" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_host_label') }}</label><input type="text" name="mail_host" id="mail_host" value="{{ old('mail_host', 'smtp.mailtrap.io') }}" class="{{ $inputClass }}" /></div>
-                            <div class="smtp-only" style="display:none;"><label for="mail_port" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_port_label') }}</label><input type="number" name="mail_port" id="mail_port" value="{{ old('mail_port', '2525') }}" class="{{ $inputClass }}" /></div>
-                            <div class="smtp-only" style="display:none;"><label for="mail_encryption" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_encryption_label') }}</label><input type="text" name="mail_encryption" id="mail_encryption" value="{{ old('mail_encryption', 'tls') }}" class="{{ $inputClass }}" /></div>
-                            <div class="smtp-only" style="display:none;"><label for="mail_username" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_username_label') }}</label><input type="text" name="mail_username" id="mail_username" value="{{ old('mail_username') }}" class="{{ $inputClass }}" /></div>
-                            <div class="smtp-only" style="display:none;"><label for="mail_password" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_password_label') }}</label><input type="password" name="mail_password" id="mail_password" value="{{ old('mail_password') }}" class="{{ $inputClass }}" /></div>
-                            <div class="sm:col-span-2"><label for="mail_from_address" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_from_address_label') }}</label><input type="email" name="mail_from_address" id="mail_from_address" value="{{ old('mail_from_address', 'noreply@example.com') }}" class="{{ $inputClass }}" /></div>
-                            <div class="sm:col-span-2"><label for="mail_from_name" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_from_name_label') }}</label><input type="text" name="mail_from_name" id="mail_from_name" value="{{ old('mail_from_name', 'Aine') }}" class="{{ $inputClass }}" /></div>
-                        </div>
-                    </div>
-
-                    {{-- Tab 6: Pusher --}}
-                    <div id="appTab6" data-panel class="hidden space-y-4">
-                        <div class="grid gap-4 sm:grid-cols-2">
-                            <div class="sm:col-span-2"><label for="pusher_app_id" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.pusher_app_id_label') }}</label><input type="text" name="pusher_app_id" id="pusher_app_id" value="{{ old('pusher_app_id') }}" class="{{ $inputClass }}" /></div>
-                            <div><label for="pusher_app_key" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.pusher_app_key_label') }}</label><input type="text" name="pusher_app_key" id="pusher_app_key" value="{{ old('pusher_app_key') }}" class="{{ $inputClass }}" /></div>
-                            <div><label for="pusher_app_secret" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.pusher_app_secret_label') }}</label><input type="password" name="pusher_app_secret" id="pusher_app_secret" value="{{ old('pusher_app_secret') }}" class="{{ $inputClass }}" /></div>
-                        </div>
+                        <div class="sm:col-span-2 smtp-only" style="display:none;"><label for="mail_host" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_host_label') }}</label><input type="text" name="mail_host" id="mail_host" value="{{ old('mail_host', 'smtp.mailtrap.io') }}" class="{{ $inputClass }}" /></div>
+                        <div class="smtp-only" style="display:none;"><label for="mail_port" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_port_label') }}</label><input type="number" name="mail_port" id="mail_port" value="{{ old('mail_port', '2525') }}" class="{{ $inputClass }}" /></div>
+                        <div class="smtp-only" style="display:none;"><label for="mail_encryption" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_encryption_label') }}</label><input type="text" name="mail_encryption" id="mail_encryption" value="{{ old('mail_encryption', 'tls') }}" class="{{ $inputClass }}" /></div>
+                        <div class="smtp-only" style="display:none;"><label for="mail_username" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_username_label') }}</label><input type="text" name="mail_username" id="mail_username" value="{{ old('mail_username') }}" class="{{ $inputClass }}" /></div>
+                        <div class="smtp-only" style="display:none;"><label for="mail_password" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_password_label') }}</label><input type="password" name="mail_password" id="mail_password" value="{{ old('mail_password') }}" class="{{ $inputClass }}" /></div>
+                        <div class="sm:col-span-2"><label for="mail_from_address" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_from_address_label') }}</label><input type="email" name="mail_from_address" id="mail_from_address" value="{{ old('mail_from_address', 'noreply@example.com') }}" class="{{ $inputClass }}" /></div>
+                        <div class="sm:col-span-2"><label for="mail_from_name" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.mail_from_name_label') }}</label><input type="text" name="mail_from_name" id="mail_from_name" value="{{ old('mail_from_name', 'Aine') }}" class="{{ $inputClass }}" /></div>
                     </div>
                 </div>
 
-                <div class="flex justify-end pt-6">
-                    <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                        {{ trans('installer_messages.environment.wizard.form.buttons.install') }}
-                        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
-                    </button>
+                <hr class="border-slate-200">
+
+                {{-- Pusher --}}
+                <div class="space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-700">{{ trans('installer_messages.environment.wizard.form.app_tabs.pusher_label') }}</h3>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div class="sm:col-span-2"><label for="pusher_app_id" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.pusher_app_id_label') }}</label><input type="text" name="pusher_app_id" id="pusher_app_id" value="{{ old('pusher_app_id') }}" class="{{ $inputClass }}" /></div>
+                        <div><label for="pusher_app_key" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.pusher_app_key_label') }}</label><input type="text" name="pusher_app_key" id="pusher_app_key" value="{{ old('pusher_app_key') }}" class="{{ $inputClass }}" /></div>
+                        <div><label for="pusher_app_secret" class="{{ $labelClass }}">{{ trans('installer_messages.environment.wizard.form.app_tabs.pusher_app_secret_label') }}</label><input type="password" name="pusher_app_secret" id="pusher_app_secret" value="{{ old('pusher_app_secret') }}" class="{{ $inputClass }}" /></div>
+                    </div>
                 </div>
+            </div>
+
+            <div class="flex justify-end pt-6">
+                <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                    {{ trans('installer_messages.environment.wizard.form.buttons.install') }}
+                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                </button>
             </div>
         </form>
 

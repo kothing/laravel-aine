@@ -184,6 +184,7 @@ return [
                     'pusher_app_secret_palceholder' => 'Pusher App Secret',
 
 
+                    'other_label' => 'Other',
                     'admin_label' => 'Admin Account',
                     'admin_name_label' => 'Admin Name',
                     'admin_name_placeholder' => 'Admin Name',

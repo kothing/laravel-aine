@@ -183,6 +183,7 @@ return [
                     'pusher_app_secret_palceholder' => 'Pusher 应用程序 Secret',
 
 
+                    'other_label' => '其他',
                     'admin_label' => '管理员账号',
                     'admin_name_label' => '管理员姓名',
                     'admin_name_placeholder' => '管理员姓名',
