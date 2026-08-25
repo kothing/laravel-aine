@@ -25,7 +25,7 @@
             <div
                 v-for="project in projects"
                 :key="project.id"
-                class="flex flex-col bg-white text-gray-900 p-6 rounded-md shadow-sm hover:shadow-dm"
+                class="flex flex-col bg-white text-gray-900 p-5 rounded-md shadow-sm hover:shadow-dm"
                 :class="{ 'opacity-70': !project.status }"
             >
                 <div class="flex items-center justify-between shrink-0">
