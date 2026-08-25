@@ -24,6 +24,7 @@ Route::middleware('auth:web')->prefix('admin-api')->group(function(){
     Route::post('/user/update_name', [UsersController::class, 'updateName']);
     Route::post('/user/update_email', [UsersController::class, 'updateEmail']);
     Route::post('/user/update_password', [UsersController::class, 'updatePassword']);
+    Route::post('/user/update_profile', [UsersController::class, 'updateProfile']);
 
     Route::prefix('settings')->group(function(){
         Route::get('/', [SettingsController::class, 'index']);
