@@ -9,17 +9,22 @@ use App\Events\ContentRestored;
 use App\Events\ContentTrashed;
 use App\Events\ContentUnpublished;
 use App\Events\ContentUpdated;
+use App\Aine\AuditLogger;
 use App\Http\Controllers\Controller;
 use App\Models\Content;
 use App\Models\Collection;
 use App\Models\ContentMeta;
+use App\Models\ContentRevision;
 use App\Models\Form;
 use App\Models\Media;
 use App\Models\Project;
 use App\Models\User;
+use App\Notifications\ContentNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Exceptions\UnauthorizedException;
 
@@ -34,12 +39,39 @@ class ContentController extends Controller
     public function project($id){
         $project = Project::with('collections')->findOrFail($id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id) && !$user->hasRole('editor'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
 
         return $project;
+    }
+
+    /**
+     * Notify the project admins (and super admins) about a content event.
+     * Never throws — notification failures must not break content operations.
+     *
+     * @param int $projectId
+     * @param array{action: string, entity_label: string, collection_id: int|null, content_id: int|null} $payload
+     * @return void
+     */
+    private function notifyProjectAdmins(int $projectId, array $payload): void
+    {
+        try {
+            // Use whereHas instead of User::role(...) because the project admin
+            // role ("admin{id}") may not exist yet, which would make Spatie's
+            // role scope throw and the whole notification be swallowed.
+            $admins = User::whereHas('roles', function ($query) use ($projectId) {
+                $query->whereIn('name', ['super_admin', 'admin' . $projectId]);
+            })->get();
+
+            if ($admins->isNotEmpty()) {
+                Notification::send($admins, new ContentNotification($payload));
+            }
+        } catch (\Throwable $e) {
+            // Best-effort only.
+        }
     }
 
     /**
@@ -53,7 +85,8 @@ class ContentController extends Controller
     public function index($project_id, $collection_id, Request $request){
         $project = Project::with('collections')->findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id) && !$user->hasRole('editor'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -173,7 +206,8 @@ class ContentController extends Controller
             $project->s3 = true;
         }
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id) && !$user->hasRole('editor'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -197,7 +231,8 @@ class ContentController extends Controller
     public function store($project_id, $collection_id, Request $request){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id) && !$user->hasRole('editor'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -371,9 +406,9 @@ class ContentController extends Controller
             'project_id' => $project->id,
             'collection_id' => $collection->id,
             'locale' => $request->get('locale'),
-            'created_by' => auth()->user()->id,
+            'created_by' => Auth::user()->id,
             'published_at' => $request->get('published') ? now() : null,
-            'published_by' => $request->get('published') ? auth()->user()->id : null
+            'published_by' => $request->get('published') ? Auth::user()->id : null
         ]);
 
         $content_data = $request->get('data');
@@ -445,6 +480,14 @@ class ContentController extends Controller
             }
         }
 
+        $this->createRevision($content, 'Created');
+
+        AuditLogger::log('create', 'content', $content->id, 'Content #' . $content->id, [
+            'collection_id' => $collection->id,
+            'locale' => $content->locale,
+            'published' => (bool) $request->get('published'),
+        ], $project->id);
+
         ContentCreated::dispatch([
             'source' => 'User',
             'content' => $content
@@ -464,7 +507,8 @@ class ContentController extends Controller
     public function edit($project_id, $collection_id, $content_id){
         $project = Project::with('collections')->findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id) && !$user->hasRole('editor'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -491,13 +535,17 @@ class ContentController extends Controller
     public function update($project_id, $collection_id, $content_id, Request $request){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id) && !$user->hasRole('editor'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
 
         $collection = Collection::with(['fields'])->where('project_id', $project->id)->where('id', $collection_id)->firstOrFail();
         $content = Content::with('meta')->where('project_id', $project->id)->where('collection_id', $collection->id)->where('id', $content_id)->firstOrFail();
+
+        // Capture pre-update state for auditing (before published_at changes)
+        $wasPublished = $content->published_at !== null;
 
         $rules = [];
         $messages = [];
@@ -669,11 +717,24 @@ class ContentController extends Controller
             ]);
         }
 
+        //Resolve scheduled publish time:
+        //- immediate publish clears any schedule
+        //- an explicit (future) scheduled_at keeps the content as draft until due
+        //- an empty scheduled_at clears a pending schedule
+        //- omitting scheduled_at keeps the existing schedule untouched (plain draft save)
+        $scheduledAt = $content->scheduled_at;
+        if ($request->get('published')) {
+            $scheduledAt = null;
+        } elseif ($request->has('scheduled_at')) {
+            $scheduledAt = $request->get('scheduled_at') ? \Illuminate\Support\Carbon::parse($request->get('scheduled_at')) : null;
+        }
+
         $content->update([
             'locale' => $request->get('locale'),
-            'updated_by' => auth()->user()->id,
+            'updated_by' => Auth::user()->id,
             'published_at' => $request->get('published') ? now() : null,
-            'published_by' => $request->get('published') ? auth()->user()->id : null
+            'published_by' => $request->get('published') ? Auth::user()->id : null,
+            'scheduled_at' => $scheduledAt
         ]);
 
         $content_data = $request->get('data');
@@ -783,9 +844,363 @@ class ContentController extends Controller
             }
         }
 
+        $action = $request->get('published') ? 'publish' : 'update';
+        if (!$request->get('published') && $content->published_at === null && $wasPublished) {
+            $action = 'unpublish';
+        }
+
+        AuditLogger::log($action, 'content', $content->id, 'Content #' . $content->id, [
+            'collection_id' => $collection->id,
+            'scheduled_at' => $scheduledAt,
+        ], $project->id);
+
+        if (in_array($action, ['publish', 'unpublish'])) {
+            $this->notifyProjectAdmins($project->id, [
+                'action' => $action,
+                'entity_label' => 'Content #' . $content->id,
+                'collection_id' => $collection->id,
+                'content_id' => $content->id,
+            ]);
+        }
+
         ContentUpdated::dispatch([
             'source' => 'User',
             'content' => $content
+        ]);
+
+        $this->createRevision($content, 'Updated');
+    }
+
+    /**
+     * Get the list of revisions for a content
+     *
+     * @param int $project_id
+     * @param int $collection_id
+     * @param int $content_id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function revisions($project_id, $collection_id, $content_id){
+        $project = Project::findOrFail($project_id);
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id) && !$user->hasRole('editor'.$project->id)){
+            throw UnauthorizedException::forRoles(['admin'.$project->id]);
+        }
+
+        $content = Content::where('project_id', $project->id)->where('collection_id', $collection_id)->where('id', $content_id)->firstOrFail();
+
+        $revisions = ContentRevision::with('user:id,name,email')
+            ->where('project_id', $project->id)
+            ->where('collection_id', $collection_id)
+            ->where('content_id', $content_id)
+            ->orderByDesc('id')
+            ->get();
+
+        return response()->json($revisions, 200);
+    }
+
+    /**
+     * Restore a content revision
+     *
+     * @param int $project_id
+     * @param int $collection_id
+     * @param int $content_id
+     * @param int $revision_id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function restoreRevision($project_id, $collection_id, $content_id, $revision_id){
+        $project = Project::findOrFail($project_id);
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id) && !$user->hasRole('editor'.$project->id)){
+            throw UnauthorizedException::forRoles(['admin'.$project->id]);
+        }
+
+        $content = Content::where('project_id', $project->id)->where('collection_id', $collection_id)->where('id', $content_id)->firstOrFail();
+        $revision = ContentRevision::where('project_id', $project->id)
+            ->where('collection_id', $collection_id)
+            ->where('content_id', $content_id)
+            ->where('id', $revision_id)
+            ->firstOrFail();
+
+        $snapshot = is_array($revision->data) ? $revision->data : json_decode($revision->data, true);
+
+        if(!is_array($snapshot)){
+            return response()->json(['message' => 'Revision data is corrupted.'], 422);
+        }
+
+        DB::transaction(function() use ($content, $snapshot, $revision, $user) {
+            $current = ContentMeta::where('content_id', $content->id)->pluck('id', 'field_name');
+
+            foreach ($snapshot as $fieldName => $value) {
+                if(isset($current[$fieldName])){
+                    ContentMeta::where('id', $current[$fieldName])->update(['value' => $value]);
+                    unset($current[$fieldName]);
+                } else {
+                    ContentMeta::create([
+                        'project_id' => $content->project_id,
+                        'collection_id' => $content->collection_id,
+                        'content_id' => $content->id,
+                        'field_name' => $fieldName,
+                        'value' => $value
+                    ]);
+                }
+            }
+
+            //Remove fields that are not present in the snapshot (values hold the meta ids)
+            //Use forceDelete: ContentMeta uses SoftDeletes and stale rows would resurface
+            if($current->isNotEmpty()){
+                ContentMeta::whereIn('id', $current->values())->forceDelete();
+            }
+        });
+
+        $this->createRevision($content, 'Restored from revision #'.$revision->id);
+
+        ContentUpdated::dispatch([
+            'source' => 'User',
+            'content' => $content
+        ]);
+
+        AuditLogger::log('restore_revision', 'content', $content->id, 'Content #' . $content->id, [
+            'collection_id' => $collection_id,
+            'revision_id' => $revision_id,
+        ], $project->id);
+
+        return response()->json(['message' => 'Revision restored successfully.'], 200);
+    }
+
+    /**
+     * Export content of a collection to JSON or CSV
+     *
+     * GET /admin-api/content/export/{project_id}/{collection_id}?format=json|csv
+     *
+     * @param int $project_id
+     * @param int $collection_id
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function exportContent($project_id, $collection_id, Request $request){
+        $project = Project::findOrFail($project_id);
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id) && !$user->hasRole('editor'.$project->id)){
+            throw UnauthorizedException::forRoles(['admin'.$project->id]);
+        }
+
+        $format = strtolower($request->get('format', 'json'));
+        if(!in_array($format, ['json', 'csv'])){
+            return response()->json(['message' => 'Unsupported export format.'], 422);
+        }
+
+        $contents = Content::with('meta')
+            ->where('project_id', $project->id)
+            ->where('collection_id', $collection_id)
+            ->get();
+
+        $rows = [];
+        foreach ($contents as $content) {
+            $data = [];
+            foreach ($content->meta as $meta) {
+                $data[$meta->field_name] = $meta->value;
+            }
+            $rows[] = [
+                'locale' => $content->locale,
+                'published_at' => $content->published_at ? (string) $content->published_at : '',
+                'data' => $data,
+            ];
+        }
+
+        $filename = 'content_' . $project->id . '_' . $collection_id . '.' . $format;
+
+        AuditLogger::log('export', 'content', null, 'Exported collection #' . $collection_id, [
+            'collection_id' => $collection_id,
+            'format' => $format,
+            'count' => count($rows),
+        ], $project->id);
+
+        if($format === 'csv'){
+            $allFields = collect($rows)->flatMap(fn($row) => array_keys($row['data']))->unique()->values();
+            $headers = array_merge(['locale', 'published_at'], $allFields->toArray());
+
+            $temp = fopen('php://temp', 'r+');
+            fputcsv($temp, $headers);
+            foreach ($rows as $row) {
+                $line = [$row['locale'], $row['published_at']];
+                foreach ($allFields as $field) {
+                    $line[] = $row['data'][$field] ?? '';
+                }
+                fputcsv($temp, $line);
+            }
+            rewind($temp);
+            $csv = stream_get_contents($temp);
+            fclose($temp);
+
+            return response($csv, 200, [
+                'Content-Type' => 'text/csv; charset=UTF-8',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ]);
+        }
+
+        return response()->json($rows, 200, [
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
+
+    /**
+     * Import content into a collection from a JSON or CSV file
+     *
+     * POST /admin-api/content/import/{project_id}/{collection_id} (multipart: file)
+     *
+     * @param int $project_id
+     * @param int $collection_id
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function importContent($project_id, $collection_id, Request $request){
+        $project = Project::findOrFail($project_id);
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id) && !$user->hasRole('editor'.$project->id)){
+            throw UnauthorizedException::forRoles(['admin'.$project->id]);
+        }
+
+        if(!$request->hasFile('file')){
+            return response()->json(['message' => 'No file uploaded.'], 422);
+        }
+
+        $file = $request->file('file');
+        $extension = strtolower($file->getClientOriginalExtension());
+        if(!in_array($extension, ['json', 'csv'])){
+            return response()->json(['message' => 'Only .json and .csv files are supported.'], 422);
+        }
+
+        if($extension === 'csv'){
+            $rows = $this->parseCsvFile($file->getRealPath());
+        } else {
+            $rows = json_decode(file_get_contents($file->getRealPath()), true);
+            if(!is_array($rows)){
+                return response()->json(['message' => 'Invalid JSON file.'], 422);
+            }
+        }
+
+        $created = 0;
+        $errors = [];
+
+        DB::beginTransaction();
+        try {
+            foreach ($rows as $index => $row) {
+                if(!is_array($row)){
+                    $errors[] = 'Row ' . ($index + 1) . ': invalid row.';
+                    continue;
+                }
+
+                $data = isset($row['data']) && is_array($row['data']) ? $row['data'] : $row;
+                unset($data['locale'], $data['published_at'], $data['published']);
+
+                $content = Content::create([
+                    'project_id' => $project->id,
+                    'collection_id' => $collection_id,
+                    'locale' => $row['locale'] ?? 'en',
+                    'published_at' => !empty($row['published_at']) ? $row['published_at'] : (!empty($row['published']) ? now() : null),
+                    'published_by' => !empty($row['published_at']) || !empty($row['published']) ? $user->id : null,
+                    'created_by' => $user->id,
+                    'updated_by' => $user->id,
+                ]);
+
+                foreach ($data as $fieldName => $value) {
+                    ContentMeta::create([
+                        'project_id' => $project->id,
+                        'collection_id' => $collection_id,
+                        'content_id' => $content->id,
+                        'field_name' => $fieldName,
+                        'value' => $value,
+                    ]);
+                }
+
+                $this->createRevision($content, 'Imported');
+                ContentCreated::dispatch([
+                    'source' => 'Import',
+                    'content' => $content
+                ]);
+
+                AuditLogger::log('import', 'content', $content->id, 'Content #' . $content->id, [
+                    'collection_id' => $collection_id,
+                    'source' => 'Import',
+                ], $project->id);
+                $created++;
+            }
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Import failed: ' . $e->getMessage()], 422);
+        }
+
+        AuditLogger::log('import', 'content', null, 'Imported ' . $created . ' content item(s)', [
+            'collection_id' => $collection_id,
+            'created' => $created,
+        ], $project->id);
+
+        return response()->json([
+            'message' => $created . ' content item(s) imported.',
+            'created' => $created,
+            'errors' => $errors,
+        ], 200);
+    }
+
+    /**
+     * Parse a CSV file into an associative array keyed by the header row
+     *
+     * @param string $path
+     * @return array
+     */
+    private function parseCsvFile($path){
+        $rows = [];
+        $handle = fopen($path, 'r');
+        $headers = null;
+
+        while (($line = fgetcsv($handle)) !== false) {
+            if($headers === null){
+                $headers = $line;
+                continue;
+            }
+
+            $row = [];
+            foreach ($headers as $i => $header) {
+                $row[$header] = $line[$i] ?? '';
+            }
+            $rows[] = $row;
+        }
+
+        fclose($handle);
+        return $rows;
+    }
+
+    /**
+     * Create a revision snapshot for a content
+     *
+     * @param \App\Models\Content $content
+     * @param string $note
+     * @return void
+     */
+    private function createRevision(Content $content, $note = 'Updated'){
+        $data = [];
+        //Query meta directly: $content->meta may be a stale cached relation from validation loops
+        foreach (ContentMeta::where('content_id', $content->id)->get() as $meta) {
+            $data[$meta->field_name] = $meta->value;
+        }
+
+        ContentRevision::create([
+            'project_id' => $content->project_id,
+            'collection_id' => $content->collection_id,
+            'content_id' => $content->id,
+            'locale' => $content->locale,
+            'data' => $data,
+            'note' => $note,
+            'created_by' => Auth::id(),
         ]);
     }
 
@@ -800,7 +1215,8 @@ class ContentController extends Controller
     public function unpublish($project_id, $collection_id, $content_id){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id) && !$user->hasRole('editor'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -817,6 +1233,17 @@ class ContentController extends Controller
             'content' => $content
         ]);
 
+        AuditLogger::log('unpublish', 'content', $content->id, 'Content #' . $content->id, [
+            'collection_id' => $collection_id,
+        ], $project->id);
+
+        $this->notifyProjectAdmins($project->id, [
+            'action' => 'unpublish',
+            'entity_label' => 'Content #' . $content->id,
+            'collection_id' => $collection_id,
+            'content_id' => $content->id,
+        ]);
+
         return response([], 200);
     }
 
@@ -831,7 +1258,8 @@ class ContentController extends Controller
     public function moveToTrash($project_id, $collection_id, $content_id){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id) && !$user->hasRole('editor'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -844,6 +1272,17 @@ class ContentController extends Controller
             ContentTrashed::dispatch([
                 'source' => 'User',
                 'content' => $content
+            ]);
+
+            AuditLogger::log('trash', 'content', $content->id, 'Content #' . $content->id, [
+                'collection_id' => $collection_id,
+            ], $project->id);
+
+            $this->notifyProjectAdmins($project->id, [
+                'action' => 'trash',
+                'entity_label' => 'Content #' . $content->id,
+                'collection_id' => $collection_id,
+                'content_id' => $content->id,
             ]);
 
             return response([], 200);
@@ -863,14 +1302,15 @@ class ContentController extends Controller
     public function delete($project_id, $collection_id, $content_id){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         // Permanent (hard) delete is admin-only — editors may only use
         // moveToTrash (soft delete) so content can still be restored.
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
 
-        $content = Content::where('project_id', $project->id)->where('collection_id', $collection_id)->where('id', $content_id)->firstOrFail();
+        $content = Content::withTrashed()->where('project_id', $project->id)->where('collection_id', $collection_id)->where('id', $content_id)->firstOrFail();
 
         $content->meta()->forceDelete();
 
@@ -882,6 +1322,17 @@ class ContentController extends Controller
                     'collection_id' => $collection_id,
                     'item_id' => $content_id,
                 ]
+            ]);
+
+            AuditLogger::log('delete', 'content', $content_id, 'Content #' . $content_id, [
+                'collection_id' => $collection_id,
+            ], $project->id);
+
+            $this->notifyProjectAdmins($project->id, [
+                'action' => 'delete',
+                'entity_label' => 'Content #' . $content_id,
+                'collection_id' => $collection_id,
+                'content_id' => $content_id,
             ]);
 
             return response([], 200);
@@ -901,7 +1352,8 @@ class ContentController extends Controller
     public function getSelectedRecords($project_id, Request $request){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id) && !$user->hasRole('editor'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -925,7 +1377,8 @@ class ContentController extends Controller
     public function getSelectedFiles($project_id, Request $request){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id) && !$user->hasRole('editor'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -946,7 +1399,8 @@ class ContentController extends Controller
     public function publishSelected($project_id, $collection_id, Request $request){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id) && !$user->hasRole('editor'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -958,12 +1412,23 @@ class ContentController extends Controller
 
             if($content && $content->published_at == null){
                 $content->published_at = now();
-                $content->published_by = auth()->user()->id;
+                $content->published_by = Auth::user()->id;
                 $content->save();
 
                 ContentPublished::dispatch([
                     'source' => 'User',
                     'content' => $content
+                ]);
+
+                AuditLogger::log('publish', 'content', $content->id, 'Content #' . $content->id, [
+                    'collection_id' => $collection_id,
+                ], $project->id);
+
+                $this->notifyProjectAdmins($project->id, [
+                    'action' => 'publish',
+                    'entity_label' => 'Content #' . $content->id,
+                    'collection_id' => $collection_id,
+                    'content_id' => $content->id,
                 ]);
             }
         }
@@ -982,7 +1447,8 @@ class ContentController extends Controller
     public function unPublishSelected($project_id, $collection_id, Request $request){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id) && !$user->hasRole('editor'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -1001,6 +1467,17 @@ class ContentController extends Controller
                     'source' => 'User',
                     'content' => $content
                 ]);
+
+                AuditLogger::log('unpublish', 'content', $content->id, 'Content #' . $content->id, [
+                    'collection_id' => $collection_id,
+                ], $project->id);
+
+                $this->notifyProjectAdmins($project->id, [
+                    'action' => 'unpublish',
+                    'entity_label' => 'Content #' . $content->id,
+                    'collection_id' => $collection_id,
+                    'content_id' => $content->id,
+                ]);
             }
         }
 
@@ -1018,7 +1495,8 @@ class ContentController extends Controller
     public function moveToTrashSelected($project_id, $collection_id, Request $request){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id) && !$user->hasRole('editor'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -1035,6 +1513,17 @@ class ContentController extends Controller
                 ContentTrashed::dispatch([
                     'source' => 'User',
                     'content' => $content
+                ]);
+
+                AuditLogger::log('trash', 'content', $content->id, 'Content #' . $content->id, [
+                    'collection_id' => $collection_id,
+                ], $project->id);
+
+                $this->notifyProjectAdmins($project->id, [
+                    'action' => 'trash',
+                    'entity_label' => 'Content #' . $content->id,
+                    'collection_id' => $collection_id,
+                    'content_id' => $content->id,
                 ]);
             }
         }
@@ -1053,7 +1542,8 @@ class ContentController extends Controller
     public function deleteSelected($project_id, $collection_id, Request $request){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         // Permanent (hard) delete is admin-only — editors may only use
         // moveToTrashSelected (soft delete) so content can still be restored.
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id)){
@@ -1077,6 +1567,17 @@ class ContentController extends Controller
                         'item_id' => $id,
                     ]
                 ]);
+
+                AuditLogger::log('delete', 'content', $id, 'Content #' . $id, [
+                    'collection_id' => $collection_id,
+                ], $project->id);
+
+                $this->notifyProjectAdmins($project->id, [
+                    'action' => 'delete',
+                    'entity_label' => 'Content #' . $id,
+                    'collection_id' => $collection_id,
+                    'content_id' => $id,
+                ]);
             }
         }
 
@@ -1094,7 +1595,8 @@ class ContentController extends Controller
     public function restoreSelected($project_id, $collection_id, Request $request){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id) && !$user->hasRole('editor'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -1111,6 +1613,17 @@ class ContentController extends Controller
                 ContentRestored::dispatch([
                     'source' => 'User',
                     'content' => $content
+                ]);
+
+                AuditLogger::log('restore', 'content', $content->id, 'Content #' . $content->id, [
+                    'collection_id' => $collection_id,
+                ], $project->id);
+
+                $this->notifyProjectAdmins($project->id, [
+                    'action' => 'restore',
+                    'entity_label' => 'Content #' . $content->id,
+                    'collection_id' => $collection_id,
+                    'content_id' => $content->id,
                 ]);
             }
         }

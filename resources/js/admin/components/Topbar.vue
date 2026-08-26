@@ -23,6 +23,69 @@
                 <i class="fas fa-globe"></i>
             </a>
 
+            <ui-dropdown align="right" width="80">
+                <template #trigger>
+                    <button
+                        class="relative flex h-[34px] w-[34px] items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-indigo-600 focus:outline-none"
+                    >
+                        <i class="fas fa-bell"></i>
+                        <span
+                            v-if="unreadCount > 0"
+                            class="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white"
+                        >
+                            {{ unreadCount > 9 ? '9+' : unreadCount }}
+                        </span>
+                    </button>
+                </template>
+
+                <template #content>
+                    <div class="w-full">
+                        <div class="flex items-center justify-between px-4 py-2 border-b border-gray-100">
+                            <span class="text-sm font-semibold text-gray-700">
+                                {{ __('Notifications') }}
+                            </span>
+                            <button
+                                v-if="unreadCount > 0"
+                                class="text-xs text-indigo-500 font-semibold hover:underline"
+                                @click="markAllRead"
+                            >
+                                {{ __('Mark all as read') }}
+                            </button>
+                        </div>
+
+                        <div class="max-h-80 overflow-y-auto divide-y divide-gray-100">
+                            <div
+                                v-for="notification in notifications"
+                                :key="notification.id"
+                                class="flex items-start gap-2 px-4 py-3 hover:bg-gray-50 cursor-pointer"
+                                @click="markRead(notification)"
+                            >
+                                <span
+                                    class="mt-1.5 h-2 w-2 rounded-full shrink-0"
+                                    :class="notification.read_at ? 'bg-transparent' : 'bg-indigo-500'"
+                                ></span>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-sm text-gray-800">
+                                        <span class="font-semibold">{{ actionLabel(notification.data.action) }}</span>
+                                        <span class="text-gray-500"> · {{ notification.data.entity_label }}</span>
+                                    </div>
+                                    <div class="text-xs text-gray-400 mt-0.5">
+                                        {{ $filters.date(notification.created_at, "D MMM YYYY, H:mm") }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div
+                                v-if="notifications.length === 0"
+                                class="px-4 py-8 text-center text-sm text-gray-400"
+                            >
+                                {{ __('No notifications yet.') }}
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </ui-dropdown>
+
             <ui-dropdown align="right" width="48">
                 <template #trigger>
                     <button
@@ -68,6 +131,12 @@ import { useAdminStore } from '../store';
 export default {
     name: 'Topbar',
     components: { Breadcrumb, UiDropdown },
+    data() {
+        return {
+            notifications: [],
+            unreadCount: 0,
+        };
+    },
     computed: {
         appUrl() {
             return document.querySelector('meta[name="APP_URL"]')?.content || '/';
@@ -87,6 +156,52 @@ export default {
 
     },
     methods: {
+        fetchNotifications() {
+            axios
+                .get("admin-api/notifications")
+                .then((response) => {
+                    this.notifications = response.data.data || [];
+                    this.unreadCount = response.data.unread_count || 0;
+                })
+                .catch(() => {});
+        },
+
+        markRead(notification) {
+            if (notification.read_at) return;
+            axios
+                .post("admin-api/notifications/read", {
+                    ids: [notification.id],
+                })
+                .then(() => {
+                    notification.read_at = new Date().toISOString();
+                    this.unreadCount = Math.max(0, this.unreadCount - 1);
+                })
+                .catch(() => {});
+        },
+
+        markAllRead() {
+            axios
+                .post("admin-api/notifications/read", {})
+                .then(() => {
+                    this.notifications.forEach((n) => (n.read_at = new Date().toISOString()));
+                    this.unreadCount = 0;
+                })
+                .catch(() => {});
+        },
+
+        actionLabel(action) {
+            const labels = {
+                publish: "Published",
+                unpublish: "Unpublished",
+                trash: "Moved to trash",
+                restore: "Restored",
+                delete: "Deleted",
+                create: "Created",
+                update: "Updated",
+            };
+            return labels[action] || action || "";
+        },
+
         logout() {
             const store = useAdminStore();
             store.logout();
@@ -100,6 +215,9 @@ export default {
                 .then(() => location.reload())
                 .catch(() => location.reload());
         },
+    },
+    mounted() {
+        this.fetchNotifications();
     },
 }
 </script>

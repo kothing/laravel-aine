@@ -11,7 +11,7 @@ class Content extends Model
 
     protected $table = "content";
 
-    protected $fillable = ['project_id', 'collection_id', 'locale', 'form_id', 'created_by', 'updated_by', 'published_at', 'published_by'];
+    protected $fillable = ['project_id', 'collection_id', 'locale', 'form_id', 'created_by', 'updated_by', 'published_at', 'published_by', 'scheduled_at'];
 
     protected $casts = [
         'project_id' => 'integer',

@@ -62,5 +62,12 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by(optional($request->user())->id ?: $request->ip());
         });
+
+        // Write endpoints (create/update/delete/upload) are rate limited more
+        // strictly than reads: they are the expensive and destructive paths
+        // of the public API. Applies on top of the generic `api` limiter.
+        RateLimiter::for('api-write', function (Request $request) {
+            return Limit::perMinute(30)->by(optional($request->user())->id ?: $request->ip());
+        });
     }
 }

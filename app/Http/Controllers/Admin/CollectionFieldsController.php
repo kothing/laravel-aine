@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\CollectionField;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Exceptions\UnauthorizedException;
@@ -23,7 +24,8 @@ class CollectionFieldsController extends Controller
     public function store($project_id, $collection_id, Request $request){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -112,7 +114,8 @@ class CollectionFieldsController extends Controller
     public function update($project_id, $collection_id, $field_id, Request $request){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -199,7 +202,8 @@ class CollectionFieldsController extends Controller
     public function updateOrder($project_id, $collection_id, Request $request){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -225,7 +229,8 @@ class CollectionFieldsController extends Controller
     public function delete($project_id, $collection_id, $field_id){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }

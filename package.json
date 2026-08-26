@@ -30,6 +30,7 @@
         "moment": "^2.30",
         "pinia": "^3.0",
         "pinyin-pro": "^3.29.2",
+        "qrcode": "^1.5.4",
         "tinymce": "^7.0",
         "v-calendar": "^3.1",
         "vue-codemirror": "^6.1.1",

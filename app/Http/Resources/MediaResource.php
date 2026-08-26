@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Project;
+use App\Aine\ContentSerializer;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class MediaResource extends JsonResource
@@ -15,7 +15,9 @@ class MediaResource extends JsonResource
      */
     public function toArray($request)
     {
-        $project = Project::find($this->project_id);
+        // Project lookups are memoised per request (ContentSerializer) so
+        // serialising many media rows does not hit the database repeatedly.
+        $project = ContentSerializer::projectFor($this->project_id);
 
         $media = [
             'id' => $this->id,

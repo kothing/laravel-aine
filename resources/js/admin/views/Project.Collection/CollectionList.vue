@@ -26,6 +26,18 @@
                                 <ui-button type="button" color="white" hover="gray-200" class="w-full h-full" @click="openEditCollectionModal = true">
                                     <div class="text-black text-sm text-left"><i class="fa fa-edit"></i> {{ __('Edit Collection') }}</div>
                                 </ui-button>
+                                <ui-button type="button" color="white" hover="gray-200" class="w-full h-full" @click="exportSchema(collection)">
+                                    <div class="text-black text-sm text-left">
+                                        <i class="fa fa-download text-indigo-500"></i>
+                                        {{ __('Export Schema') }}
+                                    </div>
+                                </ui-button>
+                                <ui-button type="button" color="white" hover="gray-200" class="w-full h-full" @click="openImportSchemaModal = true">
+                                    <div class="text-black text-sm text-left">
+                                        <i class="fa fa-upload text-green-500"></i>
+                                        {{ __('Import Schema') }}
+                                    </div>
+                                </ui-button>
                                 <ui-button type="button" color="white" hover="gray-200" class="w-full h-full" @click="deleteCollection(collection)">
                                     <div class="text-black text-sm text-left">
                                         <i class="fa fa-trash-alt text-red-500"></i>
@@ -852,6 +864,46 @@
                 <ui-button color="indigo-500" @click="editCollectionSubmit"> {{ __('Save Collection') }} </ui-button>
             </template>
         </ui-modal>
+
+        <ui-modal :show="openImportSchemaModal" @close="openImportSchemaModal = false">
+            <template #title> {{ __('Import Collection Schema') }} </template>
+
+            <template #content>
+                <div class="mt-4">
+                    <p class="text-sm text-gray-600 mb-4">
+                        {{ __('Upload a schema JSON file exported from another collection. It will create a new collection or update the fields of an existing one with the same slug.') }}
+                    </p>
+                    <input
+                        type="file"
+                        ref="schemaFile"
+                        accept=".json,.txt,application/json"
+                        class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                    />
+                    <p
+                        v-if="importSchemaError"
+                        class="text-sm text-red-600 mt-2"
+                    >
+                        {{ importSchemaError }}
+                    </p>
+                </div>
+            </template>
+
+            <template #footer>
+                <div class="flex space-x-2 justify-end">
+                    <ui-button type="button" color="gray-200" hover="gray-300" @click="openImportSchemaModal = false">
+                        <span class="text-gray-800">{{ __('Cancel') }}</span>
+                    </ui-button>
+                    <ui-button
+                        type="button"
+                        :color="'indigo-500'"
+                        :loading="importSchemaBusy"
+                        @click="importSchemaSubmit"
+                    >
+                        {{ __('Import') }}
+                    </ui-button>
+                </div>
+            </template>
+        </ui-modal>
     </div>
 </template>
 
@@ -893,6 +945,9 @@ export default {
             processingAddNewField: false,
             editStatus: false,
             openEditCollectionModal: false,
+            openImportSchemaModal: false,
+            importSchemaBusy: false,
+            importSchemaError: "",
             editCollectionData: {
                 errors: {
                     name: "",
@@ -1268,6 +1323,80 @@ export default {
                     }
                 }
             );
+        },
+
+        exportSchema(collection) {
+            axios
+                .get(
+                    "collections/export-schema/" +
+                        this.$route.params.project_id +
+                        "/" +
+                        collection.id,
+                    { responseType: "blob" }
+                )
+                .then((response) => {
+                    const url = window.URL.createObjectURL(new Blob([response.data]));
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.setAttribute(
+                        "download",
+                        "schema_" + collection.slug + ".json"
+                    );
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    this.$toast.success(__("Schema exported."));
+                })
+                .catch(() => {
+                    this.$toast.error(__("Failed to export the schema."));
+                });
+        },
+
+        importSchemaSubmit() {
+            const file = this.$refs.schemaFile.files[0];
+            if (!file) {
+                this.importSchemaError = __("Please choose a schema file.");
+                return;
+            }
+
+            this.importSchemaBusy = true;
+            this.importSchemaError = "";
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            axios
+                .post(
+                    "collections/import-schema/" + this.$route.params.project_id,
+                    formData
+                )
+                .then((response) => {
+                    this.openImportSchemaModal = false;
+                    this.$refs.schemaFile.value = "";
+                    this.$toast.success(
+                        response.data.message +
+                            " (" +
+                            __("created") +
+                            ": " +
+                            response.data.fields_created +
+                            ", " +
+                            __("updated") +
+                            ": " +
+                            response.data.fields_updated +
+                            ")"
+                    );
+                    this.getCollection();
+                })
+                .catch((error) => {
+                    this.importSchemaError =
+                        (error.response &&
+                            error.response.data &&
+                            error.response.data.message) ||
+                        __("Failed to import the schema.");
+                })
+                .finally(() => {
+                    this.importSchemaBusy = false;
+                });
         },
 
         deleteCollection(collection) {

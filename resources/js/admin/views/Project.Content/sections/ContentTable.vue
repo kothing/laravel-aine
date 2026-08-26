@@ -36,6 +36,26 @@
                 {{ __('+ Create New') }}
             </router-link>
 
+            <button
+                v-if="!relationSelect && collection_id !== undefined"
+                type="button"
+                class="bg-white items-center px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 focus:outline-none transition ease-in-out duration-150 ml-2"
+                @click="exportContent()"
+            >
+                <i class="fa fa-download"></i> {{ __('Export') }}
+            </button>
+
+            <input ref="importFile" type="file" accept=".json,.csv" class="hidden" @change="importContent($event)" />
+
+            <button
+                v-if="!relationSelect && collection_id !== undefined"
+                type="button"
+                class="bg-white items-center px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50 focus:outline-none transition ease-in-out duration-150 ml-2"
+                @click="$refs.importFile.click()"
+            >
+                <i class="fa fa-upload"></i> {{ __('Import') }}
+            </button>
+
             <ui-button color="green-500" v-if="relationSelect && selected.length !== 0" @click="addSelected()"><i class="fa fa-link"></i> {{ __('Add Selected') }}</ui-button>
         </h4>
 
@@ -860,6 +880,34 @@ export default {
                 collection_id: this.collection_id,
             });
             this.selected = [];
+        },
+
+        exportContent() {
+            const url = "content/export/" + this.$route.params.project_id + "/" + this.collection_id + "?format=json";
+            window.open(url, "_blank");
+        },
+
+        importContent(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            axios
+                .post("content/import/" + this.$route.params.project_id + "/" + this.collection_id, formData)
+                .then((response) => {
+                    this.$toast.success(response.data.message || __("Content imported."));
+                    this.getContent();
+                })
+                .catch((error) => {
+                    if (error.response && error.response.data && error.response.data.message) {
+                        this.$toast.error(error.response.data.message);
+                    }
+                })
+                .finally(() => {
+                    event.target.value = "";
+                });
         },
 
         selectAllFn() {

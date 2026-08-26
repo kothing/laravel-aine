@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\TwoFactorChallengeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [AuthenticatedSessionController::class, 'create'])->middleware('guest')->name('login');
@@ -17,6 +18,10 @@ Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->
 Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])->middleware('guest')->name('password.reset');
 
 Route::post('/reset-password', [NewPasswordController::class, 'store'])->middleware('guest')->name('password.update');
+
+Route::get('/two-factor-challenge', [TwoFactorChallengeController::class, 'create'])->middleware('guest')->name('two-factor.challenge');
+
+Route::post('/two-factor-challenge', [TwoFactorChallengeController::class, 'store'])->middleware('guest');
 
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->middleware('auth')->name('logout');
 

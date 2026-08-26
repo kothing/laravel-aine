@@ -52,6 +52,17 @@
                         </div>
 
                         <ui-button v-if="content.published_at === null" :color="'green-500'" class="rounded-r-none ml-2" @click="saveEdit(true)">{{ __('Save and Publish') }}</ui-button>
+                        <ui-button type="button" color="white" hover="indigo-50" class="ml-2" @click="showRevisions = true">
+                            <i class="fa fa-history mr-1"></i>{{ __('History') }}
+                        </ui-button>
+                        <div v-if="content.published_at === null" class="ml-2 flex items-center space-x-1">
+                            <i class="fa fa-clock text-gray-400"></i>
+                            <input
+                                type="datetime-local"
+                                v-model="scheduledAt"
+                                class="rounded-md border border-gray-300 px-2 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                            />
+                        </div>
                         <div v-if="content.published_at === null" class="flex border-green-600 border border-l-1 border-t-0 border-b-0 border-r-0">
                             <ui-dropdown align="right" width="60">
                                 <template #trigger>
@@ -729,6 +740,15 @@
                 </ui-button>
             </template>
         </ui-modal>
+
+        <revisions-modal
+            :show="showRevisions"
+            :project-id="$route.params.project_id"
+            :collection-id="$route.params.col_id"
+            :content-id="$route.params.content_id"
+            @close="showRevisions = false"
+            @restored="getEdit()"
+        ></revisions-modal>
     </div>
 </template>
 
@@ -751,6 +771,7 @@ import UiDropdown from "../../../components/Dropdown.vue";
 
 import ProjectHeader from "../components/ProjectHeader.vue";
 import MediaLibrary from "../components/MediaLibrary.vue";
+import RevisionsModal from "../components/RevisionsModal.vue";
 
 import ContentSidebar from "./sections/ContentSidebar.vue";
 import ContentTable from "./sections/ContentTable.vue";
@@ -771,6 +792,7 @@ export default {
         ContentTable,
         TinyEditor,
         VDatePicker,
+        RevisionsModal,
     },
 
     mixins: [projectBreadcrumb],
@@ -811,6 +833,8 @@ export default {
             relationModalCollectionTYPE: null,
             currentRelationField: null,
             relationRecords: {},
+            showRevisions: false,
+            scheduledAt: null,
             init: false,
         };
     },
@@ -847,6 +871,9 @@ export default {
                 });
 
                 this.content = response.data.content;
+
+                //Scheduled publishing: prefill the datetime-local input with the pending schedule
+                this.scheduledAt = response.data.content.scheduled_at ? String(response.data.content.scheduled_at).slice(0, 16).replace(" ", "T") : null;
                 this.newData.locale = response.data.content.locale;
 
                 var content = response.data.content;
@@ -943,6 +970,9 @@ export default {
             } else {
                 this.newData.published = published;
             }
+
+            //Scheduled publishing: pass the picked datetime (empty clears a pending schedule)
+            this.newData.scheduled_at = this.scheduledAt || "";
 
             axios.post("content/update/" + this.$route.params.project_id + "/" + this.$route.params.col_id + "/" + this.$route.params.content_id, this.newData).then(
                 (response) => {

@@ -58,6 +58,7 @@ const ProjectSettingsWebhooks = () => import("./views/Project.Settings/Webhooks.
 const ProjectSettingsWebhookLogs = () => import("./views/Project.Settings/WebhookLogs.vue");
 const ProjectSettingsTranslations = () => import("./views/Project.Settings/ProjectTranslations.vue");
 const ProjectSettingsLanguage = () => import("./views/Project.Settings/ProjectLanguage.vue");
+const ProjectSettingsAuditLogs = () => import("./views/Project.Settings/AuditLogs.vue");
 
 /**
  * Routes
@@ -229,6 +230,15 @@ const routes = [
     component: ProjectSettingsWebhookLogs,
     beforeEnter: async (to, from, next) =>
       checkPermission(to, from, next, { requireSuperAdmin: true }),
+  },
+  {
+    path: "/project/:project_id/settings/audit-logs",
+    name: "projects.settings.audit-logs",
+    component: ProjectSettingsAuditLogs,
+    beforeEnter: async (to, from, next) =>
+        checkPermission(to, from, next, {
+            requiredRoles: ["admin" + to.params.project_id],
+        }),
   },
   {
     path: "/project/:project_id/media_library",

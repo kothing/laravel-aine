@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Content;
 use App\Models\Project;
 use App\Models\Collection;
+use App\Models\CollectionField;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Exceptions\UnauthorizedException;
 
@@ -21,7 +23,8 @@ class CollectionsController extends Controller
     public function project($id){
         $project = Project::with('collections')->findOrFail($id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -39,7 +42,8 @@ class CollectionsController extends Controller
     public function store($project_id, Request $request){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -75,7 +79,8 @@ class CollectionsController extends Controller
     public function updateOrder($project_id, Request $request){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -99,7 +104,8 @@ class CollectionsController extends Controller
     public function show($project_id, $collection_id){
         $project = Project::with('collections')->findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -129,7 +135,8 @@ class CollectionsController extends Controller
     public function update($project_id, $collection_id, Request $request){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -153,6 +160,139 @@ class CollectionsController extends Controller
         return response($collection, 200);
     }
 
+    /**
+     * Export a collection's schema (structure only, no content) as JSON.
+     *
+     * @param int $project_id
+     * @param int $collection_id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function exportSchema($project_id, $collection_id){
+        $project = Project::findOrFail($project_id);
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id)){
+            throw UnauthorizedException::forRoles(['admin'.$project->id]);
+        }
+
+        $collection = Collection::with('fields')->where('project_id', $project->id)->where('id', $collection_id)->firstOrFail();
+
+        $fields = $collection->fields->sortBy('order')->values()->map(function ($field) {
+            return [
+                'type' => $field->type,
+                'label' => $field->label,
+                'name' => $field->name,
+                'description' => $field->description,
+                'placeholder' => $field->placeholder,
+                'options' => json_decode($field->options, true),
+                'validations' => json_decode($field->validations, true),
+                'order' => $field->order,
+            ];
+        });
+
+        $schema = [
+            'collection' => [
+                'name' => $collection->name,
+                'slug' => $collection->slug,
+            ],
+            'fields' => $fields,
+        ];
+
+        return response()->json($schema, 200);
+    }
+
+    /**
+     * Import a collection schema from an uploaded JSON file. Creates the
+     * collection (and its fields) if the slug does not exist yet; otherwise
+     * updates the existing collection's fields.
+     *
+     * @param int $project_id
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function importSchema($project_id, Request $request){
+        $project = Project::findOrFail($project_id);
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id)){
+            throw UnauthorizedException::forRoles(['admin'.$project->id]);
+        }
+
+        $request->validate([
+            'file' => 'required|file|max:2048',
+        ]);
+
+        $content = file_get_contents($request->file('file')->getRealPath());
+        $data = json_decode($content, true);
+
+        if(!is_array($data) || !isset($data['collection']) || !isset($data['fields'])){
+            return response()->json(['message' => 'Invalid schema file. Expected { "collection": {...}, "fields": [...] }.'], 422);
+        }
+
+        $collectionName = $data['collection']['name'] ?? null;
+        $collectionSlug = $data['collection']['slug'] ?? null;
+
+        if(!$collectionName || !$collectionSlug){
+            return response()->json(['message' => 'Schema must include a collection name and slug.'], 422);
+        }
+
+        $collection = Collection::where('project_id', $project->id)->where('slug', $collectionSlug)->first();
+
+        if(!$collection){
+            $collection = Collection::create([
+                'name' => $collectionName,
+                'slug' => $collectionSlug,
+                'project_id' => $project->id,
+            ]);
+            $collection->order = $collection->id;
+            $collection->save();
+        } else {
+            $collection->update(['name' => $collectionName]);
+        }
+
+        $created = 0;
+        $updated = 0;
+
+        foreach($data['fields'] as $fieldData){
+            if(!isset($fieldData['name'], $fieldData['label'], $fieldData['type'])){
+                continue;
+            }
+
+            $existing = CollectionField::where('collection_id', $collection->id)->where('name', $fieldData['name'])->first();
+
+            $payload = [
+                'type' => $fieldData['type'],
+                'label' => $fieldData['label'],
+                'name' => $fieldData['name'],
+                'description' => $fieldData['description'] ?? null,
+                'placeholder' => $fieldData['placeholder'] ?? null,
+                'options' => json_encode($fieldData['options'] ?? []),
+                'validations' => json_encode($fieldData['validations'] ?? []),
+                'project_id' => $project->id,
+                'collection_id' => $collection->id,
+            ];
+
+            if($existing){
+                $existing->update($payload);
+                $updated++;
+            } else {
+                $field = CollectionField::create($payload);
+                $field->order = $field->id;
+                $field->save();
+                $created++;
+            }
+        }
+
+        return response()->json([
+            'message' => 'Schema imported.',
+            'collection_id' => $collection->id,
+            'fields_created' => $created,
+            'fields_updated' => $updated,
+        ], 200);
+    }
+
     /** 
      * Delete collection
      * 
@@ -163,7 +303,8 @@ class CollectionsController extends Controller
     public function delete($project_id, $collection_id){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }

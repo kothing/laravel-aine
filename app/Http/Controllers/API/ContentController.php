@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Aine\ContentSerializer;
+use App\Aine\PublicCache;
 use App\Events\ContentCreated;
 use App\Events\ContentTrashed;
 use App\Events\ContentUpdated;
@@ -35,14 +37,6 @@ class ContentController extends Controller {
     const PUBLIC_CACHE_TTL = 600;
 
     /**
-     * Cache-version key TTL (7 days). The per-project version key is bumped
-     * on every content write (create/update/delete), which instantly
-     * invalidates all cached public responses for that project while old
-     * cache entries expire naturally via their own TTL.
-     */
-    const CACHE_VERSION_TTL = 7 * 86400;
-
-    /**
      * Portal content skeleton limits. These mirror the values the SPA
      * frontend used to apply locally (see config.js) so the /portal endpoint
      * keeps the exact same display as before the consolidation.
@@ -53,6 +47,17 @@ class ContentController extends Controller {
     const PORTAL_RECOMMENDED_LIMIT = 8;
     const PORTAL_SLIDER_LIMIT = 5;
     const PORTAL_LATEST_LIMIT = 10;
+
+    /**
+     * Pagination guards for the public API (DoS protection).
+     *
+     * `limit` is clamped to MAX_PAGE_LIMIT so an absurd value such as
+     * `limit=1000000` can never force the API to materialise the whole
+     * collection; `offset` beyond MAX_PAGE_OFFSET is rejected outright
+     * (a huge offset is never legitimate).
+     */
+    const MAX_PAGE_LIMIT = 100;
+    const MAX_PAGE_OFFSET = 10000;
 
     /**
      * Get all content
@@ -116,6 +121,7 @@ class ContentController extends Controller {
             //Combining where clauses
             if($multiDim){
                 $metaSql = 'SELECT c.id as content_id FROM content c,';
+                $bind = [];
 
                 $num = 1;
                 foreach ($where as $w) {
@@ -497,11 +503,15 @@ class ContentController extends Controller {
             return $this->validationError('Incorrect offset statement. Offset must be used with limit. Documentation: #limit');
         }
 
+        if($paginationError = $this->validatePagination($request)){
+            return $paginationError;
+        }
+
         if($request->has('offset')){
-            $content = $content->offset($request->get('offset'));
+            $content = $content->offset(min((int) $request->get('offset'), self::MAX_PAGE_OFFSET));
         }
         if($request->has('limit')){
-            $content = $content->limit($request->get('limit'));
+            $content = $content->limit(min((int) $request->get('limit'), self::MAX_PAGE_LIMIT));
         }
 
         if($request->has('count')){
@@ -514,15 +524,21 @@ class ContentController extends Controller {
                 $selectFields[] = 'updated_at';
                 $selectFields[] = 'published_at';
             }
-            $content = $content->select($selectFields);
+            // Eager-load relations and batch-preload media/relation rows so
+            // serialisation stays O(1) instead of N+1 per item.
+            $content = $content->with(['meta', 'collection.fields'])->select($selectFields);
 
             if($request->has('first')){
                 $content = $content->first();
                 if(!$content) return $this->notFound('Not found');
 
+                ContentSerializer::preload($content);
+
                 return $this->success(new ContentResource($content), 'Success');
             } else {
                 $content =  $content->get();
+                ContentSerializer::preload($content);
+
                 return $this->success(ContentResource::collection($content), 'Success');
             }
         }
@@ -774,6 +790,8 @@ class ContentController extends Controller {
             $selectFields[] = 'published_at';
         }
         $content = $content->select($selectFields)->find($slug_id);
+
+        ContentSerializer::preload($content);
 
         if(!$content) {
             return $this->notFound('Not found');
@@ -1076,7 +1094,7 @@ class ContentController extends Controller {
             'content' => $content
         ]);
 
-        $this->bumpPublicCache($project->id);
+        ContentSerializer::preload($content);
 
         return $this->created(new ContentResource($content), 'Content created successfully');
     }
@@ -1397,7 +1415,7 @@ class ContentController extends Controller {
             'content' => $content
         ]);
 
-        $this->bumpPublicCache($project->id);
+        ContentSerializer::preload($content);
 
         return $this->updated(new ContentResource($content), 'Content updated successfully');
     }
@@ -1441,8 +1459,6 @@ class ContentController extends Controller {
                 'content' => $content
             ]);
 
-            $this->bumpPublicCache($project->id);
-
             return $this->deleted('Record deleted');
         } else {
             return $this->notFound('Failed to delete record');
@@ -1466,6 +1482,117 @@ class ContentController extends Controller {
         }
         
         return $this->getContentListByUuid($project->uuid, $slug, $request);
+    }
+
+    /**
+     * Search content in a collection using an explicit project identifier (UUID or slug)
+     * Project is resolved by ValidateProjectAccess middleware and set on request attributes
+     *
+     * GET /api/project/{project_identifier}/{slug}/search?query=...
+     *
+     * @param string $project_identifier Project UUID or slug
+     * @param string $slug Collection slug
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function searchContent($project_identifier, $slug, Request $request){
+        $project = $request->attributes->get('resolved_project');
+
+        if (!$project) {
+            return $this->notFound('Project not resolved');
+        }
+
+        return $this->searchContentByUuid($project->uuid, $slug, $request);
+    }
+
+    /**
+     * Search content in a collection by project UUID
+     *
+     * GET /api/{uuid}/{slug}/search?query=...
+     *
+     * @param string $uuid Project UUID
+     * @param string $slug Collection slug
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function searchContentByUuid($uuid, $slug, Request $request){
+        $project = Project::where('uuid', $uuid)->first();
+
+        if(!$project){
+            return $this->notFound('Project not found');
+        }
+        if ($response = $this->authorizeProjectRead($project)) {
+            return $response;
+        }
+
+        $query = trim((string) $request->get('query', ''));
+        $queryLength = mb_strlen($query);
+
+        if($queryLength < 2){
+            return $this->validationError('Search query must be at least 2 characters.');
+        }
+        if($queryLength > 100){
+            return $this->validationError('Search query cannot exceed 100 characters.');
+        }
+
+        $collection = Collection::where('project_id', $project->id)->where('slug', $slug)->first();
+        if(!$collection){
+            return $this->notFound('Collection not found');
+        }
+
+        $limit = $request->has('limit') ? (int) $request->get('limit') : 20;
+        $offset = $request->has('offset') ? (int) $request->get('offset') : 0;
+        if($limit < 1 || $limit > 100){
+            $limit = 20;
+        }
+        if($offset < 0){
+            $offset = 0;
+        }
+
+        //Find content ids whose meta values contain the query
+        $contentIds = ContentMeta::query()
+            ->where('project_id', $project->id)
+            ->where('collection_id', $collection->id)
+            ->where('value', 'LIKE', '%'.$query.'%')
+            ->pluck('content_id')
+            ->unique();
+
+        //Only published content is exposed unless explicitly asking for drafts
+        if($request->get('state') !== 'only_draft'){
+            $contentIds = Content::whereIn('id', $contentIds)
+                ->whereNotNull('published_at')
+                ->pluck('id');
+        } else {
+            $contentIds = Content::whereIn('id', $contentIds)
+                ->whereNull('published_at')
+                ->pluck('id');
+        }
+
+        $total = $contentIds->count();
+        $pageIds = $contentIds->slice($offset, $limit)->values();
+
+        $responseData = [];
+        if($pageIds->isNotEmpty()){
+            $contents = Content::query()
+                ->with(['meta', 'collection.fields'])
+                ->select(['id', 'project_id', 'collection_id', 'locale'])
+                ->whereIn('id', $pageIds)
+                ->get();
+
+            ContentSerializer::preload($contents);
+
+            $responseData = json_decode(ContentResource::collection($contents)->toJson(), true);
+        }
+
+        return response()->json([
+            'success' => true,
+            'code' => 200,
+            'message' => 'Success',
+            'data' => $responseData,
+            'total' => $total,
+            'limit' => $limit,
+            'offset' => $offset,
+        ], 200);
     }
 
     /**
@@ -1647,12 +1774,16 @@ class ContentController extends Controller {
             $content->orderBy('created_at', 'desc');
         }
 
+        if($paginationError = $this->validatePagination($request)){
+            return $paginationError;
+        }
+
         if($request->has('offset')){
-            $content->skip($request->get('offset'));
+            $content->skip(min((int) $request->get('offset'), self::MAX_PAGE_OFFSET));
         }
 
         if($request->has('limit')){
-            $content->limit($request->get('limit'));
+            $content->limit(min((int) $request->get('limit'), self::MAX_PAGE_LIMIT));
         }
 
         if($request->has('state')){
@@ -1675,6 +1806,8 @@ class ContentController extends Controller {
         }
 
         $content = $content->select($selectFields)->get();
+
+        ContentSerializer::preload($content);
 
         if($request->has('first') && $request->get('first')){
             $content = $content->first();
@@ -1871,11 +2004,15 @@ class ContentController extends Controller {
             return $this->validationError('Incorrect offset statement. Offset must be used with limit.');
         }
 
+        if($paginationError = $this->validatePagination($request)){
+            return $paginationError;
+        }
+
         if($request->has('offset')){
-            $content = $content->offset($request->get('offset'));
+            $content = $content->offset(min((int) $request->get('offset'), self::MAX_PAGE_OFFSET));
         }
         if($request->has('limit')){
-            $content = $content->limit($request->get('limit'));
+            $content = $content->limit(min((int) $request->get('limit'), self::MAX_PAGE_LIMIT));
         }
 
         if($request->has('count')){
@@ -1894,9 +2031,13 @@ class ContentController extends Controller {
                 $content = $content->first();
                 if(!$content) return $this->notFound('Not found');
 
+                ContentSerializer::preload($content);
+
                 return $this->success(new ContentResource($content), 'Success');
             } else {
                 $content = $content->get();
+                ContentSerializer::preload($content);
+
                 return $this->success(ContentResource::collection($content), 'Success');
             }
         }
@@ -2022,18 +2163,7 @@ class ContentController extends Controller {
      */
     private function publicCacheVersion($projectId): int
     {
-        return (int) $this->cacheGet('public_content_version:'.$projectId, 0);
-    }
-
-    /**
-     * Invalidate all cached public responses of a project by incrementing
-     * its cache version. Called after every content write.
-     */
-    private function bumpPublicCache($projectId)
-    {
-        $key = 'public_content_version:'.$projectId;
-        $version = (int) $this->cacheGet($key, 0);
-        $this->cachePut($key, $version + 1, self::CACHE_VERSION_TTL);
+        return PublicCache::version((int) $projectId);
     }
 
     /**
@@ -2090,5 +2220,39 @@ class ContentController extends Controller {
             }
         }
         unset($value);
+    }
+
+    /**
+     * Validate the `limit` / `offset` pagination query parameters.
+     *
+     * Returns a JSON error response when a value is invalid (non-numeric,
+     * negative, or offset beyond MAX_PAGE_OFFSET), otherwise null. The
+     * `limit` value itself is not rejected when it exceeds MAX_PAGE_LIMIT —
+     * callers clamp it with min() so existing clients sending generous
+     * limits keep working while abusive values are neutralised.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse|null
+     */
+    private function validatePagination(Request $request)
+    {
+        if ($request->has('limit')) {
+            $limit = $request->get('limit');
+            if (!is_numeric($limit) || (int) $limit < 1) {
+                return $this->validationError('Invalid limit parameter. Limit must be a positive integer.');
+            }
+        }
+
+        if ($request->has('offset')) {
+            $offset = $request->get('offset');
+            if (!is_numeric($offset) || (int) $offset < 0) {
+                return $this->validationError('Invalid offset parameter. Offset must be a non-negative integer.');
+            }
+            if ((int) $offset > self::MAX_PAGE_OFFSET) {
+                return $this->validationError('Offset cannot exceed '.self::MAX_PAGE_OFFSET.'.');
+            }
+        }
+
+        return null;
     }
 }

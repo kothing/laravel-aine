@@ -37,6 +37,10 @@ class LoginRequest extends FormRequest
     /**
      * Attempt to authenticate the request's credentials.
      *
+     * If the user has two-factor authentication enabled, the session is only
+     * "primed" (pending user id stored) and the caller must redirect to the
+     * two-factor challenge screen instead of logging the user in.
+     *
      * @return void
      *
      * @throws \Illuminate\Validation\ValidationException
@@ -45,7 +49,11 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->filled('remember'))) {
+        $credentials = $this->only('email', 'password');
+
+        $user = \App\Models\User::where('email', $this->string('email'))->first();
+
+        if (! $user || ! Auth::validate($credentials)) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -54,6 +62,15 @@ class LoginRequest extends FormRequest
         }
 
         RateLimiter::clear($this->throttleKey());
+
+        // Two-factor enabled: hold off authentication until the code is verified.
+        if ($user->twoFactorEnabled()) {
+            session()->put('login.two_factor_user_id', $user->getKey());
+
+            return;
+        }
+
+        Auth::login($user, $this->filled('remember'));
     }
 
     /**

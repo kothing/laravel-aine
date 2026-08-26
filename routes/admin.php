@@ -13,6 +13,9 @@ use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TranslationsController;
 use App\Http\Controllers\Admin\ProjectTranslationsController;
 use App\Http\Controllers\Admin\LocalizationController;
+use App\Http\Controllers\Admin\AuditLogController;
+use App\Http\Controllers\Admin\NotificationsController;
+use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Frontend\FormController;
 
 // API Routes - prefixed with /admin-api to avoid conflict with Vue Router
@@ -25,6 +28,14 @@ Route::middleware('auth:web')->prefix('admin-api')->group(function(){
     Route::post('/user/update_email', [UsersController::class, 'updateEmail']);
     Route::post('/user/update_password', [UsersController::class, 'updatePassword']);
     Route::post('/user/update_profile', [UsersController::class, 'updateProfile']);
+
+    Route::post('/user/2fa/enable', [TwoFactorController::class, 'enable']);
+    Route::post('/user/2fa/confirm', [TwoFactorController::class, 'confirm']);
+    Route::post('/user/2fa/disable', [TwoFactorController::class, 'disable']);
+    Route::post('/user/2fa/recovery-codes', [TwoFactorController::class, 'regenerateRecoveryCodes']);
+
+    Route::get('/notifications', [NotificationsController::class, 'index']);
+    Route::post('/notifications/read', [NotificationsController::class, 'markRead']);
 
     Route::prefix('settings')->group(function(){
         Route::get('/', [SettingsController::class, 'index']);
@@ -101,6 +112,8 @@ Route::middleware('auth:web')->prefix('admin-api')->group(function(){
         Route::get('/show/{project_id}/{collection_id}', [CollectionsController::class, 'show']);
         Route::post('/update/{project_id}/{collection_id}', [CollectionsController::class, 'update']);
         Route::delete('/delete/{project_id}/{collection_id}', [CollectionsController::class, 'delete']);
+        Route::get('/export-schema/{project_id}/{collection_id}', [CollectionsController::class, 'exportSchema']);
+        Route::post('/import-schema/{project_id}', [CollectionsController::class, 'importSchema']);
 
         Route::prefix('fields')->group(function(){
             Route::post('/store/{project_id}/{collection_id}', [CollectionFieldsController::class, 'store']);
@@ -128,6 +141,10 @@ Route::middleware('auth:web')->prefix('admin-api')->group(function(){
         Route::post('/store/{project_id}/{collection_id}', [ContentController::class, 'store']);
         Route::get('/edit/{project_id}/{collection_id}/{content_id}', [ContentController::class, 'edit']);
         Route::post('/update/{project_id}/{collection_id}/{content_id}', [ContentController::class, 'update']);
+        Route::get('/export/{project_id}/{collection_id}', [ContentController::class, 'exportContent']);
+        Route::post('/import/{project_id}/{collection_id}', [ContentController::class, 'importContent']);
+        Route::get('/revisions/{project_id}/{collection_id}/{content_id}', [ContentController::class, 'revisions']);
+        Route::post('/revisions/{project_id}/{collection_id}/{content_id}/{revision_id}/restore', [ContentController::class, 'restoreRevision']);
         Route::get('/unpublish/{project_id}/{collection_id}/{content_id}', [ContentController::class, 'unpublish']);
         Route::delete('/move-to-trash/{project_id}/{collection_id}/{content_id}', [ContentController::class, 'moveToTrash']);
         Route::delete('/delete/{project_id}/{collection_id}/{content_id}', [ContentController::class, 'delete']);
@@ -148,6 +165,10 @@ Route::middleware('auth:web')->prefix('admin-api')->group(function(){
         Route::delete('/delete/{project_id}/{file_id}', [MediaLibraryController::class, 'delete']);
         Route::post('/delete-selected/{project_id}', [MediaLibraryController::class, 'deleteSelected']);
         Route::post('/update/{project_id}/{file_id}', [MediaLibraryController::class, 'update']);
+    });
+
+    Route::prefix('audit-logs')->group(function(){
+        Route::get('/project/{project_id}', [AuditLogController::class, 'index']);
     });
 });
 

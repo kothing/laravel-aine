@@ -70,6 +70,19 @@
                     {{ __('Language') }}
                 </router-link>
             </li>
+            <li class="mb-2">
+                <router-link
+                    v-if="typeof project.id !== 'undefined' && checkRole(['super_admin'])"
+                    :to="{
+                        name: 'projects.settings.audit-logs',
+                        params: { project_id: project.id },
+                    }"
+                    :active-class="'bg-blue-100 text-blue-700 font-semibold'"
+                    class="block w-full p-2 cursor-pointer hover:bg-gray-100 rounded"
+                >
+                    {{ __('Audit Logs') }}
+                </router-link>
+            </li>
         </ul>
     </div>
 </template>

@@ -8,6 +8,7 @@ use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use App\Models\Media;
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Exceptions\UnauthorizedException;
 
@@ -24,7 +25,8 @@ class MediaLibraryController extends Controller
     public function getFiles($project_id, Request $request){
         $project = Project::with('collections')->findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id) && !$user->hasRole('editor'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -105,7 +107,8 @@ class MediaLibraryController extends Controller
     public function upload($project_id, Request $request){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id) && !$user->hasRole('editor'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -160,8 +163,8 @@ class MediaLibraryController extends Controller
      * Rename a file
      *
      * @param string $file_name
-     * @param uuid $project_uuid
-     * @param file $file
+     * @param string $project_uuid
+     * @param \Illuminate\Http\UploadedFile $file
      * @param string $disk
      * @return string $file_name
      */
@@ -208,7 +211,8 @@ class MediaLibraryController extends Controller
     public function delete($project_id, $file_id, Request $request){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id) && !$user->hasRole('editor'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -242,7 +246,8 @@ class MediaLibraryController extends Controller
     public function deleteSelected($project_id, Request $request){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id) && !$user->hasRole('editor'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }
@@ -279,7 +284,8 @@ class MediaLibraryController extends Controller
     public function update($project_id, $file_id, Request $request){
         $project = Project::findOrFail($project_id);
 
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if(!$user->isSuperAdmin() && !$user->hasRole('admin'.$project->id) && !$user->hasRole('editor'.$project->id)){
             throw UnauthorizedException::forRoles(['admin'.$project->id]);
         }

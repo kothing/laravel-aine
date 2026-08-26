@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Spatie\Permission\Exceptions\UnauthorizedException;
 
 // Fresh deployment bootstrap: the installer itself runs through the `web`
 // middleware (encrypted cookies/session need a valid APP_KEY). If there is
@@ -57,6 +58,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->appendToGroup('api', [
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            'throttle:api',
         ]);
 
         $middleware->alias([
@@ -133,6 +135,13 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             if ($exception instanceof AccessDeniedHttpException) {
+                return response()->json([
+                    'success' => false, 'code' => 403,
+                    'message' => 'Forbidden', 'data' => null,
+                ], 403);
+            }
+
+            if ($exception instanceof UnauthorizedException) {
                 return response()->json([
                     'success' => false, 'code' => 403,
                     'message' => 'Forbidden', 'data' => null,

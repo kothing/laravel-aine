@@ -1,9 +1,46 @@
 <?php
 
+use App\Events\ContentPublished;
+use App\Models\Content;
 use App\Models\User;
-use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schedule;
+
+/**
+ * Publish content whose scheduled publish time has arrived.
+ */
+Artisan::command('aine:publish_scheduled', function () {
+    $now = now();
+
+    $due = Content::whereNotNull('scheduled_at')
+        ->where('scheduled_at', '<=', $now)
+        ->get();
+
+    $count = 0;
+
+    foreach ($due as $content) {
+        $content->published_at = $content->scheduled_at;
+        $content->scheduled_at = null;
+        $content->save();
+
+        ContentPublished::dispatch([
+            'source' => 'Schedule',
+            'content' => $content
+        ]);
+
+        $count++;
+    }
+
+    $this->info("Published {$count} scheduled content item(s).");
+})->purpose('Publish content whose scheduled publish time has arrived');
+
+/**
+ * Run the scheduled publishing every minute.
+ */
+Schedule::call(function () {
+    Artisan::call('aine:publish_scheduled');
+})->everyMinute()->name('publish-scheduled-content')->withoutOverlapping();
 
 /*
 |--------------------------------------------------------------------------

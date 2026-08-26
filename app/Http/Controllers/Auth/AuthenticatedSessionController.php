@@ -30,6 +30,11 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
+        // The user has 2FA enabled — forward to the challenge screen.
+        if (session()->has('login.two_factor_user_id')) {
+            return redirect()->route('two-factor.challenge');
+        }
+
         $request->session()->regenerate();
 
         return redirect()->intended(RouteServiceProvider::HOME);

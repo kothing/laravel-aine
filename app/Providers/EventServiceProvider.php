@@ -11,6 +11,7 @@ use App\Events\ContentTrashed;
 use App\Events\ContentUnpublished;
 use App\Events\ContentUpdated;
 use App\Events\FormSubmitted;
+use App\Listeners\BumpPublicCache;
 use App\Listeners\CreateStorageLink;
 use App\Listeners\FinalWebhookCallFailedListener;
 use App\Listeners\ProcessWebhooks;
@@ -34,25 +35,32 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
         ContentCreated::class => [
-            ProcessWebhooks::class
+            ProcessWebhooks::class,
+            BumpPublicCache::class
         ],
         ContentUpdated::class => [
-            ProcessWebhooks::class
+            ProcessWebhooks::class,
+            BumpPublicCache::class
         ],
         ContentTrashed::class => [
-            ProcessWebhooks::class
+            ProcessWebhooks::class,
+            BumpPublicCache::class
         ],
         ContentDeleted::class => [
-            ProcessWebhooks::class
+            ProcessWebhooks::class,
+            BumpPublicCache::class
         ],
         ContentPublished::class => [
-            ProcessWebhooks::class
+            ProcessWebhooks::class,
+            BumpPublicCache::class
         ],
         ContentUnpublished::class => [
-            ProcessWebhooks::class
+            ProcessWebhooks::class,
+            BumpPublicCache::class
         ],
         ContentRestored::class => [
-            ProcessWebhooks::class
+            ProcessWebhooks::class,
+            BumpPublicCache::class
         ],
         FormSubmitted::class => [
             ProcessWebhooks::class
