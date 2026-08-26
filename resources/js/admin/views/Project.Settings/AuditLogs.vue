@@ -256,7 +256,7 @@ export default {
                 page = 1;
             }
 
-            let url = "admin-api/audit-logs/project/" + this.$route.params.project_id + "?page=" + page;
+            let url = "audit-logs/project/" + this.$route.params.project_id + "?page=" + page;
             if (this.filterAction) {
                 url += "&action=" + encodeURIComponent(this.filterAction);
             }

@@ -158,7 +158,7 @@ export default {
     methods: {
         fetchNotifications() {
             axios
-                .get("admin-api/notifications")
+                .get("notifications")
                 .then((response) => {
                     this.notifications = response.data.data || [];
                     this.unreadCount = response.data.unread_count || 0;
@@ -169,7 +169,7 @@ export default {
         markRead(notification) {
             if (notification.read_at) return;
             axios
-                .post("admin-api/notifications/read", {
+                .post("notifications/read", {
                     ids: [notification.id],
                 })
                 .then(() => {
@@ -181,7 +181,7 @@ export default {
 
         markAllRead() {
             axios
-                .post("admin-api/notifications/read", {})
+                .post("notifications/read", {})
                 .then(() => {
                     this.notifications.forEach((n) => (n.read_at = new Date().toISOString()));
                     this.unreadCount = 0;
