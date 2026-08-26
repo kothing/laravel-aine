@@ -1,39 +1,36 @@
 <?php
 
-use App\Events\ContentPublished;
+use App\Jobs\PublishScheduledContent;
 use App\Models\Content;
 use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schedule;
 
 /**
- * Publish content whose scheduled publish time has arrived.
+ * Dispatch publish jobs for content whose scheduled publish time has arrived.
+ *
+ * Due items are fetched in chunks and each one is dispatched to the queue,
+ * so a large backlog never blocks the scheduler process for long.
  */
 Artisan::command('aine:publish_scheduled', function () {
     $now = now();
 
-    $due = Content::whereNotNull('scheduled_at')
-        ->where('scheduled_at', '<=', $now)
-        ->get();
-
     $count = 0;
 
-    foreach ($due as $content) {
-        $content->published_at = $content->scheduled_at;
-        $content->scheduled_at = null;
-        $content->save();
+    Content::query()
+        ->whereNotNull('scheduled_at')
+        ->where('scheduled_at', '<=', $now)
+        ->chunkById(100, function ($contents) use (&$count) {
+            foreach ($contents as $content) {
+                PublishScheduledContent::dispatch($content);
+                $count++;
+            }
+        });
 
-        ContentPublished::dispatch([
-            'source' => 'Schedule',
-            'content' => $content
-        ]);
-
-        $count++;
-    }
-
-    $this->info("Published {$count} scheduled content item(s).");
-})->purpose('Publish content whose scheduled publish time has arrived');
+    $this->info("Dispatched {$count} scheduled content item(s) for publishing.");
+})->purpose('Dispatch publish jobs for content whose scheduled publish time has arrived');
 
 /**
  * Run the scheduled publishing every minute.
@@ -66,11 +63,23 @@ Artisan::command('aine:create_super {name} {email} {password}', function(){
 })->describe('Create a new super admin account.');
 
 Artisan::command('aine:refresh', function() {
-    exec('rm ' . storage_path('logs/laravel*'));
-    $this->info('Logs cleared!');
+    // Logs and session files are only cleared outside production: wiping
+    // them on a live server would destroy audit trails and active sessions.
+    if (app()->isProduction()) {
+        $this->warn('Production environment detected - skipping log and session cleanup.');
+    } else {
+        foreach (File::glob(storage_path('logs/*.log')) ?: [] as $logFile) {
+            File::delete($logFile);
+        }
+        $this->info('Log files cleared!');
 
-    exec('rm ' . storage_path('framework/sessions/*'));
-    $this->info('Session files cleared!');
+        if (is_dir($sessionsPath = storage_path('framework/sessions'))) {
+            foreach (File::files($sessionsPath) as $sessionFile) {
+                File::delete($sessionFile);
+            }
+        }
+        $this->info('Session files cleared!');
+    }
 
     Artisan::call('route:clear');
     $this->info('Route cache cleared!');
@@ -83,5 +92,4 @@ Artisan::command('aine:refresh', function() {
 
     Artisan::call('view:clear');
     $this->info('Compiled views cleared!');
-
 })->describe('Clear logs, sessions, route, cache, config and view');

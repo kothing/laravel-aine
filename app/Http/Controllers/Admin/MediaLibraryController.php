@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Aine\UploadGuard;
 use App\Http\Controllers\Controller;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver as GdDriver;
@@ -123,6 +124,8 @@ class MediaLibraryController extends Controller
                 'max:'.($this->maxUploadBytes() / 1024),
             ],
         ]);
+
+        UploadGuard::rejectDangerous($request->file('file'));
 
         if($request->has('file')){
             $file = $request->file('file');

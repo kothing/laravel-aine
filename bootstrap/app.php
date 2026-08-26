@@ -54,6 +54,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->prepend(\App\Http\Middleware\RedirectIfNotInstalled::class);
         $middleware->prepend(\App\Http\Middleware\DynamicCors::class);
+        $middleware->prepend(\App\Http\Middleware\SecurityHeaders::class);
         $middleware->prepend(\Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance::class);
 
         $middleware->appendToGroup('api', [

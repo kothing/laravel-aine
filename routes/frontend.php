@@ -59,8 +59,8 @@ Route::get('storage/{path}', function (string $path) {
 Route::get('forms/preview/{form_uuid}', [FormController::class, 'showPreview']);
 Route::get('forms/{form_uuid}', [FormController::class, 'showEmbeded']);
 Route::post('forms/{form_uuid}', [FormController::class, 'getEmbeded']);
-Route::post('forms/submit/{form_uuid}', [FormController::class, 'submit']);
-Route::post('forms/{form_uuid}/upload', [FormController::class, 'upload']);
+Route::post('forms/submit/{form_uuid}', [FormController::class, 'submit'])->middleware('throttle:form-submit');
+Route::post('forms/{form_uuid}/upload', [FormController::class, 'upload'])->middleware('throttle:form-upload');
 
 Route::get('/{any}', function () {
     return view('frontend.app');

@@ -83,14 +83,71 @@ class ApiRateLimitingTest extends TestCase
     {
         $api = RateLimiter::limiter('api');
         $write = RateLimiter::limiter('api-write');
+        $search = RateLimiter::limiter('api-search');
+        $submit = RateLimiter::limiter('form-submit');
+        $upload = RateLimiter::limiter('form-upload');
 
         $this->assertIsCallable($api);
         $this->assertIsCallable($write);
+        $this->assertIsCallable($search);
+        $this->assertIsCallable($submit);
+        $this->assertIsCallable($upload);
 
         $request = Request::create('/api/probe', 'GET');
         $request->server->set('REMOTE_ADDR', '127.0.0.1');
 
         $this->assertInstanceOf(Limit::class, $api($request));
         $this->assertInstanceOf(Limit::class, $write($request));
+        $this->assertInstanceOf(Limit::class, $search($request));
+        $this->assertInstanceOf(Limit::class, $submit($request));
+        $this->assertInstanceOf(Limit::class, $upload($request));
+    }
+
+    public function test_search_limiter_allows_20_anonymous_requests_then_blocks(): void
+    {
+        // Anonymous visitors share the IP-scoped bucket (20/min).
+        $this->hitLimiter('api-search', 20);
+
+        $this->expectException(ThrottleRequestsException::class);
+        $this->hitLimiter('api-search', 1);
+    }
+
+    public function test_search_limiter_is_stricter_for_anonymous_users(): void
+    {
+        // Authenticated users get a higher limit (60/min).
+        $authenticated = function () {
+            $middleware = app(ThrottleRequests::class);
+            $next = fn () => response('ok');
+            $request = Request::create('/api/probe', 'GET');
+            $request->server->set('REMOTE_ADDR', '127.0.0.1');
+            $request->setUserResolver(fn () => (object) ['id' => 1]);
+
+            $last = null;
+            for ($i = 0; $i < 30; $i++) {
+                $last = $middleware->handle($request, $next, 'api-search');
+            }
+
+            return $last;
+        };
+
+        // 30 requests go through for an authenticated user, while 20 would
+        // already exhaust the anonymous bucket.
+        $this->assertNotNull($authenticated());
+    }
+
+    public function test_form_submit_limiter_allows_20_requests_per_10_minutes(): void
+    {
+        $this->hitLimiter('form-submit', 20);
+
+        $this->expectException(ThrottleRequestsException::class);
+        $this->hitLimiter('form-submit', 1);
+    }
+
+    public function test_form_upload_limiter_allows_30_requests_per_10_minutes(): void
+    {
+        $this->hitLimiter('form-upload', 30);
+
+        $this->expectException(ThrottleRequestsException::class);
+        $this->hitLimiter('form-upload', 1);
     }
 }

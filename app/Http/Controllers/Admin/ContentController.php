@@ -10,6 +10,7 @@ use App\Events\ContentTrashed;
 use App\Events\ContentUnpublished;
 use App\Events\ContentUpdated;
 use App\Aine\AuditLogger;
+use App\Aine\HtmlSanitizer;
 use App\Http\Controllers\Controller;
 use App\Models\Content;
 use App\Models\Collection;
@@ -455,6 +456,9 @@ class ContentController extends Controller
                 if($field_type == 'json'){
                     $val = json_encode($value);
                 }
+                if($field_type == 'richtext'){
+                    $val = HtmlSanitizer::sanitize($value);
+                }
 
                 if(isset($field_options->repeatable) && $field_options->repeatable){
                     foreach($value as $rf_item){
@@ -789,6 +793,9 @@ class ContentController extends Controller
             }
             if($field_type == 'json'){
                 $val = json_encode($value);
+            }
+            if($field_type == 'richtext'){
+                $val = HtmlSanitizer::sanitize($value);
             }
 
             if(isset($field_options->repeatable) && $field_options->repeatable){

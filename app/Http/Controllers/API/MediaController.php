@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver as GdDriver;
+use App\Aine\UploadGuard;
 use App\Models\Media;
 use App\Models\Project;
 use Illuminate\Http\Request;
@@ -167,6 +168,8 @@ class MediaController extends Controller {
                 'file' => 'required|file|mimes:jpg,jpeg,png,bmp,gif,webp,pdf,doc,docx,xls,xlsx,ppt,pptx,txt,csv,zip,rar,7z,tar,gz,mp3,wav,ogg,mp4,webm,mov,avi,json|max:'.($max_file_size / 1024),
             ]);
 
+            UploadGuard::rejectDangerous($request->file('file'));
+
             $file = $request->file('file');
 
             $file_name = $this->renameFile($file->getClientOriginalName(), $project->uuid, $file, $project->disk);
@@ -207,7 +210,7 @@ class MediaController extends Controller {
      * Rename a file
      *
      * @param string $file_name
-     * @param uuid $project_uuid
+     * @param string $project_uuid
      * @param file $file
      * @param string $disk
      * @return string $file_name

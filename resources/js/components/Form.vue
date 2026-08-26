@@ -919,6 +919,23 @@
                 </div>
             </form>
 
+            <!-- Honeypot field: hidden from humans, bots tend to fill it in -->
+            <input
+                type="text"
+                name="website"
+                v-model="honeypot"
+                class="hidden"
+                tabindex="-1"
+                autocomplete="off"
+                aria-hidden="true"
+            />
+
+            <div
+                v-if="turnstileSiteKey"
+                id="cf-turnstile"
+                class="cf-turnstile mt-5"
+            ></div>
+
             <div>
                 <ui-button
                     color="indigo-500"
@@ -977,6 +994,12 @@ export default {
 
             files: {},
             upload_max_filesize: null,
+
+            // Bot protection
+            honeypot: '',
+            turnstileSiteKey: null,
+            turnstileToken: null,
+            turnstileLoaded: false,
         };
     },
 
@@ -986,6 +1009,7 @@ export default {
                 this.form = response.data.form;
                 this.form.fields = JSON.parse(this.form.fields) || [];
                 this.upload_max_filesize = response.data.upload_max_filesize;
+                this.turnstileSiteKey = response.data.turnstile_site_key || null;
 
                 (this.form.fields || []).forEach((field) => {
                     if (field.options.repeatable) {
@@ -996,6 +1020,43 @@ export default {
                         ];
                     }
                 });
+
+                if (this.turnstileSiteKey) {
+                    this.$nextTick(() => this.loadTurnstile());
+                }
+            });
+        },
+
+        loadTurnstile() {
+            if (window.turnstile) {
+                this.renderTurnstile();
+                return;
+            }
+            if (this.turnstileLoaded) return;
+            this.turnstileLoaded = true;
+
+            const script = document.createElement("script");
+            script.src =
+                "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+            script.async = true;
+            script.defer = true;
+            script.onload = () => this.renderTurnstile();
+            document.head.appendChild(script);
+        },
+
+        renderTurnstile() {
+            if (!window.turnstile || !this.turnstileSiteKey) return;
+            const element = document.getElementById("cf-turnstile");
+            if (!element) return;
+
+            window.turnstile.render(element, {
+                sitekey: this.turnstileSiteKey,
+                callback: (token) => {
+                    this.turnstileToken = token;
+                },
+                "expired-callback": () => {
+                    this.turnstileToken = null;
+                },
             });
         },
 
@@ -1129,6 +1190,18 @@ export default {
                 return;
             }
 
+            // Require a Turnstile token when the challenge is enabled
+            if (this.turnstileSiteKey && !this.turnstileToken) {
+                this.newData.errors = {
+                    ...this.newData.errors,
+                    turnstile: [
+                        "Please complete the security check before submitting.",
+                    ],
+                };
+                this.processing = false;
+                return;
+            }
+
             // Collect uploaded file IDs
             let uploadedFiles = [];
             (this.form.fields || []).forEach((field) => {
@@ -1146,7 +1219,11 @@ export default {
             });
 
             axios
-                .post('/forms/submit/' + this.form.uuid, this.newData)
+                .post('/forms/submit/' + this.form.uuid, {
+                    ...this.newData,
+                    website: this.honeypot || '',
+                    'cf-turnstile-response': this.turnstileToken,
+                })
                 .then((response) => {
                     this.newData = {
                         data: {},

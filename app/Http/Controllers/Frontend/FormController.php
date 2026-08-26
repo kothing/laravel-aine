@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Aine\AineHelpers;
+use App\Aine\HtmlSanitizer;
+use App\Aine\UploadGuard;
 use App\Events\FormSubmitted;
 use App\Models\Collection;
 use App\Models\Content;
@@ -13,6 +15,7 @@ use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -151,6 +154,10 @@ class FormController extends Controller
 
         $data['upload_max_filesize'] = AineHelpers::getUploadMaxFileSize();
 
+        // Expose the Turnstile site key to the embed so the widget can be
+        // rendered when the feature is enabled (null disables it).
+        $data['turnstile_site_key'] = config('services.turnstile.site_key');
+
         return $data;
     }
 
@@ -173,6 +180,8 @@ class FormController extends Controller
         $request->validate([
             'file' => 'required|file|max:'.($max_file_size / 1024).'|mimes:'.$supported_mimes,
         ]);
+
+        UploadGuard::rejectDangerous($request->file('file'));
 
         if ($request->has('file')) {
             $file = $request->file('file');
@@ -237,6 +246,23 @@ class FormController extends Controller
 
     public function submit($uuid, Request $request)
     {
+        // Bot protection: the embedded form always sends an empty honeypot
+        // field. A non-empty value means an automated submission, which is
+        // silently dropped (fake success) so bots learn nothing.
+        if ($this->isHoneypotSubmission($request)) {
+            return response([], 200);
+        }
+
+        // Optional Turnstile challenge: reject with a clear error so the
+        // frontend can ask the visitor to complete the verification.
+        if (! $this->verifyTurnstile($request)) {
+            return response([
+                'errors' => [
+                    'turnstile' => ['Please complete the security check and try again.'],
+                ],
+            ], 422);
+        }
+
         $form = Form::where('uuid', $uuid)->firstOrFail();
 
         $project = Project::findOrFail($form->project_id);
@@ -480,6 +506,9 @@ class FormController extends Controller
                 if($field_type == 'json'){
                     $val = json_encode($value);
                 }
+                if($field_type == 'richtext'){
+                    $val = HtmlSanitizer::sanitize($value);
+                }
 
                 if(isset($field_options->repeatable) && $field_options->repeatable){
                     foreach($value as $rf_item){
@@ -511,6 +540,51 @@ class FormController extends Controller
         ]);
 
         return response([], 200);
+    }
+
+    /**
+     * The frontend always sends an empty "website" honeypot field with every
+     * submission. Automated scrapers tend to fill every field they see, so a
+     * non-empty value marks the request as spam.
+     */
+    private function isHoneypotSubmission(Request $request): bool
+    {
+        return $request->filled('website');
+    }
+
+    /**
+     * Verify the Cloudflare Turnstile token. Only enforced when a secret key
+     * is configured; otherwise the challenge is considered passed. Network
+     * failures fail open so a Cloudflare outage cannot block submissions.
+     */
+    private function verifyTurnstile(Request $request): bool
+    {
+        $secret = config('services.turnstile.secret_key');
+
+        if (! $secret) {
+            return true;
+        }
+
+        $token = $request->input('cf-turnstile-response');
+
+        if (! is_string($token) || $token === '') {
+            return false;
+        }
+
+        try {
+            $response = Http::asForm()->timeout(5)->post(
+                'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+                [
+                    'secret' => $secret,
+                    'response' => $token,
+                    'remoteip' => $request->ip(),
+                ]
+            );
+
+            return $response->successful() && $response->json('success') === true;
+        } catch (\Throwable) {
+            return true;
+        }
     }
 
     /**

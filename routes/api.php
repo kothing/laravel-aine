@@ -28,7 +28,7 @@ Route::middleware(['verify.domain.whitelist'])->prefix('project')->group(functio
     Route::get('/{project_identifier}/portal', [ContentController::class, 'getPortalContent']);
     Route::get('/{project_identifier}/{slug}/{slug_id}/{related_slug}', [ContentController::class, 'getProjectContentByRelation']);
     //Search must be registered before the {slug_id} routes so "search" is not captured as an id
-    Route::get('/{project_identifier}/{slug}/search', [ContentController::class, 'searchContent']);
+    Route::get('/{project_identifier}/{slug}/search', [ContentController::class, 'searchContent'])->middleware('throttle:api-search');
     Route::get('/{project_identifier}/{slug}/{slug_id}', [ContentController::class, 'getProjectContentByID']);
     Route::get('/{project_identifier}/{slug}', [ContentController::class, 'getContentList']);
     Route::get('/{project_identifier}', [ProjectsController::class, 'getProject']);
@@ -52,7 +52,7 @@ Route::middleware(['verify.domain.whitelist'])->prefix('project')->group(functio
 Route::middleware(['validate.project.access', 'auth:sanctum'])->group(function () {
     Route::get('/{uuid}/{slug}/{slug_id}/{related_slug}', [ContentController::class, 'getContentByRelationByUuid']);
     //Search must be registered before the {slug_id} routes so "search" is not captured as an id
-    Route::get('/{uuid}/{slug}/search', [ContentController::class, 'searchContentByUuid']);
+    Route::get('/{uuid}/{slug}/search', [ContentController::class, 'searchContentByUuid'])->middleware('throttle:api-search');
     Route::get('/{uuid}/{slug}/{slug_id}', [ContentController::class, 'getContentByUuid']);
     Route::get('/{uuid}/{slug}', [ContentController::class, 'getContentListByUuid']);
     Route::get('/{uuid}', [ProjectsController::class, 'getProjectByUuid']);
