@@ -38,8 +38,8 @@
                     />
                 </div>
 
-                <div class="flex mt-3">
-                    <div class="flex items-center text-center bg-white rounded-md text-sm px-2 py-2 border border-gray-200">
+                <div class="flex">
+                    <div class="flex items-center text-center bg-white rounded-md text-sm px-2 ml-1 border border-gray-200">
                         <input type="checkbox" class="flex" v-model="selectAll" @click="selectAllFiles()" />
                     </div>
                 </div>
