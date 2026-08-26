@@ -883,7 +883,8 @@ export default {
         },
 
         exportContent() {
-            const url = "content/export/" + this.$route.params.project_id + "/" + this.collection_id + "?format=json";
+            const appUrl = (document.querySelector('meta[name="APP_URL"]')?.content || "").replace(/\/+$/, "");
+            const url = appUrl + "/admin-api/content/export/" + this.$route.params.project_id + "/" + this.collection_id + "?format=json";
             window.open(url, "_blank");
         },
 

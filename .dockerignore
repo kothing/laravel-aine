@@ -1,0 +1,38 @@
+# Dependencies
+/node_modules
+/vendor
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# Build output (regenerated in the image by the frontend stage)
+/public/build
+
+# Cache & logs
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/app/*
+!/storage/app/public
+/storage/app/public/*
+/storage/installed
+/bootstrap/cache/*.php
+
+# Version control
+.git
+.gitignore
+.github
+
+# IDE / OS
+.idea
+.vscode
+*.swp
+.DS_Store
+
+# Tests / docs (kept out of the image to keep it slim)
+/tests
+/phpunit.xml
+*.md

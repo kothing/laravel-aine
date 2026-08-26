@@ -23,6 +23,12 @@
 - **Media library** — upload, list, fetch and delete media per project (local or cloud disks).
 - **Webhooks** — per-project webhook endpoints with collection targeting and request logs.
 
+### Security
+- **Rate limiting** — per-user/IP throttling on the API (`60/min`), write endpoints (`30/min`), search (`60/min` logged-in, `20/min` anonymous), public form submissions/uploads, and admin auth (password reset / 2FA).
+- **Security headers** — `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy` on every response, plus `X-Frame-Options: SAMEORIGIN` on the admin area.
+- **HTML sanitization** — rich text is whitelist-sanitized before saving (admin content & public forms), stripping scripts, event handlers, `javascript:` links and dangerous CSS.
+- **Upload guard** — media uploads are double-checked by extension + content MIME against a deny-list (`php`, `phar`, `phtml`, `asp`, `jsp`, …) on top of the MIME whitelist.
+
 ### Multilingual
 - **Content-level locales** — every content entry has a locale; query and create content per language (`en`, `zh`, …).
 - **Admin UI languages** — switch the whole admin interface between English and Chinese from the topbar.
@@ -105,6 +111,32 @@ php artisan serve
 ```
 
 Default admin (seeded): `admin@admin.com` / `admin` — **change it after the first login**.
+
+### Option C — Docker (production)
+
+A production image and compose file are included:
+
+```bash
+# 1. Environment
+cp .env.example .env
+# edit .env: APP_URL, DB_DATABASE, DB_USERNAME, DB_PASSWORD, APP_PORT
+
+# 2. Build & start
+docker compose -f docker-compose.production.yml up -d --build
+
+# 3. First-run setup: open http://localhost/install (or your APP_URL)
+#    and complete the web installer — it writes .env and storage/installed.
+```
+
+What it provides:
+
+- **Multi-stage `Dockerfile`** — `node:22` builds the Vite assets, `composer` installs production vendors, `php:8.3-fpm-alpine` runs the app (no dev dependencies, no source mount at runtime).
+- **nginx** — serves static assets (immutable cache for hashed `public/build` files) and proxies PHP to `app:9000`; SPA history-mode routing included.
+- **MySQL 8.4** — with a health check that gates the `app` service until the database is ready, plus a named volume for persistence.
+- **Persistent storage** — uploads / logs / cache live in the `aine-storage` volume; media is servable through the `storage:link` created on container start.
+- **First run** — the web installer creates `.env` and the `storage/installed` marker; once present, the container auto-caches config & routes on restart.
+
+To deploy new code: `docker compose -f docker-compose.production.yml build app` and `up -d`. For HTTPS, terminate TLS at a reverse proxy (Caddy / nginx / cloud load balancer) in front of the exposed port.
 
 ---
 

@@ -23,7 +23,7 @@
                 <i class="fas fa-globe"></i>
             </a>
 
-            <ui-dropdown align="right" width="80">
+            <ui-dropdown align="right" width="72">
                 <template #trigger>
                     <button
                         class="relative flex h-[34px] w-[34px] items-center justify-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-indigo-600 focus:outline-none"
@@ -89,7 +89,7 @@
             <ui-dropdown align="right" width="48">
                 <template #trigger>
                     <button
-                        class="flex items-center gap-1 px-2 py-1 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none"
+                        class="flex items-center px-2 py-1 rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none"
                     >
                         <span
                             class="h-8 w-8 rounded-full text-gray-500 flex items-center justify-center"

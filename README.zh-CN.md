@@ -23,6 +23,12 @@
 - **媒体库**：按项目上传、列表、获取、删除媒体（支持本地或云存储磁盘）。
 - **Webhooks**：按项目配置 Webhook 端点，可指定集合并查看请求日志。
 
+### 安全
+- **速率限制**：按用户 / IP 对 API（60 次/分钟）、写入接口（30 次/分钟）、搜索（登录 60 / 匿名 20 次/分钟）、公开表单提交/上传，以及后台认证（密码重置 / 2FA）分别限流。
+- **安全响应头**：所有响应默认携带 `X-Content-Type-Options: nosniff`、`Referrer-Policy`、`Permissions-Policy`；后台区域额外启用 `X-Frame-Options: SAMEORIGIN` 防点击劫持。
+- **富文本消毒**：富文本保存前经白名单消毒（后台内容与公开表单），移除脚本、事件属性、`javascript:` 链接与危险 CSS。
+- **上传守卫**：媒体上传在 MIME 白名单之外叠加扩展名 + 内容 MIME 双重黑名单校验（拒绝 `php`、`phar`、`phtml`、`asp`、`jsp` 等）。
+
 ### 多语言
 - **内容级语言**：每条内容都带语言标识，可按语言查询与创建内容（`en`、`zh`…）。
 - **后台界面语言**：顶栏一键切换后台界面为英文或中文。
@@ -104,6 +110,32 @@ php artisan serve
 ```
 
 默认管理员（种子数据）：`admin@admin.com` / `admin` —— **首次登录后请立即修改**。
+
+### 方式 C：Docker 部署（生产）
+
+项目内置生产镜像与编排文件：
+
+```bash
+# 1. 配置环境变量
+cp .env.example .env
+# 修改 .env：APP_URL、DB_DATABASE、DB_USERNAME、DB_PASSWORD、APP_PORT
+
+# 2. 构建并启动
+docker compose -f docker-compose.production.yml up -d --build
+
+# 3. 首次安装：浏览器打开 http://localhost/install（或你的 APP_URL）
+#    按 Web 安装向导完成安装（会生成 .env 与 storage/installed 标记）
+```
+
+特点：
+
+- **多阶段构建 `Dockerfile`**：`node:22` 构建 Vite 资源、`composer` 安装生产依赖、`php:8.3-fpm-alpine` 运行应用（无开发依赖、运行时不挂载源码）
+- **nginx**：托管静态资源（带 hash 的 `public/build` 资源长缓存），并将 PHP 请求转发至 `app:9000`；内置 SPA history 路由
+- **MySQL 8.4**：带健康检查（`app` 等待 `mysql` 就绪后才启动）与持久化数据卷
+- **数据持久化**：上传文件 / 日志 / 缓存位于 `aine-storage` 卷；容器启动时自动创建 `storage:link`，媒体文件可直接访问
+- **首次运行**：Web 安装向导生成 `.env` 与 `storage/installed` 标记；标记存在后，容器重启时自动缓存 config 与路由
+
+发布新代码：`docker compose -f docker-compose.production.yml build app` 后 `up -d`。HTTPS 请在暴露端口前的反向代理（Caddy / nginx / 云负载均衡）上终结 TLS。
 
 ---
 

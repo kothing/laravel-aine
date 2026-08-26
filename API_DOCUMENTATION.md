@@ -6,17 +6,18 @@
 
 1. [概述](#概述)
 2. [认证方式](#认证方式)
-3. [方式 1：域名白名单接口](#方式-1域名白名单接口)
-4. [方式 2：UUID + Token 接口](#方式-2uuid-token接口)
-5. [接口列表](#接口列表)
-6. [参数说明](#参数说明)
-7. [Where 条件](#where-条件)
-8. [关联条件](#关联条件)
-9. [响应格式](#响应格式)
-10. [错误响应](#错误响应)
-11. [使用示例](#使用示例)
-12. [快速开始](#快速开始)
-13. [常见问题](#常见问题)
+3. [限流与安全](#限流与安全)
+4. [方式 1：域名白名单接口](#方式-1域名白名单接口)
+5. [方式 2：UUID + Token 接口](#方式-2uuid-token接口)
+6. [接口列表](#接口列表)
+7. [参数说明](#参数说明)
+8. [Where 条件](#where-条件)
+9. [关联条件](#关联条件)
+10. [响应格式](#响应格式)
+11. [错误响应](#错误响应)
+12. [使用示例](#使用示例)
+13. [快速开始](#快速开始)
+14. [常见问题](#常见问题)
 
 ***
 
@@ -83,6 +84,45 @@ Origin: https://your-frontend.com
 
 ***
 
+## 限流与安全
+
+### 速率限制（Rate Limiting）
+
+接口按用户 / IP 维度限流，超出阈值返回 `429 Too Many Requests`：
+
+| 限流器 | 阈值 | 作用于 |
+| --- | --- | --- |
+| `api` | 60 次/分钟 | 所有 API 请求 |
+| `api-write` | 30 次/分钟 | 写入接口（创建 / 更新 / 删除 / 上传） |
+| `api-search` | 已登录 60 次/分钟、匿名 20 次/分钟 | 搜索接口（`.../search`） |
+| `form-submit` | 20 次 / 10 分钟 | 公开表单提交 |
+| `form-upload` | 30 次 / 10 分钟 | 公开表单文件上传 |
+| 认证接口 | 忘记密码 6 次/分钟、重置密码 / 2FA 5 次/分钟 | 后台登录相关 |
+
+### 安全响应头
+
+所有响应（含 API）默认携带：
+
+- `X-Content-Type-Options: nosniff`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+
+后台与 API 区域（`/admin`、`/admin-api`）额外限制 `X-Frame-Options: SAMEORIGIN`（防点击劫持）。公开站点故意不加 frame 限制，以便第三方站点通过 iframe 嵌入前台表单。
+
+### 上传安全守卫
+
+媒体上传在 MIME 白名单校验之外叠加黑名单守卫（`UploadGuard`），双保险：
+
+- 拒绝危险扩展名：`php`、`phar`、`phtml`、`php3`~`php7`、`phps`、`cmd`、`cgi`、`pl`、`py`、`rb`、`asp`、`aspx`、`jsp`、`vbs` 等
+- 拒绝危险内容类型：`text/html`、PHP / JavaScript / Shell 等可执行脚本 MIME
+- 扩展名 + 文件内容 MIME 双重校验（可拦截伪装成 `.jpg` 的 PHP 文件）
+
+### 富文本消毒
+
+富文本内容保存前经过白名单 HTML 消毒器（`HtmlSanitizer`）处理，仅保留安全标签（段落、标题、链接、图片、列表、加粗斜体等），移除脚本、`on*` 事件属性、`javascript:` 链接与危险 CSS。应用于后台内容保存与公开表单提交。
+
+***
+
 ## 方式 1：域名白名单接口
 
 ### 基础路径
@@ -130,6 +170,8 @@ Origin: https://your-frontend.com
 | 2 | GET | `/api/project/{project_identifier}/{slug}` | 获取内容列表 | `where`、`whereRelation`、`sort`、`offset`、`limit`、`count`、`first`、`state`、`timestamps`（均可选） | ✅ 白名单（+Token 若未开启 Public API） |
 | 3 | GET | `/api/project/{project_identifier}/{slug}/{slug_id}` | 获取单条内容 | `slug_id`: int、`timestamps`（可选） | ✅ 同上 |
 | 3a | GET | `/api/project/{project_identifier}/{slug}/{slug_id}/{related_slug}` | 按关联内容查询（如分类下的文章） | `slug_id`: int、`related_slug`: string、同列表查询参数 | ✅ 同上 |
+| 3b | GET | `/api/project/{project_identifier}/portal` | 获取项目门户内容（首页/精选/最新等页面骨架） | `collection`: string（可选，默认 `articles`） | ✅ 同上 |
+| 3c | GET | `/api/project/{project_identifier}/{slug}/search` | 搜索集合内容 | `query`（必填 2-100 字符）、`limit`、`offset`、`state` | ✅ 同上 |
 | 4 | POST | `/api/project/{project_identifier}/{slug}` | 创建内容 | Body: object（字段由集合定义） | ✅ 白名单 + Token（write） |
 | 5 | POST | `/api/project/{project_identifier}/{slug}/update/{slug_id}` | 更新内容 | `slug_id`: int、Body: object | ✅ 白名单 + Token（write） |
 | 6 | DELETE | `/api/project/{project_identifier}/{slug}/{slug_id}` | 删除内容 | `slug_id`: int | ✅ 白名单 + Token（write） |
@@ -141,7 +183,7 @@ Origin: https://your-frontend.com
 | 7 | GET | `/api/project/{project_identifier}/media` | 获取媒体列表 | — | ✅ 白名单（+Token 若未开启 Public API） |
 | 8 | GET | `/api/project/{project_identifier}/media/{media_id}` | 根据 ID 获取媒体 | `media_id`: int | ✅ 同上 |
 | 9 | GET | `/api/project/{project_identifier}/media/name/{media_name}` | 根据名称获取媒体 | `media_name`: string | ✅ 同上 |
-| 10 | POST | `/api/project/{project_identifier}/media/upload` | 上传媒体文件 | Form: `file`（大小受 `MAX_FILE_SIZE` 限制，默认 8M） | ✅ 白名单 + Token（write） |
+| 10 | POST | `/api/project/{project_identifier}/media/upload` | 上传媒体文件 | Form: `file`（大小受 `MAX_FILE_SIZE` 限制，默认 8M；经扩展名 + 内容 MIME 双重守卫校验） | ✅ 白名单 + Token（write） |
 | 11 | DELETE | `/api/project/{project_identifier}/media/{media_id}` | 删除媒体文件 | `media_id`: int | ✅ 白名单 + Token（write） |
 
 ### 方式 2：UUID + Token 接口
@@ -159,6 +201,7 @@ Origin: https://your-frontend.com
 | 13 | GET | `/api/{uuid}/{slug}` | 获取内容列表 | 同列表查询参数 | ✅ UUID + Token |
 | 14 | GET | `/api/{uuid}/{slug}/{slug_id}` | 获取单条内容 | `slug_id`: int、`timestamps`（可选） | ✅ UUID + Token |
 | 14a | GET | `/api/{uuid}/{slug}/{slug_id}/{related_slug}` | 按关联内容查询 | 同列表查询参数 | ✅ UUID + Token |
+| 14b | GET | `/api/{uuid}/{slug}/search` | 搜索集合内容 | `query`（必填 2-100 字符）、`limit`、`offset`、`state` | ✅ UUID + Token |
 | 15 | POST | `/api/{uuid}/{slug}` | 创建内容 | Body: object | ✅ UUID + Token（write） |
 | 16 | POST | `/api/{uuid}/{slug}/update/{slug_id}` | 更新内容 | `slug_id`: int、Body: object | ✅ UUID + Token（write） |
 | 17 | DELETE | `/api/{uuid}/{slug}/{slug_id}` | 删除内容 | `slug_id`: int | ✅ UUID + Token（write） |
@@ -178,11 +221,11 @@ Origin: https://your-frontend.com
 | 类别 | 方式 1 | 方式 2 |
 | --- | --- | --- |
 | 项目接口 | 1 | 1 |
-| 内容读取 | 3 | 3 |
+| 内容读取 | 5 | 4 |
 | 内容写入 | 3 | 3 |
 | 媒体读取 | 3 | 3 |
 | 媒体写入 | 2 | 2 |
-| **总计** | **12** | **12** |
+| **总计** | **14** | **13** |
 
 ***
 
@@ -223,6 +266,25 @@ Origin: https://your-frontend.com
 | `timestamps` | bool | 否 | false | 是否返回时间戳字段 |
 
 > **注意**：单条内容接口同样默认只返回**已发布**内容——草稿通过该接口访问会返回 404。
+
+### 查询参数（门户内容 portal）
+
+| 参数 | 类型 | 必填 | 默认值 | 说明 |
+| --- | --- | --- | --- | --- |
+| `collection` | string | 否 | `articles` | 门户骨架使用的集合 slug |
+
+> `portal` 一次返回分类（含各自置顶条目与标签）、标记/精选/最新条目、页面等多组数据，供首页、精选、最新等门户页面渲染。
+
+### 查询参数（搜索 search）
+
+| 参数 | 类型 | 必填 | 默认值 | 说明 |
+| --- | --- | --- | --- | --- |
+| `query` | string | ✅ 是 | - | 搜索关键词，长度 2~100 字符，按内容 meta 字段模糊匹配 |
+| `limit` | int | 否 | 20 | 每页数量（1~100，越界回退 20） |
+| `offset` | int | 否 | 0 | 偏移量 |
+| `state` | string | 否 | - | `only_draft` 仅搜草稿；默认只搜已发布内容 |
+
+> 搜索接口额外受 `api-search` 限流（已登录 60 次/分钟、匿名 20 次/分钟），超出返回 `429`。
 
 ### 请求体参数（创建 / 更新内容）
 
@@ -408,6 +470,7 @@ Content-Type: application/json              # POST/PUT 时
 | 403 | 无权限（Token 不属于该项目 / 权限不足 / 域名不在白名单） |
 | 404 | 资源未找到（项目 / 集合 / 内容 / 媒体不存在） |
 | 422 | 验证失败（创建/更新内容字段校验不通过、where 语句格式错误） |
+| 429 | 请求过于频繁（触发限流，见 [限流与安全](#限流与安全)） |
 
 ### 常见错误
 
@@ -421,6 +484,7 @@ Content-Type: application/json              # POST/PUT 时
 | `API token does not have the required permissions` | Token 缺少 `read` / `write` 权限 | 在后台重新创建 Token 并勾选对应权限 |
 | `Incorrect where statement` | where 参数格式错误 | 参考 [Where 条件](#where-条件) |
 | `Incorrect offset statement. Offset must be used with limit` | offset 未与 limit 搭配 | 同时传 `limit` 参数 |
+| `429 Too Many Requests` | 触发速率限制 | 降低请求频率，稍后重试（见 [限流与安全](#限流与安全)） |
 
 ***
 

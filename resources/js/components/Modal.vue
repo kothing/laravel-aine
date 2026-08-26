@@ -1,4 +1,12 @@
 <template>
+    <transition
+        enter-active-class="transition-opacity duration-200 ease-out"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition-opacity duration-150 ease-in"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+    >
     <div class="fixed z-50 inset-0 overflow-y-auto" v-show="show">
         <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center  sm:p-0">
             <div class="fixed inset-0 transition-opacity" aria-hidden="true" @click="close">
@@ -6,7 +14,7 @@
             </div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-            <div class="inline-block align-bottom bg-white rounded-md text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle w-full" :class="maxWidthClass" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
+            <div class="inline-block align-bottom bg-white rounded-md text-left overflow-hidden shadow-xl transform transition-all modal-pop-in sm:my-8 sm:align-middle w-full" :class="maxWidthClass" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
                 
                 <div v-if="!disableHeader" class="px-6 py-6 border-b border-gray-100 bg-white">
                     <h3 class="text-lg leading-6 font-medium text-gray-900">
@@ -27,6 +35,7 @@
             </div>
         </div>
     </div>
+    </transition>
 </template>
 
 <script>
@@ -104,3 +113,20 @@
         }
     }
 </script>
+
+<style scoped>
+    @keyframes modal-pop-in {
+        0% {
+            opacity: 0;
+            transform: scale(0.95) translateY(8px);
+        }
+        100% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    .modal-pop-in {
+        animation: modal-pop-in 0.2s ease-out;
+    }
+</style>
