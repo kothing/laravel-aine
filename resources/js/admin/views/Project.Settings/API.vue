@@ -87,8 +87,8 @@
                                         v-model="enable_public_access"
                                         @click.prevent="disablePublicAccess"
                                     />
-                                    <div class="block bg-gray-600 w-14 h-8 rounded-full"></div>
-                                    <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
+                                    <div class="block bg-gray-600 w-10 h-6 rounded-full"></div>
+                                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition"></div>
                                 </div>
                                 <span>{{ __('Disable Public API Access') }}</span>
                             </label>
@@ -105,8 +105,8 @@
                                         v-model="enable_public_access"
                                         @click.prevent="enablePublicAccess"
                                     />
-                                    <div class="block bg-gray-600 w-14 h-8 rounded-full"></div>
-                                    <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition"></div>
+                                    <div class="block bg-gray-600 w-10 h-6 rounded-full"></div>
+                                    <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition"></div>
                                 </div>
                                 <span>{{ __('Enable Public API Access') }}</span>
                             </label>
