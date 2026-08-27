@@ -45,6 +45,32 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Content Security Policy
+    |--------------------------------------------------------------------------
+    |
+    | Each directive accepts an array of sources. The middleware assembles
+    | them into the CSP header string. Override these values per environment
+    | or add extra CDN sources your deployment needs without patching the
+    | middleware class.
+    |
+    */
+
+    'csp' => [
+        'default-src'  => ["'self'"],
+        'script-src'   => ["'self'", "'unsafe-inline'", "'unsafe-eval'", 'https://cdn.tailwindcss.com'],
+        'style-src'    => ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        'img-src'      => ["'self'", 'data:', 'blob:', 'https:'],
+        'font-src'     => ["'self'", 'data:', 'https://fonts.gstatic.com'],
+        'frame-src'    => ["'self'", 'https:'],
+        'connect-src'  => ["'self'", 'https:'],
+        'media-src'    => ["'self'"],
+        'object-src'   => ["'none'"],
+        'base-uri'     => ["'self'"],
+        'form-action'  => ["'self'"],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |

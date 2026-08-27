@@ -45,23 +45,16 @@ class SecurityHeaders
             );
         }
 
-        // Content-Security-Policy: baseline policy that allows self-origin
-        // resources, inline styles (needed for TinyMCE + admin UI), and
-        // data: URIs (needed for TinyMCE base64 assets).
-        $response->headers->set(
-            'Content-Security-Policy',
-            "default-src 'self'; "
-            . "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
-            . "style-src 'self' 'unsafe-inline'; "
-            . "img-src 'self' data: blob: https:; "
-            . "font-src 'self' data:; "
-            . "frame-src 'self' https:; "
-            . "connect-src 'self' https:; "
-            . "media-src 'self'; "
-            . "object-src 'none'; "
-            . "base-uri 'self'; "
-            . "form-action 'self';"
-        );
+        // Content-Security-Policy: assembled from config('app.csp') so each
+        // deployment can customize allowed sources without editing middleware.
+        $csp = config('app.csp', []);
+        if ($csp) {
+            $policy = '';
+            foreach ($csp as $directive => $sources) {
+                $policy .= $directive . ' ' . implode(' ', $sources) . '; ';
+            }
+            $response->headers->set('Content-Security-Policy', rtrim($policy));
+        }
 
         if ($this->isFrameRestricted($request->path())) {
             $response->headers->set('X-Frame-Options', 'SAMEORIGIN');
