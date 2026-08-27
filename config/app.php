@@ -17,6 +17,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Application Version
+    |--------------------------------------------------------------------------
+    |
+    | Semantic version of the Aine install, surfaced via the public
+    | /settings endpoint. Read from config (not env()) so it survives
+    | `php artisan config:cache`.
+    |
+    */
+
+    'version' => env('APP_VERSION', '0.0.1'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |

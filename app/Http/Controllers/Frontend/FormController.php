@@ -466,12 +466,18 @@ class FormController extends Controller
 
         foreach ($content_data as $key => $value) {
             $val = $value;
+            $field_type = null;
+            $field_options = null;
 
             foreach ($collection->fields as $field) {
                 if($field->name == $key){
                     $field_type = $field->type;
                     $field_options = json_decode($field->options);
                 }
+            }
+
+            if ($field_type === null) {
+                continue;
             }
 
             if(!empty($value)){

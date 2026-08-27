@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Events\ContentPublished;
-use App\Events\ContentUnpublished;
 use App\Events\ContentUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Content;
@@ -80,13 +79,11 @@ class WorkflowController extends Controller
 
         $content->workflow_state = 'rejected';
         $content->reviewer_comment = $request->get('reason') ?: null;
-        $content->published_at = null;
-        $content->published_by = null;
         $content->updated_by = Auth::id();
         $content->save();
 
         $this->bumpPublicCacheVersion($content->project_id);
-        event(new ContentUnpublished(['source' => 'User', 'content' => $content->fresh()]));
+        event(new ContentUpdated(['source' => 'User', 'content' => $content->fresh()]));
 
         return response()->json(['success' => true, 'message' => 'Rejected.', 'data' => ['workflow_state' => $content->workflow_state, 'reviewer_comment' => $content->reviewer_comment]]);
     }

@@ -22,17 +22,19 @@ class Media extends Model
     ];
 
     public function getFullUrlAttribute($value) {
+        $uuid = $this->projectUuid();
         if($this->disk === 'local' || $this->disk === 'public'){
-            return asset('storage/'.$this->project->uuid.'/'.$this->name);
+            return asset('storage/'.$uuid.'/'.$this->name);
         } elseif($this->disk === 's3') {
-            return Storage::disk('s3')->url('public/'.$this->project->uuid.'/'.$this->name);
+            return Storage::disk('s3')->url('public/'.$uuid.'/'.$this->name);
         }
     }
     public function getFullUrlThumbAttribute($value) {
+        $uuid = $this->projectUuid();
         if($this->disk === 'local' || $this->disk === 'public'){
-            return asset('storage/'.$this->project->uuid.'/thumbnails/'.$this->name);
+            return asset('storage/'.$uuid.'/thumbnails/'.$this->name);
         } elseif($this->disk === 's3') {
-            return Storage::disk('s3')->url('public/'.$this->project->uuid.'/thumbnails/'.$this->name);
+            return Storage::disk('s3')->url('public/'.$uuid.'/thumbnails/'.$this->name);
         }
     }
 
@@ -40,5 +42,17 @@ class Media extends Model
 
     public function project() {
         return $this->belongsTo(Project::class);
+    }
+
+    /**
+     * Resolve the owning project's UUID for URL building.
+     */
+    private function projectUuid(): ?string
+    {
+        if ($this->relationLoaded('project')) {
+            return $this->project?->uuid;
+        }
+
+        return Project::where('id', $this->project_id)->value('uuid');
     }
 }

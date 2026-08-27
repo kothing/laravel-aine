@@ -3,6 +3,7 @@
 use App\Jobs\PublishScheduledContent;
 use App\Models\Content;
 use App\Models\User;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
@@ -58,16 +59,37 @@ Schedule::call(function () {
 |
 */
 Artisan::command('aine:create_super {name} {email} {password}', function(){
+    $email = strtolower($this->argument('email'));
+    $password = $this->argument('password');
+
+    // Email must be unique — fail clearly instead of throwing a DB
+    // unique-constraint exception, and point the user at the existing account.
+    if (User::where('email', $email)->exists()) {
+        $this->error("A user with email '{$email}' already exists.");
+        return Command::FAILURE;
+    }
+
+    // Reject empty / too-short passwords up front so the created account is
+    // not trivially guessable.
+    if (strlen($password) < 8) {
+        $this->error('Password must be at least 8 characters.');
+        return Command::FAILURE;
+    }
+
+    // Ensure the super_admin role exists (seeder normally creates it, but the
+    // command may run before seeding on a fresh install).
+    $role = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'super_admin']);
+
     $user = User::create([
         'name' => $this->argument('name'),
-        'email' => $this->argument('email'),
-        'password' => Hash::make($this->argument('password'),)
+        'email' => $email,
+        'password' => Hash::make($password),
     ]);
 
-    $user->assignRole('super_admin');
+    $user->assignRole($role);
 
     $this->info('New super admin created!');
-    
+
 })->describe('Create a new super admin account.');
 
 Artisan::command('aine:refresh', function() {

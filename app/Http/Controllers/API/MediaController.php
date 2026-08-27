@@ -152,7 +152,7 @@ class MediaController extends Controller {
 
             $php_post_max_size = $this->return_bytes(ini_get('post_max_size'));
             $php_upload_max_filesize = $this->return_bytes(ini_get('upload_max_filesize'));
-            $env_max_file_size = $this->return_bytes(env('MAX_FILE_SIZE', ));
+            $env_max_file_size = $this->return_bytes(config('uploads.max_file_size'));
 
             if($php_post_max_size < $php_upload_max_filesize){
                 $max_file_size = $php_post_max_size;

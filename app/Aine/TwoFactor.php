@@ -52,7 +52,9 @@ class TwoFactor
         $counter = (int) floor(time() / 30);
 
         for ($i = -$window; $i <= $window; $i++) {
-            if (static::codeAt($secret, $counter + $i) === $code) {
+            $expected = static::codeAt($secret, $counter + $i);
+
+            if (hash_equals($expected, $code)) {
                 return true;
             }
         }
