@@ -154,6 +154,8 @@ Route::middleware('auth:web')->prefix('admin-api')->group(function(){
         Route::get('/revisions/{project_id}/{collection_id}/{content_id}', [ContentController::class, 'revisions']);
         Route::post('/revisions/{project_id}/{collection_id}/{content_id}/{revision_id}/restore', [ContentController::class, 'restoreRevision']);
         Route::post('/unpublish/{project_id}/{collection_id}/{content_id}', [ContentController::class, 'unpublish']);
+        Route::post('/publish-draft/{project_id}/{collection_id}/{content_id}', [ContentController::class, 'publishDraft']);
+        Route::delete('/discard-draft/{project_id}/{collection_id}/{content_id}', [ContentController::class, 'discardDraft']);
         Route::delete('/move-to-trash/{project_id}/{collection_id}/{content_id}', [ContentController::class, 'moveToTrash']);
         Route::delete('/delete/{project_id}/{collection_id}/{content_id}', [ContentController::class, 'delete']);
 

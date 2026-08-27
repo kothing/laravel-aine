@@ -6,6 +6,7 @@ use App\Models\Collection;
 use App\Models\Content;
 use App\Models\ContentMeta;
 use App\Models\Project;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Shared content CRUD operations consumed by both the admin panel and
@@ -228,5 +229,123 @@ class ContentMutationService
     {
         $content->meta()->delete();
         return (bool) $content->delete();
+    }
+
+    // -----------------------------------------------------------------
+    // Draft branching
+    // -----------------------------------------------------------------
+
+    /**
+     * Clone a published content row into an independent draft branch.
+     *
+     * The original row stays live and unchanged; all subsequent edits
+     * happen on the returned draft branch.  If a draft branch already
+     * exists for this content it is returned as-is (idempotent).
+     *
+     * @param  Content $publishedContent  The main (published) row.
+     * @param  int|null $createdBy        User ID of the editor.
+     * @return Content  The draft branch.
+     */
+    public function createDraftBranch(Content $publishedContent, ?int $createdBy = null): Content
+    {
+        // Idempotent — if a draft branch already exists, return it.
+        $existing = $publishedContent->draftChild()->first();
+        if ($existing) {
+            return $existing;
+        }
+
+        return DB::transaction(function () use ($publishedContent, $createdBy) {
+            // Clone the content row.
+            $draft = Content::create([
+                'project_id'      => $publishedContent->project_id,
+                'collection_id'   => $publishedContent->collection_id,
+                'locale'          => $publishedContent->locale,
+                'draft_parent_id' => $publishedContent->id,
+                'workflow_state'  => 'draft',
+                'created_by'      => $createdBy,
+                'updated_by'      => $createdBy,
+                // published_at / published_by remain null — this is a draft.
+            ]);
+
+            // Clone all meta rows.
+            foreach ($publishedContent->meta as $meta) {
+                ContentMeta::create([
+                    'project_id'    => $meta->project_id,
+                    'collection_id' => $meta->collection_id,
+                    'content_id'    => $draft->id,
+                    'field_name'    => $meta->field_name,
+                    'value'         => $meta->value,
+                ]);
+            }
+
+            return $draft;
+        });
+    }
+
+    /**
+     * Publish a draft branch: replace the main row's meta with the draft's
+     * data, mark the main row as published, and delete the draft branch.
+     *
+     * @param  Content $draft     The draft branch.
+     * @param  int|null $publishedBy  User ID of the publisher.
+     * @return Content  The now-updated main (published) row.
+     *
+     * @throws \RuntimeException if the given content is not a draft branch.
+     */
+    public function publishDraftBranch(Content $draft, ?int $publishedBy = null): Content
+    {
+        if (! $draft->isDraftBranch()) {
+            throw new \RuntimeException('Content #' . $draft->id . ' is not a draft branch.');
+        }
+
+        return DB::transaction(function () use ($draft, $publishedBy) {
+            $main = Content::findOrFail($draft->draft_parent_id);
+
+            // Replace main row's meta with draft's meta.
+            ContentMeta::where('content_id', $main->id)->forceDelete();
+            foreach ($draft->meta as $meta) {
+                ContentMeta::create([
+                    'project_id'    => $main->project_id,
+                    'collection_id' => $main->collection_id,
+                    'content_id'    => $main->id,
+                    'field_name'    => $meta->field_name,
+                    'value'         => $meta->value,
+                ]);
+            }
+
+            // Update main row publish state.
+            $main->update([
+                'locale'         => $draft->locale,
+                'published_at'   => now(),
+                'published_by'   => $publishedBy,
+                'updated_by'     => $publishedBy,
+                'workflow_state' => 'published',
+                'scheduled_at'   => null,
+            ]);
+
+            // Remove the draft branch.
+            $draft->meta()->forceDelete();
+            $draft->forceDelete();
+
+            return $main->fresh();
+        });
+    }
+
+    /**
+     * Discard a draft branch without publishing.
+     *
+     * @param  Content $draft  The draft branch to discard.
+     * @throws \RuntimeException if the given content is not a draft branch.
+     */
+    public function discardDraftBranch(Content $draft): void
+    {
+        if (! $draft->isDraftBranch()) {
+            throw new \RuntimeException('Content #' . $draft->id . ' is not a draft branch.');
+        }
+
+        DB::transaction(function () use ($draft) {
+            $draft->meta()->forceDelete();
+            $draft->forceDelete();
+        });
     }
 }

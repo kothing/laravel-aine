@@ -206,9 +206,9 @@ class ContentController extends Controller
         $count3 = clone $content_items; $count4 = clone $content_items;
 
         $getItems = $request->get('getItems');
-        if ($getItems === 'all')       $content_items = $content_items->paginate($each);
-        elseif ($getItems === 'published') $content_items = $content_items->whereNotNull('published_at')->paginate($each);
-        elseif ($getItems === 'draft')     $content_items = $content_items->whereNull('published_at')->paginate($each);
+        if ($getItems === 'all')       $content_items = $content_items->whereNull('draft_parent_id')->paginate($each);
+        elseif ($getItems === 'published') $content_items = $content_items->whereNotNull('published_at')->whereNull('draft_parent_id')->paginate($each);
+        elseif ($getItems === 'draft')     $content_items = $content_items->whereNull('published_at')->whereNull('draft_parent_id')->paginate($each);
         elseif ($getItems === 'trashed')   $content_items = $content_items->with(['meta' => fn ($q) => $q->withTrashed()])->onlyTrashed()->paginate($each);
         else                               $content_items = $content_items->paginate($each);
 
@@ -218,16 +218,26 @@ class ContentController extends Controller
             ->unique()->values();
         $users = $userIds->isEmpty() ? collect() : User::whereIn('id', $userIds)->get()->keyBy('id');
 
+        // Preload draft-branch parent IDs so has_pending_draft is free.
+        $itemIds = collect($content_items->items())->pluck('id')->filter()->unique()->values();
+        $draftParentIds = $itemIds->isNotEmpty()
+            ? Content::whereIn('draft_parent_id', $itemIds)
+                ->whereNull('deleted_at')
+                ->pluck('draft_parent_id')
+                ->unique()
+            : collect();
+
         foreach ($content_items as $c) {
             $c->created_by   = $users->get($c->created_by);
             $c->updated_by   = $users->get($c->updated_by);
             $c->published_by = $users->get($c->published_by);
+            $c->has_pending_draft = $c->isPublished() && $draftParentIds->contains($c->id);
         }
 
         $data['content']     = $content_items;
-        $data['totalCount']  = $count1->count();
-        $data['published']   = $count2->whereNotNull('published_at')->count();
-        $data['draft']       = $count3->whereNull('published_at')->count();
+        $data['totalCount']  = $count1->whereNull('draft_parent_id')->count();
+        $data['published']   = $count2->whereNotNull('published_at')->whereNull('draft_parent_id')->count();
+        $data['draft']       = $count3->whereNull('published_at')->whereNull('draft_parent_id')->count();
         $data['trashed']     = $count4->onlyTrashed()->count();
         $data['project']     = $project;
         $data['forms']       = Form::where('project_id', $project->id)->where('collection_id', $collection_id)->count();
@@ -268,6 +278,13 @@ class ContentController extends Controller
             ->where('project_id', $project->id)
             ->where('collection_id', $collection->id)
             ->where('id', $content_id)->firstOrFail();
+
+        // If this content has a pending draft branch, transparently redirect
+        // the editor to the draft so they always work on the latest version.
+        if ($content->isPublished() && $content->hasPendingDraft()) {
+            $draft = $content->draftChild()->with('meta')->first();
+            $content = $draft;
+        }
 
         return ['project' => $project, 'collection' => $collection, 'content' => $content];
     }
@@ -342,7 +359,7 @@ class ContentController extends Controller
             ->where('collection_id', $collection->id)
             ->where('id', $content_id)->firstOrFail();
 
-        $wasPublished = $content->published_at !== null;
+        $wasPublished = $content->isPublished();
         $fields = $this->decodeFields($collection->fields);
 
         // Build & run validation.
@@ -350,10 +367,93 @@ class ContentController extends Controller
         ContentValidationService::registerCustomValidators();
         Validator::make($request->all(), $rules, $messages)->validate();
 
-        // Unique validation (exclude current content).
+        // Unique validation (exclude current content; for draft branches
+        // the unique check is against the draft's own meta, which is fine
+        // because the main row's meta is untouched until publish).
         $input = $request->get('data', []);
         if ($uniqErrors = $this->validation->validateUniqueFields($fields, $input, $collection->id, $content->id)) {
             return response($uniqErrors, 422);
+        }
+
+        // Pre-process richtext values.
+        $processedData = $this->preProcessData($input, $collection->fields);
+
+        // ─────────────────────────────────────────────────────
+        // Draft-branch flow: editing published content as draft
+        // ─────────────────────────────────────────────────────
+        $isDraftSave = ! (bool) $request->get('published');
+
+        if ($isDraftSave && $wasPublished && ! $content->isDraftBranch()) {
+            // The editor wants to save a draft of a live piece of content
+            // without unpublishing the current public version.
+            // → Clone a draft branch and apply changes there instead.
+            $draft = $content->draftChild()->first();
+            if (! $draft) {
+                $draft = $this->mutations->createDraftBranch($content, Auth::id());
+            }
+
+            $this->mutations->update(
+                $draft, $collection, $processedData,
+                $request->get('locale'),
+                published: false,
+                updatedBy: Auth::id(),
+                scheduledAtRaw: $request->has('scheduled_at') ? $request->get('scheduled_at') : null,
+                deletedMetaIds: $request->get('deleted', [])
+            );
+
+            $this->createRevision($draft, 'Draft updated');
+
+            AuditLogger::log('update', 'content', $draft->id,
+                'Draft branch #' . $draft->id . ' (of #' . $content_id . ')',
+                ['collection_id' => $collection->id, 'draft_parent_id' => $content_id],
+                $project->id);
+
+            ContentUpdated::dispatch(['source' => 'User', 'content' => $draft]);
+
+            return response($draft, 200);
+        }
+
+        // ─────────────────────────────────────────────────────
+        // Normal flow (direct publish, or editing an existing
+        // draft that was never published, or editing a draft
+        // branch that was already created).
+        // ─────────────────────────────────────────────────────
+
+        // If this IS a draft branch and the editor is trying to publish
+        // directly via the update endpoint, redirect to the merge flow
+        // instead of independently publishing the branch.
+        if ($content->isDraftBranch() && $request->get('published')) {
+            // Workflow gate.
+            if ($project->workflow_enabled) {
+                return $this->workflowPublishBlocked();
+            }
+
+            $draftId = $content->id;
+
+            $this->mutations->update(
+                $content, $collection, $processedData,
+                $request->get('locale'),
+                published: false,
+                updatedBy: Auth::id(),
+                scheduledAtRaw: $request->has('scheduled_at') ? $request->get('scheduled_at') : null,
+                deletedMetaIds: $request->get('deleted', [])
+            );
+
+            $main = $this->mutations->publishDraftBranch($content, Auth::id());
+            $this->createRevision($main, 'Published from draft branch');
+            ContentPublished::dispatch(['source' => 'User', 'content' => $main]);
+
+            AuditLogger::log('publish_draft', 'content', $main->id, 'Content #' . $main->id, [
+                'collection_id'  => $collection->id,
+                'draft_branch_id' => $draftId,
+            ], $project->id);
+
+            $this->notifyProjectAdmins($project->id, [
+                'action' => 'publish', 'entity_label' => 'Content #' . $main->id,
+                'collection_id' => $collection_id, 'content_id' => $main->id,
+            ]);
+
+            return response($main, 200);
         }
 
         // Workflow gate.
@@ -362,13 +462,9 @@ class ContentController extends Controller
         }
 
         // Publish event.
-        if ($content->published_at === null && $request->get('published')) {
+        if (! $wasPublished && $request->get('published')) {
             ContentPublished::dispatch(['source' => 'User', 'content' => $content]);
         }
-
-        // Pre-process richtext values (password hashing is handled by the mutation service;
-        // scheduled_at resolution is handled entirely by the mutation service).
-        $processedData = $this->preProcessData($input, $collection->fields);
 
         $this->mutations->update(
             $content, $collection, $processedData,
@@ -380,7 +476,7 @@ class ContentController extends Controller
         );
 
         $action = $request->get('published') ? 'publish' : 'update';
-        if (! $request->get('published') && $content->published_at === null && $wasPublished) {
+        if ($isDraftSave && $wasPublished) {
             $action = 'unpublish';
             ContentUnpublished::dispatch(['source' => 'User', 'content' => $content]);
         }
@@ -672,6 +768,79 @@ class ContentController extends Controller
     // Single-record actions (unpublish / trash / delete)
     // =================================================================
 
+    /**
+     * Publish a draft branch, merging its data back into the main row.
+     */
+    public function publishDraft($project_id, $collection_id, $content_id)
+    {
+        $project = Project::findOrFail($project_id);
+        $this->authorizeEditor($project);
+
+        $draft = Content::where('project_id', $project->id)
+            ->where('collection_id', $collection_id)
+            ->where('id', $content_id)->firstOrFail();
+
+        if (! $draft->isDraftBranch()) {
+            return response()->json([
+                'success' => false, 'code' => 422,
+                'message' => 'This content is not a draft branch.',
+            ], 422);
+        }
+
+        // Workflow gate.
+        if ($project->workflow_enabled) {
+            return $this->workflowPublishBlocked();
+        }
+
+        $main = $this->mutations->publishDraftBranch($draft, Auth::id());
+
+        $this->createRevision($main, 'Published from draft branch');
+        ContentPublished::dispatch(['source' => 'User', 'content' => $main]);
+
+        AuditLogger::log('publish_draft', 'content', $main->id, 'Content #' . $main->id, [
+            'collection_id'  => $collection_id,
+            'draft_branch_id' => $draft->id,
+        ], $project->id);
+
+        $this->notifyProjectAdmins($project->id, [
+            'action' => 'publish', 'entity_label' => 'Content #' . $main->id,
+            'collection_id' => $collection_id, 'content_id' => $main->id,
+        ]);
+
+        return response($main, 200);
+    }
+
+    /**
+     * Discard a draft branch without publishing.
+     */
+    public function discardDraft($project_id, $collection_id, $content_id)
+    {
+        $project = Project::findOrFail($project_id);
+        $this->authorizeEditor($project);
+
+        $draft = Content::where('project_id', $project->id)
+            ->where('collection_id', $collection_id)
+            ->where('id', $content_id)->firstOrFail();
+
+        if (! $draft->isDraftBranch()) {
+            return response()->json([
+                'success' => false, 'code' => 422,
+                'message' => 'This content is not a draft branch.',
+            ], 422);
+        }
+
+        $mainId = $draft->draft_parent_id;
+        $draftId = $draft->id;
+        $this->mutations->discardDraftBranch($draft);
+
+        AuditLogger::log('discard_draft', 'content', $mainId, 'Content #' . $mainId, [
+            'collection_id'   => $collection_id,
+            'discarded_draft' => $draftId,
+        ], $project->id);
+
+        return response()->json(['success' => true, 'message' => 'Draft discarded.'], 200);
+    }
+
     public function unpublish($project_id, $collection_id, $content_id)
     {
         $project = Project::findOrFail($project_id);
@@ -704,6 +873,18 @@ class ContentController extends Controller
         $content = Content::where('project_id', $project->id)
             ->where('collection_id', $collection_id)->where('id', $content_id)->firstOrFail();
 
+        // If trashing a draft branch, also clean up the parent's pending-draft state.
+        // If trashing a main row, also remove any pending draft branch.
+        if ($content->isDraftBranch()) {
+            // No cascade needed — the parent just loses the pending draft indicator.
+        } else {
+            // Clean up any draft branch that belongs to this main row.
+            if ($draft = $content->draftChild()->first()) {
+                $draft->meta()->forceDelete();
+                $draft->forceDelete();
+            }
+        }
+
         $content->meta()->delete();
 
         if ($content->delete()) {
@@ -727,6 +908,12 @@ class ContentController extends Controller
 
         $content = Content::withTrashed()->where('project_id', $project->id)
             ->where('collection_id', $collection_id)->where('id', $content_id)->firstOrFail();
+
+        // Clean up any orphaned draft branch.
+        if (! $content->isDraftBranch() && $draft = $content->draftChild()->withTrashed()->first()) {
+            $draft->meta()->forceDelete();
+            $draft->forceDelete();
+        }
 
         $content->meta()->forceDelete();
 
@@ -784,7 +971,9 @@ class ContentController extends Controller
 
         foreach ($request->get('selected') as $id) {
             $content = Content::where('project_id', $project->id)
-                ->where('collection_id', $collection_id)->where('id', $id)->first();
+                ->where('collection_id', $collection_id)
+                ->whereNull('draft_parent_id')
+                ->where('id', $id)->first();
             if (! $content || $content->published_at !== null) continue;
 
             $content->published_at = now();

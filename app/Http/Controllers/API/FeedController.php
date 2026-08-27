@@ -58,6 +58,7 @@ class FeedController extends Controller
         $contents = Content::with('collection:id,slug')
             ->where('project_id', $project->id)
             ->whereNotNull('published_at')
+            ->whereNull('draft_parent_id')
             ->when($request->get('collection'), function ($q) use ($project, $request) {
                 $collection = Collection::where('project_id', $project->id)->where('slug', $request->get('collection'))->first();
                 return $collection ? $q->where('collection_id', $collection->id) : $q->whereRaw('1 = 0');
@@ -111,6 +112,7 @@ class FeedController extends Controller
         $contents = Content::with('collection:id,slug')
             ->where('project_id', $project->id)
             ->whereNotNull('published_at')
+            ->whereNull('draft_parent_id')
             ->orderByDesc('updated_at')
             ->limit(self::MAX_ITEMS)
             ->get(self::$contentColumns);

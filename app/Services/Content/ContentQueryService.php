@@ -127,10 +127,12 @@ class ContentQueryService
         if ($state === 'only_draft') {
             $contentIds = Content::whereIn('id', $contentIds)
                 ->whereNull('published_at')
+                ->whereNull('draft_parent_id')
                 ->pluck('id');
         } else {
             $contentIds = Content::whereIn('id', $contentIds)
                 ->whereNotNull('published_at')
+                ->whereNull('draft_parent_id')
                 ->pluck('id');
         }
 

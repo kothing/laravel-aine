@@ -255,6 +255,7 @@ class ContentSerializer
             ->where('project_id', $projectId)
             ->where('collection_id', $collectionId)
             ->whereNotNull('published_at')
+            ->whereNull('draft_parent_id')
             ->whereIn('id', $missing)
             ->select(['id', 'project_id', 'collection_id', 'locale', 'created_at', 'updated_at', 'published_at'])
             ->get();
@@ -321,6 +322,7 @@ class ContentSerializer
             self::$relationMap[$key] = Content::with(['meta', 'collection.fields'])
                 ->where('project_id', $projectId)
                 ->whereNotNull('published_at')
+                ->whereNull('draft_parent_id')
                 ->where('id', $contentId)
                 ->select(['id', 'project_id', 'collection_id', 'locale', 'created_at', 'updated_at', 'published_at'])
                 ->first();

@@ -115,6 +115,7 @@ class ContentController extends Controller
             ->where('project_id', $project->id)
             ->where('collection_id', $collection->id)
             ->whereNotNull('published_at')
+            ->whereNull('draft_parent_id')
             ->select($selectFields)->find($slug_id);
 
         if (! $content) return $this->notFound('Not found');
@@ -175,7 +176,8 @@ class ContentController extends Controller
         }
 
         $content = Content::query()->with(['meta', 'collection.fields'])
-            ->where('project_id', $project->id)->where('collection_id', $relatedCollection->id);
+            ->where('project_id', $project->id)->where('collection_id', $relatedCollection->id)
+            ->whereNull('draft_parent_id');
 
         $metaThroughRelation = ContentMeta::where('project_id', $project->id)
             ->where('collection_id', $relatedCollection->id)
@@ -528,7 +530,8 @@ class ContentController extends Controller
         if (! $collection) return $this->notFound('Collection not found');
 
         $content = Content::query()->with(['meta', 'collection.fields'])
-            ->where('project_id', $project->id)->where('collection_id', $collection->id);
+            ->where('project_id', $project->id)->where('collection_id', $collection->id)
+            ->whereNull('draft_parent_id');
 
         // --- where clause ---
         if ($request->has('where')) {

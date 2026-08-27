@@ -7,6 +7,7 @@ use App\Events\ContentUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Content;
 use App\Models\Project;
+use App\Services\Content\ContentMutationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -14,6 +15,12 @@ use Spatie\Permission\Exceptions\UnauthorizedException;
 
 class WorkflowController extends Controller
 {
+    protected ContentMutationService $mutations;
+
+    public function __construct()
+    {
+        $this->mutations = new ContentMutationService(new \App\Services\Content\ContentValidationService());
+    }
     public function submitReview(int $project_id, int $collection_id, int $content_id)
     {
         $project = Project::findOrFail($project_id);
@@ -51,16 +58,23 @@ class WorkflowController extends Controller
             return response()->json(['success' => false, 'code' => 422, 'message' => 'Only content currently under review can be approved.', 'data' => null], 422);
         }
 
-        $content->workflow_state = 'published';
-        $content->published_at = now();
-        $content->published_by = Auth::id();
-        $content->updated_by = Auth::id();
-        $content->save();
+        // If this is a draft branch, merge it back into the main row.
+        if ($content->isDraftBranch()) {
+            $main = $this->mutations->publishDraftBranch($content, Auth::id());
+            $publishedContent = $main;
+        } else {
+            $content->workflow_state = 'published';
+            $content->published_at = now();
+            $content->published_by = Auth::id();
+            $content->updated_by = Auth::id();
+            $content->save();
+            $publishedContent = $content->fresh();
+        }
 
-        $this->bumpPublicCacheVersion($content->project_id);
-        event(new ContentPublished(['source' => 'User', 'content' => $content->fresh()]));
+        $this->bumpPublicCacheVersion($publishedContent->project_id);
+        event(new ContentPublished(['source' => 'User', 'content' => $publishedContent]));
 
-        return response()->json(['success' => true, 'message' => 'Approved and published.', 'data' => ['workflow_state' => $content->workflow_state]]);
+        return response()->json(['success' => true, 'message' => 'Approved and published.', 'data' => ['workflow_state' => 'published']]);
     }
 
     public function reject(Request $request, int $project_id, int $collection_id, int $content_id)

@@ -23,6 +23,7 @@ Artisan::command('aine:publish_scheduled', function () {
     Content::query()
         ->whereNotNull('scheduled_at')
         ->where('scheduled_at', '<=', $now)
+        ->whereNull('draft_parent_id')
         ->chunkById(100, function ($contents) use (&$count) {
             foreach ($contents as $content) {
                 PublishScheduledContent::dispatch($content);
