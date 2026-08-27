@@ -1099,6 +1099,12 @@ export default {
                     icon: "fas fa-code",
                     bg: "bg-red-700",
                 },
+                block: {
+                    label: "Block",
+                    desc: "Repeatable block of sub-fields",
+                    icon: "fas fa-th-large",
+                    bg: "bg-teal-600",
+                },
             },
         };
     },
