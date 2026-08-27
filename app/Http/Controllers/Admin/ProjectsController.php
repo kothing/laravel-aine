@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Aine\AuditLogger;
 use App\Aine\ProjectTemplates;
 use App\Http\Controllers\Controller;
 use App\Models\Collection;
@@ -125,6 +126,8 @@ class ProjectsController extends Controller
             ProjectTemplates::apply($project, $template);
         }
 
+        AuditLogger::log('create', 'project', $project->id, $project->name, null, $project->id);
+
         return response($project, 200);
     }
 
@@ -193,6 +196,8 @@ class ProjectsController extends Controller
             'status' => $request->get('status', $project->status),
         ]);
 
+        AuditLogger::log('update', 'project', $project->id, $project->name, null, $project->id);
+
         return response($project, 200);
     }
 
@@ -214,6 +219,8 @@ class ProjectsController extends Controller
 
         $project->status = ! $project->isActive();
         $project->save();
+
+        AuditLogger::log('toggle_status', 'project', $project->id, $project->name, null, $project->id);
 
         return response($project, 200);
     }
@@ -255,6 +262,7 @@ class ProjectsController extends Controller
         $editor_role = Role::where('name', 'editor'.$id)->delete();
 
         if($project->delete()){
+            AuditLogger::log('delete', 'project', $id, $project->name ?? null);
             return response([], 200);
         } else {
             return response([], 404);

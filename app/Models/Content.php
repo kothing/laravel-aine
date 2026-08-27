@@ -11,12 +11,13 @@ class Content extends Model
 
     protected $table = "content";
 
-    protected $fillable = ['project_id', 'collection_id', 'locale', 'form_id', 'created_by', 'updated_by', 'published_at', 'published_by', 'scheduled_at'];
+    protected $fillable = ['project_id', 'collection_id', 'locale', 'form_id', 'created_by', 'updated_by', 'published_at', 'published_by', 'scheduled_at', 'preview_token', 'preview_expires_at', 'workflow_state', 'reviewer_comment'];
 
     protected $casts = [
         'project_id' => 'integer',
         'collection_id' => 'integer',
         'form_id' => 'integer',
+        'preview_expires_at' => 'datetime',
         // NOTE: created_by/updated_by/published_by are intentionally NOT
         // cast — ContentController@index temporarily replaces them with
         // User objects before serialization.

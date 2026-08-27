@@ -13,7 +13,7 @@ class Project extends Model
 
     protected $table = "projects";
 
-    protected $fillable = ['name', 'slug', 'description', 'default_locale', 'locales', 'disk', 'public_api', 'domain_whitelist', 'status'];
+    protected $fillable = ['name', 'slug', 'description', 'default_locale', 'locales', 'disk', 'public_api', 'domain_whitelist', 'status', 'workflow_enabled'];
 
     protected $hidden = ['deleted_at'];
 
@@ -21,6 +21,7 @@ class Project extends Model
         'public_api' => 'boolean',
         'domain_whitelist' => 'array',
         'status' => 'boolean',
+        'workflow_enabled' => 'boolean',
     ];
 
     protected static function boot(){

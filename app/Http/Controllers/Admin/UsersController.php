@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Aine\AuditLogger;
 
 class UsersController extends Controller
 {
@@ -26,6 +27,7 @@ class UsersController extends Controller
         $user = Auth::user();
         $user->name = $request->name;
         $user->save();
+        AuditLogger::log('update', 'user', $user->id, $user->email, ['field' => 'name']);
         return response()->json(['success' => true]);
     }
 
@@ -51,6 +53,7 @@ class UsersController extends Controller
 
         $user->email = $request->email;
         $user->save();
+        AuditLogger::log('update', 'user', $user->id, $user->email, ['field' => 'email']);
         return response()->json(['success' => true]);
     }
 
@@ -76,6 +79,7 @@ class UsersController extends Controller
 
         $user->password = Hash::make($request->password);
         $user->save();
+        AuditLogger::log('update', 'user', $user->id, $user->email, ['field' => 'password']);
         return response()->json(['success' => true]);
     }
 
@@ -122,6 +126,9 @@ class UsersController extends Controller
         }
 
         $user->save();
+        AuditLogger::log('update', 'user', $user->id, $user->email, [
+            'fields' => array_keys(array_filter($request->only(['name', 'email', 'password']))),
+        ]);
         return response()->json(['success' => true]);
     }
 }

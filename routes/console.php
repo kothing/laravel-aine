@@ -34,6 +34,14 @@ Artisan::command('aine:publish_scheduled', function () {
 
 /**
  * Run the scheduled publishing every minute.
+ *
+ * ⚠️  PRODUCTION CRON REQUIRED — this schedule will NOT run on its own.
+ * Add the following crontab entry on every production server, otherwise
+ * content whose `scheduled_at` has passed will never be published:
+ *
+ *   * * * * * cd /path-to-project && php artisan schedule:run >> /dev/null 2>&1
+ *
+ * See README.md "Production deployment → Task scheduler" for full setup.
  */
 Schedule::call(function () {
     Artisan::call('aine:publish_scheduled');

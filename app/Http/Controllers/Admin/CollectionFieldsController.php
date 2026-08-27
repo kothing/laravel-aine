@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\Collection;
+use App\Aine\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\CollectionField;
@@ -99,6 +100,8 @@ class CollectionFieldsController extends Controller
         $field->order = $field->id;
         $field->save();
 
+        AuditLogger::log('create', 'field', $field->id, $field->label, ['collection_id' => $collection->id], $project->id);
+
         return response($field, 200);
     }
 
@@ -188,6 +191,8 @@ class CollectionFieldsController extends Controller
             'validations' => json_encode($validations),
         ]);
 
+        AuditLogger::log('update', 'field', $field->id, $field->label, ['collection_id' => $collection->id], $project->id);
+
         return response($field, 200);
     }
 
@@ -240,6 +245,7 @@ class CollectionFieldsController extends Controller
         $field = CollectionField::where('project_id', $project->id)->where('collection_id', $collection->id)->where('id', $field_id)->firstOrFail();
 
         if($field->delete()){
+            AuditLogger::log('delete', 'field', $field_id, $field->label ?? null, ['collection_id' => $collection->id], $project->id);
             return response([], 200);
         } else {
             return response([], 404);

@@ -7,6 +7,7 @@ use App\Models\Content;
 use App\Models\Project;
 use App\Models\Collection;
 use App\Models\CollectionField;
+use App\Aine\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -65,6 +66,8 @@ class CollectionsController extends Controller
 
         $collection->order = $collection->id;
         $collection->save();
+
+        AuditLogger::log('create', 'collection', $collection->id, $collection->name, null, $project->id);
 
         return response($collection, 200);
     }
@@ -156,6 +159,8 @@ class CollectionsController extends Controller
             'name' => $request->get('name'),
             'slug' => $request->get('slug'),
         ]);
+
+        AuditLogger::log('update', 'collection', $collection->id, $collection->name, null, $project->id);
 
         return response($collection, 200);
     }
@@ -316,6 +321,7 @@ class CollectionsController extends Controller
         $collection->meta()->forceDelete();
 
         if($collection->delete()){
+            AuditLogger::log('delete', 'collection', $collection_id, $collection->name ?? null, null, $project->id);
             return response([], 200);
         } else {
             return response([], 404);

@@ -139,6 +139,68 @@ docker compose -f docker-compose.production.yml up -d --build
 
 ---
 
+## ⚙️ 生产部署配置
+
+单机开发用 `sqlite + file 缓存 + sync 队列` 即可开箱即跑。**生产环境**请按下文调整，否则定时发布、Webhook、多实例缓存会出现隐患。
+
+### 队列（关键）
+
+内容的创建/更新/发布会触发 Webhook，经 Laravel 队列**异步**发送（Spatie Webhook Server，默认使用 `QUEUE_CONNECTION` 指定的连接）。默认值 `sync` 会在**写入请求内**同步发起 HTTP 调用并等待远端响应——远端慢或超时会让“创建/更新/发布内容”的接口卡住。生产必须改为 `database` 或 `redis`，并跑常驻 worker：
+
+```bash
+# .env
+QUEUE_CONNECTION=database     # 多实例推荐 redis
+
+# 常驻队列 worker（务必用 supervisor / systemd 守护）
+php artisan queue:work --tries=3 --backoff=10 --max-time=3600
+```
+
+supervisor 示例（`/etc/supervisor/conf.d/aine-worker.conf`）：
+
+```ini
+[program:aine-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php /path/to/aine/artisan queue:work --tries=3 --backoff=10
+autostart=true
+autorestart=true
+numprocs=2
+redirect_stderr=true
+stdout_logfile=/path/to/aine/storage/logs/worker.log
+stopwaitsecs=3600
+```
+
+### 任务调度（关键）
+
+`aine:publish_scheduled`（定时发布）依赖 Laravel 的任务调度，需在服务器 crontab 配置每分钟执行：
+
+```bash
+* * * * * cd /path/to/aine && php artisan schedule:run >> /dev/null 2>&1
+```
+
+未配置以上 cron 会导致"`scheduled_at` 已到时但内容始终不发布"的隐患。代码或配置更新后，平滑重启 worker 让其重新加载：
+
+```bash
+php artisan queue:restart
+```
+
+> 高吞吐或需要观测时可选 [Laravel Horizon](https://laravel.com/docs/horizon)（`redis` 队列 + 看板）。
+
+### 缓存与会话
+
+- 单机可继续用 `file`。
+- 多实例部署**必须**改 `redis`：内容 API 带有"按项目缓存版本号"，每次写入即失效；`file` 缓存的失效只在当前实例生效，其他实例会继续返回旧数据。
+
+```
+CACHE_DRIVER=redis
+SESSION_DRIVER=redis
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+REDIS_CLIENT=predis
+```
+
+---
+
 ## 🏁 快速开始
 
 1. 登录 `/admin`。

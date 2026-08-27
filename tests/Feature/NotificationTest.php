@@ -11,6 +11,7 @@ use App\Models\Project;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -27,6 +28,8 @@ class NotificationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        Cache::flush();
 
         $this->user = User::create(['name' => 'Admin', 'email' => 'admin@notify.test', 'password' => bcrypt('password')]);
         $role = Role::firstOrCreate(['name' => 'super_admin']);
@@ -174,5 +177,23 @@ class NotificationTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertSame(0, $this->user->unreadNotifications()->count());
+    }
+
+    public function test_consecutive_publish_notifications_are_throttled(): void
+    {
+        $content1 = $this->createContent('First');
+        $content2 = $this->createContent('Second');
+
+        $this->controller()->publishSelected($this->project->id, $this->collectionId(), Request::create('/x', 'POST', [
+            'selected' => [$content1->id],
+        ]));
+
+        // Second publish within 30s — should be skipped by the throttle.
+        $this->controller()->publishSelected($this->project->id, $this->collectionId(), Request::create('/x', 'POST', [
+            'selected' => [$content2->id],
+        ]));
+
+        $this->user->refresh();
+        $this->assertCount(1, $this->user->notifications);
     }
 }

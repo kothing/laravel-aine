@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Aine\AuditLogger;
 use App\Aine\UploadGuard;
 use App\Http\Controllers\Controller;
 use Intervention\Image\ImageManager;
@@ -158,6 +159,8 @@ class MediaLibraryController extends Controller
                 'disk' => $project->disk,
             ]);
 
+            AuditLogger::log('upload', 'media', $new_file->id, $new_file->name, null, $project->id);
+
             return response($new_file, 200);
         }
     }
@@ -236,6 +239,8 @@ class MediaLibraryController extends Controller
 
         $file->delete();
 
+        AuditLogger::log('delete', 'media', $file_id, $file->name ?? null, null, $project->id);
+
         return response([], 200);
     }
 
@@ -274,6 +279,8 @@ class MediaLibraryController extends Controller
                 $file->delete();
             }
         }
+
+        AuditLogger::log('delete_selected', 'media', null, null, ['count' => count($request->get('files') ?? [])], $project->id);
     }
 
     /**
@@ -305,6 +312,8 @@ class MediaLibraryController extends Controller
             $media->caption = $request->get('caption');
             $media->save();
 
+            AuditLogger::log('update', 'media', $media->id, $media->name, null, $project->id);
+
             return response($media, 200);
         } else {
             $old_path = $storagePath.'/'.$media->name;
@@ -333,6 +342,8 @@ class MediaLibraryController extends Controller
             $media->name = $file_name;
             $media->caption = $request->get('caption');
             $media->save();
+
+            AuditLogger::log('update', 'media', $media->id, $media->name, null, $project->id);
 
             return response($media, 200);
         }

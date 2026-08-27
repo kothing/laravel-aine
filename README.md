@@ -140,6 +140,68 @@ To deploy new code: `docker compose -f docker-compose.production.yml build app` 
 
 ---
 
+## ⚙️ Production deployment
+
+A single dev machine is fine with `sqlite + file cache + sync queue` out of the box. For **production** follow the points below — otherwise scheduled publishing, webhooks, and multi-instance caches will bite you.
+
+### Queue (critical)
+
+Creating / updating / publishing content fires webhooks that are sent **asynchronously** through the Laravel queue (Spatie Webhook Server, on the connection named by `QUEUE_CONNECTION`). The default `sync` runs that outbound HTTP call **inside the write request** and blocks until the remote endpoint responds — a slow or timing-out endpoint stalls the create/update/publish API itself. Production must use `database` or `redis` and run a persistent worker:
+
+```bash
+# .env
+QUEUE_CONNECTION=database     # redis recommended for multi-instance
+
+# Persistent queue worker (run under supervisor / systemd)
+php artisan queue:work --tries=3 --backoff=10 --max-time=3600
+```
+
+supervisor example (`/etc/supervisor/conf.d/aine-worker.conf`):
+
+```ini
+[program:aine-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php /path/to/aine/artisan queue:work --tries=3 --backoff=10
+autostart=true
+autorestart=true
+numprocs=2
+redirect_stderr=true
+stdout_logfile=/path/to/aine/storage/logs/worker.log
+stopwaitsecs=3600
+```
+
+### Task scheduler (critical)
+
+`aine:publish_scheduled` (scheduled publishing) relies on Laravel's task scheduler — add a per-minute cron entry on the server:
+
+```bash
+* * * * * cd /path/to/aine && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Without this cron, content whose `scheduled_at` has passed **will never be published**. After code or config changes, gracefully restart workers so they reload:
+
+```bash
+php artisan queue:restart
+```
+
+> For high throughput or observability, optionally use [Laravel Horizon](https://laravel.com/docs/horizon) (`redis` queue + dashboard).
+
+### Cache & session
+
+- A single server can keep `file`.
+- Multi-instance (load-balanced) deployments **must** switch to `redis`: the content API keeps a per-project cache version that is bumped on every write; with `file` cache the invalidation only hits the local instance, so other instances keep returning stale content.
+
+```
+CACHE_DRIVER=redis
+SESSION_DRIVER=redis
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+REDIS_CLIENT=predis
+```
+
+---
+
 ## 🏁 Quick Start
 
 1. **Sign in** to `/admin`.
