@@ -3,7 +3,6 @@
 namespace App\Listeners;
 
 use Aine\Installer\Events\InstallerFinished;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -35,7 +34,7 @@ class CreateStorageLink
         }
 
         // A dangling symlink (is_link but file_exists fails) would make the
-        // storage:link command report "already exists"; drop it first.
+        // symlink() call report "already exists"; drop it first.
         if (is_link($link) && ! file_exists($link)) {
             @unlink($link);
         }
@@ -45,14 +44,27 @@ class CreateStorageLink
             return;
         }
 
+        // Try direct symlink() first — avoids the `exec()` requirement that
+        // Artisan::call('storage:link') brings, which breaks on hosts that
+        // disable exec() via php.ini.
         try {
-            $exitCode = Artisan::call('storage:link');
+            if (@symlink($target, $link)) {
+                return; // Success — nothing more to do.
+            }
+        } catch (\Throwable $e) {
+            Log::warning('symlink() failed during install: '.$e->getMessage());
+        }
+
+        // Fallback: try the Artisan command as a last resort (needs exec()).
+        try {
+            $exitCode = \Illuminate\Support\Facades\Artisan::call('storage:link');
             if ($exitCode !== 0) {
                 Log::warning('storage:link returned exit code '.$exitCode.' during install.');
             }
         } catch (\Throwable $e) {
-            // Best effort only: some hosts disable symlink(). Media still
-            // works through the storage/{path} route, so never fail install.
+            // Best effort only: some hosts disable both symlink() and exec().
+            // Media still works through the storage/{path} route, so never
+            // fail the install for this.
             Log::warning('storage:link failed during install: '.$e->getMessage());
         }
     }
