@@ -969,6 +969,11 @@ class ContentController extends Controller
         $project = Project::findOrFail($project_id);
         $this->authorizeEditor($project);
 
+        // Workflow gate — publishing is gated when workflow is enabled.
+        if ($project->workflow_enabled) {
+            return $this->workflowPublishBlocked();
+        }
+
         foreach ($request->get('selected') as $id) {
             $content = Content::where('project_id', $project->id)
                 ->where('collection_id', $collection_id)

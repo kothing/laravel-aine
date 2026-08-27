@@ -134,7 +134,7 @@ class FormController extends Controller
 
         $embed_url = config('app.url').'/forms/'.$uuid;
 
-        return view('forms.preview', compact(['form', 'embed_url']));
+        return view('frontend.forms.preview', compact(['form', 'embed_url']));
     }
 
     public function showEmbeded($uuid, Request $request)
@@ -144,7 +144,7 @@ class FormController extends Controller
         $form = Form::where('uuid', $uuid)->firstOrFail();
         $this->abortIfFormProjectInactive($form);
 
-        return view('forms.embeded', compact(['form']));
+        return view('frontend.forms.embeded', compact(['form']));
     }
 
     public function getEmbeded($uuid)
@@ -480,7 +480,7 @@ class FormController extends Controller
                 continue;
             }
 
-            if(!empty($value)){
+            if(!empty($value) || $value === '0' || $value === 0){
                 if($field_type == 'password'){
                     $val = Hash::make($value);
                 }

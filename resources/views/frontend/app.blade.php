@@ -3,9 +3,9 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-        <meta name="APP_URL" content="{{ env('APP_URL') }}">
-        <meta name="cms-project-identifier" content="{{ env('FRONTEND_CMS_PROJECT', 'cms') }}">
-        <meta name="directory-project-identifier" content="{{ env('FRONTEND_DIRECTORY_PROJECT', 'business-directory') }}">
+        <meta name="APP_URL" content="{{ config('app.url') }}">
+        <meta name="cms-project-identifier" content="{{ config('app.frontend_cms_project', 'cms') }}">
+        <meta name="directory-project-identifier" content="{{ config('app.frontend_directory_project', 'business-directory') }}">
 
         <!-- <title>{{ env("APP_NAME") }}</title> -->
         <title>{{ config('app.name', 'Aine') }}</title>

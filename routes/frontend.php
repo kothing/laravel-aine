@@ -71,6 +71,4 @@ Route::get('up', [HealthController::class, 'up']);
 
 Route::get('/{any}', function () {
     return view('frontend.app');
-})->where('any', '^(?!admin|admin-api|api|install|update|storage|uploads|forms|settings|login|register|logout|forgot-password|reset-password|verify-email|confirm-password|email|_ignition|documents).*');
-
-require __DIR__.'/auth.php';
+})->where('any', '^(?!admin|admin-api|api|install|update|storage|uploads|forms|settings|login|register|logout|forgot-password|reset-password|verify-email|confirm-password|email|_ignition|documents).*';

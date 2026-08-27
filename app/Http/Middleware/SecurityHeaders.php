@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -34,6 +35,32 @@ class SecurityHeaders
         $response->headers->set(
             'Permissions-Policy',
             'camera=(), microphone=(), geolocation=()'
+        );
+
+        // Production-only: enforce HTTPS via HSTS.
+        if (App::isProduction()) {
+            $response->headers->set(
+                'Strict-Transport-Security',
+                'max-age=31536000; includeSubDomains'
+            );
+        }
+
+        // Content-Security-Policy: baseline policy that allows self-origin
+        // resources, inline styles (needed for TinyMCE + admin UI), and
+        // data: URIs (needed for TinyMCE base64 assets).
+        $response->headers->set(
+            'Content-Security-Policy',
+            "default-src 'self'; "
+            . "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
+            . "style-src 'self' 'unsafe-inline'; "
+            . "img-src 'self' data: blob: https:; "
+            . "font-src 'self' data:; "
+            . "frame-src 'self' https:; "
+            . "connect-src 'self' https:; "
+            . "media-src 'self'; "
+            . "object-src 'none'; "
+            . "base-uri 'self'; "
+            . "form-action 'self';"
         );
 
         if ($this->isFrameRestricted($request->path())) {

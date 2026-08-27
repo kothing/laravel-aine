@@ -1114,7 +1114,7 @@ export default {
                 })
                 .then((result) => {
                     if (result.isConfirmed) {
-                        axios.get("content/unpublish/" + this.$route.params.project_id + "/" + this.$route.params.col_id + "/" + this.$route.params.content_id).then((response) => {
+                        axios.post("content/unpublish/" + this.$route.params.project_id + "/" + this.$route.params.col_id + "/" + this.$route.params.content_id).then((response) => {
                             this.$toast.success(__('Content updated!'));
                             this.$router.go();
                         });

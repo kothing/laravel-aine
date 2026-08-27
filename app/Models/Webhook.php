@@ -32,6 +32,10 @@ class Webhook extends Model
         'status' => 'boolean',
     ];
 
+    protected $hidden = [
+        'secret',
+    ];
+
     public function project()
     {
         return $this->belongsTo('App\Models\Project');

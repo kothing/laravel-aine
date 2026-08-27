@@ -30,6 +30,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Frontend Project Identifiers
+    |--------------------------------------------------------------------------
+    |
+    | These project slugs are used by the frontend SPA to know which
+    | project to load as the CMS source and business-directory source
+    | without hard-coding them in the JavaScript bundle.
+    |
+    */
+
+    'frontend_cms_project' => env('FRONTEND_CMS_PROJECT', 'cms'),
+
+    'frontend_directory_project' => env('FRONTEND_DIRECTORY_PROJECT', 'business-directory'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |

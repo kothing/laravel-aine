@@ -35,6 +35,13 @@ class WebhookHelper
                 $project = Project::find($content['project_id']);
                 $collection = Collection::find($content['collection_id']);
 
+                // Guard against race conditions where the project or collection
+                // may have been deleted between the content event and webhook
+                // dispatch (e.g. when using a queue driver).
+                if (! $project || ! $collection) {
+                    continue;
+                }
+
                 $payload = [
                     'action' => $event,
                     'source' => $source,

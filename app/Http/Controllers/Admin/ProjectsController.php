@@ -247,7 +247,7 @@ class ProjectsController extends Controller
         $project->meta()->forceDelete();
 
         $project->media()->delete();
-        Storage::deleteDirectory($project->uuid);
+        Storage::disk($project->disk)->deleteDirectory($project->uuid);
 
         $project->tokens()->delete();
 

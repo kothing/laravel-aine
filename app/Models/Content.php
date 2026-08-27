@@ -27,6 +27,8 @@ class Content extends Model
         'collection_id' => 'integer',
         'form_id' => 'integer',
         'draft_parent_id' => 'integer',
+        'published_at' => 'datetime',
+        'scheduled_at' => 'datetime',
         'preview_expires_at' => 'datetime',
         // NOTE: created_by/updated_by/published_by are intentionally NOT
         // cast — ContentController@index temporarily replaces them with

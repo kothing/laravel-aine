@@ -6,7 +6,9 @@ use App\Aine\ContentSerializer;
 use App\Aine\HtmlSanitizer;
 use App\Aine\PublicCache;
 use App\Events\ContentCreated;
+use App\Events\ContentPublished;
 use App\Events\ContentTrashed;
+use App\Events\ContentUnpublished;
 use App\Events\ContentUpdated;
 use App\Http\Controllers\API\Concerns\AuthorizesProjectApi;
 use App\Http\Controllers\API\Concerns\HandlesBrowserCache;
@@ -338,6 +340,9 @@ class ContentController extends Controller
         );
 
         ContentCreated::dispatch(['source' => 'API', 'content' => $content]);
+        if ($content->isPublished()) {
+            ContentPublished::dispatch(['source' => 'API', 'content' => $content]);
+        }
         ContentSerializer::preload($content);
         return $this->created(new ContentResource($content), 'Content created successfully');
     }
@@ -404,6 +409,12 @@ class ContentController extends Controller
         );
 
         ContentUpdated::dispatch(['source' => 'API', 'content' => $content]);
+        $wasPublished = $content->getOriginal('published_at') !== null;
+        if ($content->isPublished() && ! $wasPublished) {
+            ContentPublished::dispatch(['source' => 'API', 'content' => $content]);
+        } elseif (! $content->isPublished() && $wasPublished) {
+            ContentUnpublished::dispatch(['source' => 'API', 'content' => $content]);
+        }
         ContentSerializer::preload($content);
         return $this->updated(new ContentResource($content), 'Content updated successfully');
     }
@@ -639,7 +650,8 @@ class ContentController extends Controller
         $metaSql = rtrim($metaSql, ',') . ' WHERE ';
         $num = 1;
         foreach ($where as $w) {
-            $metaSql .= ' m' . $num . ".project_id='" . $project->id . "' AND m" . $num . ".collection_id='" . $collection->id . "' AND ";
+            $metaSql .= ' m' . $num . '.project_id= ? AND m' . $num . '.collection_id= ? AND ';
+            $bind[] = $project->id; $bind[] = $collection->id;
             $num++;
         }
         $metaSql = rtrim($metaSql, ' AND ');
