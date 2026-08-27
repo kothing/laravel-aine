@@ -12,3 +12,10 @@ Homestead.yaml
 npm-debug.log
 yarn-error.log
 .DS_Store
+
+# Environment files must never be committed — they hold secrets (APP_KEY,
+# DB credentials, API keys). .env.example is the template and stays tracked.
+.env
+.env.backup
+.env.production
+.env.*.local

@@ -473,7 +473,7 @@ class ContentController extends Controller
         $sections = [];
         foreach ($categories as $category) {
             $related = $listFn(
-                $project->identifier, $collectionSlug,
+                $project->uuid, $collectionSlug,
                 ['limit' => 50, 'sort' => 'published_at:desc', 'timestamps' => true, 'state' => 'only_published'],
                 'categories', $category['id'] ?? null
             );

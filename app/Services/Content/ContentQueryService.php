@@ -51,7 +51,7 @@ class ContentQueryService
         $sections = [];
         foreach ($categories as $category) {
             $related = $listResolver(
-                $project->identifier,
+                $project->uuid,
                 'categories',
                 $category['id'] ?? null,
                 $collectionSlug,
