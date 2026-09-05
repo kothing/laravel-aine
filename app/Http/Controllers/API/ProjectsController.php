@@ -19,7 +19,7 @@ class ProjectsController extends Controller {
      * @param string $uuid
      * @return \App\Http\Resources\ProjectResource
      */
-    public function getProjectByUuid($uuid){
+    private function getProjectByUuid($uuid){
         $project = Project::where('uuid', $uuid)->first();
 
         if(!$project){

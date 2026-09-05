@@ -9,11 +9,12 @@ class Form extends Model
 {
     protected $table = 'forms';
 
-    protected $fillable = ['name', 'description', 'project_id', 'collection_id', 'submit_btn_text'];
+    protected $fillable = ['name', 'description', 'project_id', 'collection_id', 'submit_btn_text', 'fields'];
 
     protected $casts = [
         'project_id' => 'integer',
         'collection_id' => 'integer',
+        'fields' => 'array',
     ];
 
     protected static function boot()

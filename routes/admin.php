@@ -17,6 +17,8 @@ use App\Http\Controllers\Admin\AuditLogController;
 use App\Http\Controllers\Admin\NotificationsController;
 use App\Http\Controllers\Auth\TwoFactorController;
 use App\Http\Controllers\Frontend\FormController;
+use App\Http\Controllers\PreviewController;
+use App\Http\Controllers\Admin\WorkflowController;
 
 // API Routes - prefixed with /admin-api to avoid conflict with Vue Router
 Route::middleware('auth:web')->prefix('admin-api')->group(function(){
@@ -136,6 +138,12 @@ Route::middleware('auth:web')->prefix('admin-api')->group(function(){
         Route::post('/forms/save/{project_id}/{collection_id}/{form_id}', [FormController::class, 'save']);
         Route::delete('/forms/delete/{project_id}/{collection_id}/{form_id}', [FormController::class, 'delete']);
 
+        Route::post('/preview-token/{project_id}/{collection_id}/{content_id}', [PreviewController::class, 'generate']);
+
+        Route::post('/workflow/submit-review/{project_id}/{collection_id}/{content_id}', [WorkflowController::class, 'submitReview']);
+        Route::post('/workflow/approve/{project_id}/{collection_id}/{content_id}', [WorkflowController::class, 'approve']);
+        Route::post('/workflow/reject/{project_id}/{collection_id}/{content_id}', [WorkflowController::class, 'reject']);
+
         Route::get('/{project_id}/{collection_id}', [ContentController::class, 'index']);
         Route::get('/new/{project_id}/{collection_id}', [ContentController::class, 'new']);
         Route::post('/store/{project_id}/{collection_id}', [ContentController::class, 'store']);
@@ -145,7 +153,9 @@ Route::middleware('auth:web')->prefix('admin-api')->group(function(){
         Route::post('/import/{project_id}/{collection_id}', [ContentController::class, 'importContent']);
         Route::get('/revisions/{project_id}/{collection_id}/{content_id}', [ContentController::class, 'revisions']);
         Route::post('/revisions/{project_id}/{collection_id}/{content_id}/{revision_id}/restore', [ContentController::class, 'restoreRevision']);
-        Route::get('/unpublish/{project_id}/{collection_id}/{content_id}', [ContentController::class, 'unpublish']);
+        Route::post('/unpublish/{project_id}/{collection_id}/{content_id}', [ContentController::class, 'unpublish']);
+        Route::post('/publish-draft/{project_id}/{collection_id}/{content_id}', [ContentController::class, 'publishDraft']);
+        Route::delete('/discard-draft/{project_id}/{collection_id}/{content_id}', [ContentController::class, 'discardDraft']);
         Route::delete('/move-to-trash/{project_id}/{collection_id}/{content_id}', [ContentController::class, 'moveToTrash']);
         Route::delete('/delete/{project_id}/{collection_id}/{content_id}', [ContentController::class, 'delete']);
 

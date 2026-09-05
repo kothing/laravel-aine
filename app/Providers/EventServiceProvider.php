@@ -63,7 +63,8 @@ class EventServiceProvider extends ServiceProvider
             BumpPublicCache::class
         ],
         FormSubmitted::class => [
-            ProcessWebhooks::class
+            ProcessWebhooks::class,
+            BumpPublicCache::class
         ],
 
         // Runs `php artisan storage:link` as the final step of a fresh

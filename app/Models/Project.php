@@ -5,15 +5,16 @@ namespace App\Models;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Project extends Model
 {
-    use HasApiTokens, HasFactory;
+    use HasApiTokens, HasFactory, SoftDeletes;
 
     protected $table = "projects";
 
-    protected $fillable = ['name', 'slug', 'description', 'default_locale', 'locales', 'disk', 'public_api', 'domain_whitelist', 'status'];
+    protected $fillable = ['name', 'slug', 'description', 'default_locale', 'locales', 'disk', 'public_api', 'domain_whitelist', 'status', 'workflow_enabled'];
 
     protected $hidden = ['deleted_at'];
 
@@ -21,6 +22,7 @@ class Project extends Model
         'public_api' => 'boolean',
         'domain_whitelist' => 'array',
         'status' => 'boolean',
+        'workflow_enabled' => 'boolean',
     ];
 
     protected static function boot(){

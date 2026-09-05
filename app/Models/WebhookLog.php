@@ -18,5 +18,7 @@ class WebhookLog extends Model
 
     protected $casts = [
         'webhook_id' => 'integer',
+        'request' => 'array',
+        'response' => 'array',
     ];
 }

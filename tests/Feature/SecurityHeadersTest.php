@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 /**
- * Regression tests for the global SecurityHeaders middleware (P1-2).
+ * Regression tests for the global SecurityHeaders middleware.
  *
  * The public site must stay embeddable (embedded forms are loaded inside
  * third-party iframes), so it gets baseline headers but no frame

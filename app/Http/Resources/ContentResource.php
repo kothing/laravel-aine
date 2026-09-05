@@ -73,6 +73,8 @@ class ContentResource extends JsonResource
                         if(isset($options->repeatable) && $options->repeatable) {
                             if($field->type == 'number'){
                                 $result[$m->field_name][] = (float)$m->value;
+                            } elseif($field->type == 'block'){
+                                $result[$m->field_name][] = json_decode($m->value, true) ?? $m->value;
                             } else {
                                 $result[$m->field_name][] = $m->value;
                             }
@@ -109,9 +111,6 @@ class ContentResource extends JsonResource
                                     $relation = ContentSerializer::relationFor($content->project_id, (int)$m->value);
 
                                     if ($relation === null) {
-                                        // Mirrors the legacy output shape for a
-                                        // dangling single relation: an object
-                                        // with null id/locale.
                                         $result[$m->field_name] = ['id' => null, 'locale' => null];
                                     } else {
                                         $result[$m->field_name] = $this->expandRelation($content, (int)$m->value);
@@ -132,6 +131,8 @@ class ContentResource extends JsonResource
 
                                     $result[$m->field_name] = $relationItems;
                                 }
+                            } elseif($field->type == 'block'){
+                                $result[$m->field_name] = json_decode($m->value, true) ?? $m->value;
                             } else {
                                 $result[$m->field_name] = $m->value;
                             }

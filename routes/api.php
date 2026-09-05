@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\MediaController;
 use App\Http\Controllers\API\ContentController;
 use App\Http\Controllers\API\ProjectsController;
+use App\Http\Controllers\API\FeedController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,6 +27,12 @@ use App\Http\Controllers\API\ProjectsController;
 Route::middleware(['verify.domain.whitelist'])->prefix('project')->group(function () {
     // NOTE: /portal must be registered before /{slug}, otherwise "portal"
     Route::get('/{project_identifier}/portal', [ContentController::class, 'getPortalContent']);
+
+    // Literal-segment exposure feeds — registered before {slug} so they
+    // aren't captured as a collection slug.
+    Route::get('/{project_identifier}/sitemap.xml', [FeedController::class, 'sitemap']);
+    Route::get('/{project_identifier}/feed.xml', [FeedController::class, 'rss']);
+
     Route::get('/{project_identifier}/{slug}/{slug_id}/{related_slug}', [ContentController::class, 'getProjectContentByRelation']);
     //Search must be registered before the {slug_id} routes so "search" is not captured as an id
     Route::get('/{project_identifier}/{slug}/search', [ContentController::class, 'searchContent'])->middleware('throttle:api-search');
@@ -44,27 +51,27 @@ Route::middleware(['verify.domain.whitelist'])->prefix('project')->group(functio
 });
 
 // ============================================
-// Method 2: Original API (requires UUID + Token)
+// Method 2: UUID + Token API (backend-to-backend)
 // Use case: Laravel frontend projects, backend server calls
 // Security: All operations require UUID validation + Token authentication
 //           Prevents unauthorized cross-domain access from any website
 // ============================================
 Route::middleware(['validate.project.access', 'auth:sanctum'])->group(function () {
-    Route::get('/{uuid}/{slug}/{slug_id}/{related_slug}', [ContentController::class, 'getContentByRelationByUuid']);
+    Route::get('/{uuid}/{slug}/{slug_id}/{related_slug}', [ContentController::class, 'getProjectContentByRelation']);
     //Search must be registered before the {slug_id} routes so "search" is not captured as an id
-    Route::get('/{uuid}/{slug}/search', [ContentController::class, 'searchContentByUuid'])->middleware('throttle:api-search');
-    Route::get('/{uuid}/{slug}/{slug_id}', [ContentController::class, 'getContentByUuid']);
-    Route::get('/{uuid}/{slug}', [ContentController::class, 'getContentListByUuid']);
-    Route::get('/{uuid}', [ProjectsController::class, 'getProjectByUuid']);
-    Route::post('/{uuid}/{slug}', [ContentController::class, 'createContentByUuid'])->middleware('throttle:api-write');
-    Route::post('/{uuid}/{slug}/update/{slug_id}', [ContentController::class, 'updateContentByUuid'])->middleware('throttle:api-write');
-    Route::delete('/{uuid}/{slug}/{slug_id}', [ContentController::class, 'deleteContentByUuid'])->middleware('throttle:api-write');
+    Route::get('/{uuid}/{slug}/search', [ContentController::class, 'searchContent'])->middleware('throttle:api-search');
+    Route::get('/{uuid}/{slug}/{slug_id}', [ContentController::class, 'getProjectContentByID']);
+    Route::get('/{uuid}/{slug}', [ContentController::class, 'getContentList']);
+    Route::get('/{uuid}', [ProjectsController::class, 'getProject']);
+    Route::post('/{uuid}/{slug}', [ContentController::class, 'createContent'])->middleware('throttle:api-write');
+    Route::post('/{uuid}/{slug}/update/{slug_id}', [ContentController::class, 'updateContent'])->middleware('throttle:api-write');
+    Route::delete('/{uuid}/{slug}/{slug_id}', [ContentController::class, 'deleteContent'])->middleware('throttle:api-write');
 
-    Route::get('/{uuid}/project-media/name/{media_name}', [MediaController::class, 'getMediaByNameByUuid']);
-    Route::get('/{uuid}/project-media/{media_id}', [MediaController::class, 'getMediaByUuid']);
-    Route::get('/{uuid}/project-media', [MediaController::class, 'getMediaListByUuid']);
-    Route::delete('/{uuid}/project-media/{media_id}', [MediaController::class, 'deleteMediaByUuid'])->middleware('throttle:api-write');
-    Route::post('/{uuid}/project-media/upload', [MediaController::class, 'uploadMediaByUuid'])->middleware('throttle:api-write');
+    Route::get('/{uuid}/project-media/name/{media_name}', [MediaController::class, 'getMediaByName']);
+    Route::get('/{uuid}/project-media/{media_id}', [MediaController::class, 'getMediaByID']);
+    Route::get('/{uuid}/project-media', [MediaController::class, 'getMediaList']);
+    Route::delete('/{uuid}/project-media/{media_id}', [MediaController::class, 'deleteMedia'])->middleware('throttle:api-write');
+    Route::post('/{uuid}/project-media/upload', [MediaController::class, 'uploadMedia'])->middleware('throttle:api-write');
 });
 
 Route::options('{any}', function () {

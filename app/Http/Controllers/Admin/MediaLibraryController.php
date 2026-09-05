@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Aine\AuditLogger;
 use App\Aine\UploadGuard;
 use App\Http\Controllers\Controller;
 use Intervention\Image\ImageManager;
@@ -41,7 +42,7 @@ class MediaLibraryController extends Controller
 
         $php_post_max_size = $this->return_bytes(ini_get('post_max_size'));
         $php_upload_max_filesize = $this->return_bytes(ini_get('upload_max_filesize'));
-        $env_max_file_size = $this->return_bytes(env('MAX_FILE_SIZE', ));
+        $env_max_file_size = $this->return_bytes(config('uploads.max_file_size'));
 
         if($php_post_max_size < $php_upload_max_filesize){
             $max_file_size = $php_post_max_size;
@@ -158,6 +159,8 @@ class MediaLibraryController extends Controller
                 'disk' => $project->disk,
             ]);
 
+            AuditLogger::log('upload', 'media', $new_file->id, $new_file->name, null, $project->id);
+
             return response($new_file, 200);
         }
     }
@@ -192,7 +195,7 @@ class MediaLibraryController extends Controller
      */
     private function maxUploadBytes(): int
     {
-        $value = env('MAX_FILE_SIZE', '8M');
+        $value = config('uploads.max_file_size', '8M');
         $unit = strtoupper(substr((string) $value, -1));
         $size = (int) $value;
 
@@ -236,6 +239,8 @@ class MediaLibraryController extends Controller
 
         $file->delete();
 
+        AuditLogger::log('delete', 'media', $file_id, $file->name ?? null, null, $project->id);
+
         return response([], 200);
     }
 
@@ -274,6 +279,8 @@ class MediaLibraryController extends Controller
                 $file->delete();
             }
         }
+
+        AuditLogger::log('delete_selected', 'media', null, null, ['count' => count($request->get('files') ?? [])], $project->id);
     }
 
     /**
@@ -305,6 +312,8 @@ class MediaLibraryController extends Controller
             $media->caption = $request->get('caption');
             $media->save();
 
+            AuditLogger::log('update', 'media', $media->id, $media->name, null, $project->id);
+
             return response($media, 200);
         } else {
             $old_path = $storagePath.'/'.$media->name;
@@ -333,6 +342,8 @@ class MediaLibraryController extends Controller
             $media->name = $file_name;
             $media->caption = $request->get('caption');
             $media->save();
+
+            AuditLogger::log('update', 'media', $media->id, $media->name, null, $project->id);
 
             return response($media, 200);
         }

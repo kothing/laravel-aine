@@ -23,7 +23,7 @@ class MediaController extends Controller {
      * @param string $uuid
      * @return \App\Http\Resources\MediaResource
      */
-    public function getMediaListByUuid($uuid){
+    private function getMediaListByUuid($uuid){
         $project = Project::where('uuid', $uuid)->first();
         if(!$project){
             return $this->notFound('Project not found');
@@ -44,7 +44,7 @@ class MediaController extends Controller {
      * @param int $media_id
      * @return \App\Http\Resources\MediaResource
      */
-    public function getMediaByUuid($uuid, $media_id){
+    private function getMediaByUuid($uuid, $media_id){
         $project = Project::where('uuid', $uuid)->first();
         if(!$project){
             return $this->notFound('Project not found');
@@ -69,7 +69,7 @@ class MediaController extends Controller {
      * @param string $media_name
      * @return \App\Http\Resources\MediaResource
      */
-    public function getMediaByNameByUuid($uuid, $media_name){
+    private function getMediaByNameByUuid($uuid, $media_name){
         $project = Project::where('uuid', $uuid)->first();
         if(!$project){
             return $this->notFound('Project not found');
@@ -94,7 +94,7 @@ class MediaController extends Controller {
      * @param int $media_id
      * @return \Illuminate\Http\Response
      */
-    public function deleteMediaByUuid($uuid, $media_id){
+    private function deleteMediaByUuid($uuid, $media_id){
         if ($response = $this->authorizeProjectAbility('delete', $uuid)) {
             return $response;
         }
@@ -137,7 +137,7 @@ class MediaController extends Controller {
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function uploadMediaByUuid($uuid, Request $request){
+    private function uploadMediaByUuid($uuid, Request $request){
         if ($response = $this->authorizeProjectAbility('create', $uuid)) {
             return $response;
         }
@@ -152,7 +152,7 @@ class MediaController extends Controller {
 
             $php_post_max_size = $this->return_bytes(ini_get('post_max_size'));
             $php_upload_max_filesize = $this->return_bytes(ini_get('upload_max_filesize'));
-            $env_max_file_size = $this->return_bytes(env('MAX_FILE_SIZE', ));
+            $env_max_file_size = $this->return_bytes(config('uploads.max_file_size'));
 
             if($php_post_max_size < $php_upload_max_filesize){
                 $max_file_size = $php_post_max_size;
@@ -275,11 +275,11 @@ class MediaController extends Controller {
      * Get project media by explicit project identifier (UUID or slug)
      * Project is resolved by ValidateProjectAccess middleware and set on request attributes
      *
-     * @param string $projectIdentifier Project UUID or slug
+     * @param string $project_identifier Project UUID or slug
      * @param \Illuminate\Http\Request $request
      * @return \App\Http\Resources\MediaResource
      */
-    public function getMediaList($projectIdentifier, Request $request){
+    public function getMediaList($project_identifier, Request $request){
         $project = $request->attributes->get('resolved_project');
         
         if (!$project) {
@@ -293,7 +293,7 @@ class MediaController extends Controller {
      * Get media by ID using explicit project identifier (UUID or slug)
      * Project is resolved by ValidateProjectAccess middleware and set on request attributes
      *
-     * @param string $projectIdentifier Project UUID or slug
+     * @param string $project_identifier Project UUID or slug
      * @param int $media_id Media ID
      * @param \Illuminate\Http\Request $request
      * @return \App\Http\Resources\MediaResource

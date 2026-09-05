@@ -3,6 +3,7 @@
 use App\Jobs\PublishScheduledContent;
 use App\Models\Content;
 use App\Models\User;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
@@ -22,6 +23,7 @@ Artisan::command('aine:publish_scheduled', function () {
     Content::query()
         ->whereNotNull('scheduled_at')
         ->where('scheduled_at', '<=', $now)
+        ->whereNull('draft_parent_id')
         ->chunkById(100, function ($contents) use (&$count) {
             foreach ($contents as $content) {
                 PublishScheduledContent::dispatch($content);
@@ -34,6 +36,14 @@ Artisan::command('aine:publish_scheduled', function () {
 
 /**
  * Run the scheduled publishing every minute.
+ *
+ * ⚠️  PRODUCTION CRON REQUIRED — this schedule will NOT run on its own.
+ * Add the following crontab entry on every production server, otherwise
+ * content whose `scheduled_at` has passed will never be published:
+ *
+ *   * * * * * cd /path-to-project && php artisan schedule:run >> /dev/null 2>&1
+ *
+ * See README.md "Production deployment → Task scheduler" for full setup.
  */
 Schedule::call(function () {
     Artisan::call('aine:publish_scheduled');
@@ -50,16 +60,37 @@ Schedule::call(function () {
 |
 */
 Artisan::command('aine:create_super {name} {email} {password}', function(){
+    $email = strtolower($this->argument('email'));
+    $password = $this->argument('password');
+
+    // Email must be unique — fail clearly instead of throwing a DB
+    // unique-constraint exception, and point the user at the existing account.
+    if (User::where('email', $email)->exists()) {
+        $this->error("A user with email '{$email}' already exists.");
+        return Command::FAILURE;
+    }
+
+    // Reject empty / too-short passwords up front so the created account is
+    // not trivially guessable.
+    if (strlen($password) < 8) {
+        $this->error('Password must be at least 8 characters.');
+        return Command::FAILURE;
+    }
+
+    // Ensure the super_admin role exists (seeder normally creates it, but the
+    // command may run before seeding on a fresh install).
+    $role = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'super_admin']);
+
     $user = User::create([
         'name' => $this->argument('name'),
-        'email' => $this->argument('email'),
-        'password' => Hash::make($this->argument('password'),)
+        'email' => $email,
+        'password' => Hash::make($password),
     ]);
 
-    $user->assignRole('super_admin');
+    $user->assignRole($role);
 
     $this->info('New super admin created!');
-    
+
 })->describe('Create a new super admin account.');
 
 Artisan::command('aine:refresh', function() {

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Setting;
 use App\Http\Resources\SettingResource;
+use App\Aine\AuditLogger;
 
 class SettingsController extends Controller
 {
@@ -55,7 +56,9 @@ class SettingsController extends Controller
             $setting->version = $request->version ?? '';
             $setting->save();
         }
-        
+
+        AuditLogger::log('update', 'settings', $setting->id, $setting->name);
+
         return response()->json(['success' => true]);
     }
 }

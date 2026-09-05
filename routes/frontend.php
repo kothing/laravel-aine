@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\Frontend\FormController;
+use App\Http\Controllers\PreviewController;
+use App\Http\Controllers\MediaTransformController;
+use App\Http\Controllers\HealthController;
 
 Route::get('/', function () {
     return view('frontend.app');
@@ -14,7 +17,7 @@ Route::get('/settings', function () {
     return response()->json([
         'name' => $setting->name ?? config('app.name', 'Aine'),
         'description' => $setting->description ?? '',
-        'version' => $setting->version ?? env('APP_VERSION', '0.0.1'),
+        'version' => $setting->version ?? config('app.version', '0.0.1'),
     ]);
 });
 
@@ -61,9 +64,11 @@ Route::get('forms/{form_uuid}', [FormController::class, 'showEmbeded']);
 Route::post('forms/{form_uuid}', [FormController::class, 'getEmbeded']);
 Route::post('forms/submit/{form_uuid}', [FormController::class, 'submit'])->middleware('throttle:form-submit');
 Route::post('forms/{form_uuid}/upload', [FormController::class, 'upload'])->middleware('throttle:form-upload');
+Route::get('preview/{token}', [PreviewController::class, 'show'])->middleware('throttle:preview');
+Route::get('media/transform/{media_id}', [MediaTransformController::class, 'transform']);
+Route::get('health', [HealthController::class, 'health']);
+Route::get('up', [HealthController::class, 'up']);
 
 Route::get('/{any}', function () {
     return view('frontend.app');
 })->where('any', '^(?!admin|admin-api|api|install|update|storage|uploads|forms|settings|login|register|logout|forgot-password|reset-password|verify-email|confirm-password|email|_ignition|documents).*');
-
-require __DIR__.'/auth.php';

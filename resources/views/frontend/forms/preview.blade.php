@@ -13,7 +13,7 @@
     </head>
     <body class="font-sans antialiased">
         <div class="w-1/2 m-auto p-4 h-screen">
-            <div class="text-3xl mt-3">{{ env('APP_NAME') }}</div>
+            <div class="text-3xl mt-3">{{ config('app.name', 'Aine') }}</div>
 
             <div class="flex justify-between mt-10">
                 <div class="whitespace-nowrap w-1/3">

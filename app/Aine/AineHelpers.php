@@ -8,7 +8,7 @@ class AineHelpers
     {
         $php_post_max_size = self::returnBytes(ini_get('post_max_size'));
         $php_upload_max_filesize = self::returnBytes(ini_get('upload_max_filesize'));
-        $env_max_file_size = self::returnBytes(env('MAX_FILE_SIZE'));
+        $env_max_file_size = self::returnBytes(config('uploads.max_file_size'));
 
         if ($php_post_max_size < $php_upload_max_filesize) {
             $max_file_size = $php_post_max_size;
@@ -65,11 +65,11 @@ class AineHelpers
 
     public static function getSupportedFileTypes()
     {
-        return env('SUPPORTED_FILE_TYPES');
+        return config('uploads.supported_file_types');
     }
 
     public static function getSupportedFileMimes()
     {
-        return env('SUPPORTED_FILE_MIMES');
+        return config('uploads.supported_file_mimes');
     }
 }
