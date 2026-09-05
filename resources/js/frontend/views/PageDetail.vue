@@ -20,16 +20,20 @@
 
         <template v-else>
             <h1 class="mb-4 text-3xl font-bold leading-tight text-gray-900 sm:text-4xl">{{ page.title }}</h1>
-            <div class="page-body text-base leading-relaxed text-gray-800" v-html="page.content"></div>
+            <SsmlContent class="page-body text-base leading-relaxed text-gray-800" :content="page.content" />
         </template>
     </div>
 </template>
 
 <script>
 import { useFrontendStore } from "../store";
+import SsmlContent from "../../components/SsmlContent.vue";
 
 export default {
     name: "PageDetail",
+    components: {
+        SsmlContent,
+    },
     data() {
         return {
             page: null,
